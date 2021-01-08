@@ -19,6 +19,14 @@ impl KrakenAuth {
         }
     }
 
+    pub fn get_key(&self) -> String {
+        self.api_key.clone()
+    }
+
+    pub fn get_secret(&self) -> String {
+        self.api_secret.clone()
+    }
+
     fn format_params<T, U>(params: &IndexMap<T, U>) -> String
         where T: Display,
               U: Display

@@ -1,5 +1,6 @@
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
+use indexmap::map::IndexMap;
 
 #[derive(Deserialize, Serialize, Debug)]
 pub struct TradeBalance {
@@ -212,4 +213,6 @@ pub struct CanceldOrders {
     pending: u32,
 }
 
+pub fn get_account_balance() {
 
+}

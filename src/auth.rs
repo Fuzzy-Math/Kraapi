@@ -5,6 +5,7 @@ use crypto::mac::Mac;
 use crypto::sha2::{Sha256,Sha512};
 use indexmap::map::IndexMap;
 use std::fmt::Display;
+use std::time::{Duration, SystemTime};
 
 pub struct KrakenAuth {
     api_key: String,
@@ -19,36 +20,23 @@ impl KrakenAuth {
         }
     }
 
-    pub fn get_key(&self) -> String {
-        self.api_key.clone()
+    pub fn get_key(&self) -> &String {
+        &self.api_key
     }
 
-    pub fn get_secret(&self) -> String {
-        self.api_secret.clone()
+    pub fn get_secret(&self) -> &String {
+        &self.api_secret
     }
 
-    fn format_params<T, U>(params: &IndexMap<T, U>) -> String
-        where T: Display,
-              U: Display
-    {
-        let mut res = String::new();
-        for index in 0..params.len() {
-            let pair = params.get_index(index).unwrap();
-            if index == 0 {
-                res = format!("{}{}={}", res, pair.0, pair.1);
-            } else {
-                res = format!("{}&{}={}", res, pair.0, pair.1);
-            }
-        }
-        
-        return res;
+    pub fn nonce() -> String {
+        SystemTime::now()
+            .duration_since(SystemTime::UNIX_EPOCH)
+            .unwrap()
+            .as_nanos()
+            .to_string()
     }
 
-    pub fn sign<T, U>(&self, path: &str, nonce: &str, params: &IndexMap<T, U>) -> String
-        where T: Display,
-              U: Display
-    {
-        let params = Self::format_params(params);
+    pub fn sign(&self, path: &str, nonce: &str, params: &str) -> String {
         let api_secret = base64::decode(&self.api_secret).unwrap();
         let mut sha256 = Sha256::new();
         let mut hmac = Hmac::new(Sha512::new(), &api_secret);
@@ -69,8 +57,9 @@ impl KrakenAuth {
 #[cfg(test)]
 mod tests {
 
-    use super::*;
     use indexmap::map::IndexMap;
+    use super::*;
+    use crate::api;
 
     #[test]
     fn test_auth() {
@@ -82,7 +71,7 @@ mod tests {
         params.insert("nonce".to_string(), api_nonce.clone());
         params.insert("asset".to_string(), "xbt".to_string());
 
-        let signature = auth.sign(&api_path, &api_nonce, &params);
+        let signature = auth.sign(&api_path, &api_nonce, &api::private::format_params(&params));
 
         assert_eq!(signature, String::from("RdQzoXRC83TPmbERpFj0XFVArq0Hfadm0eLolmXTuN2R24hzIqtAnF/f7vSfW1tGt7xQOn8bjm+Ht+X0KrMwlA=="));
     }

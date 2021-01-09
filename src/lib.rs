@@ -1,6 +1,6 @@
-pub mod auth;
-mod api;
-mod client;
+mod auth;
+pub mod api;
+pub mod client;
 
 pub use api::private;
 pub use api::public;

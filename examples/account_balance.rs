@@ -3,14 +3,14 @@ use krakenapi::client::KrakenClient;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
-    //let client = KrakenClient::new(
-      //  "l2ln+ZDLJFx6EJb0UO8svBeZzk+7JLhpV1jdCgrxupEeQFsyuBIaF3bv",
-        //"x4pidRAMqi1s6zg2I3JbeR6C2OAr/BVataXf+hiNa9pbS8vTMndraTLg9O2cZa+hDfQPYtBjBN55NXo8kf/GcQ=="
-       // );
     let client = KrakenClient::new(
-        "HjiS5SPLVzwzKdKabggcME52AEAf6NMhKFmphH5bG6I7GFp4obsxRrRF",
-        "C8b+t5353uBz103dBnAtEQds6jkbc3NWSSVS01iwDxqRiV8w8UuuLQOF5eeKeqQ3i6WROp+RfH51/cUVZeywhQ=="
+        "KUah/CxtCrxxPwdGLrJ2n4U3iK4mj7kMec/F6Ka9+5YeuHLSxQG6fVUG",
+        "/8r4xWSGp1PJE64yz4j1icKZUjaRvEhc2pGmxUbVrkRFmAgEcA0O+CrN1zFR2TKUoBD2Ar3vKM9zyNb0+KH/UA=="
     );
+    //let client = KrakenClient::new(
+      //  "xcMeCo3qfu3kjujKxOek6UEjtoceOZC0CrYS9bs3M2ozTXe8qGftODux",
+        //"AapTPpkW+F4kTRDGMc9AoirfdwgPnzFL/iVH8fUGMMPvAftMRhjd0J0hqMIAmbk3RA3AmLdcxUtqc1Qu2weRyA=="
+    //);
 
     let res = private::get_account_balance(&client).await?;
     println!("Response: {}", res.status());

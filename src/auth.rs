@@ -29,14 +29,16 @@ impl KrakenAuth {
     }
 
     pub fn nonce() -> String {
-        SystemTime::now()
+        let duration = SystemTime::now()
             .duration_since(SystemTime::UNIX_EPOCH)
-            .unwrap()
-            .as_nanos()
-            .to_string()
+            .unwrap();
+        let nonce = (duration.as_secs() * 1_000_000u64) + u64::from(duration.subsec_micros());
+
+        (nonce as u64).to_string()
     }
 
     pub fn sign(&self, path: &str, nonce: &str, params: &str) -> String {
+        println!("{} - {} - {}", &path, &nonce, &params);
         let api_secret = base64::decode(&self.api_secret).unwrap();
         let mut sha256 = Sha256::new();
         let mut hmac = Hmac::new(Sha512::new(), &api_secret);

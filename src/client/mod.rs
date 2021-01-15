@@ -5,7 +5,7 @@ use hyper_tls::HttpsConnector;
 use super::auth::KrakenAuth;
 
 
-type HttpClient = Box<hyper::Client<HttpsConnector<HttpConnector>>>;
+type HttpClient = Box<hyper::Client<HttpsConnector<HttpConnector>, hyper::Body>>;
 
 pub struct KrakenClient {
     url: String,
@@ -16,12 +16,15 @@ pub struct KrakenClient {
 
 impl KrakenClient {
     pub fn new(key: &str, secret: &str) -> Self {
+        let https = HttpsConnector::new();
         KrakenClient {
             url: String::from("https://api.kraken.com"),
             version: String::from("0"),
             auth: KrakenAuth::new(&key, &secret),
             client: Box::new(Client::builder()
-                .build::<_, hyper::Body>(HttpsConnector::new()))
+                .pool_idle_timeout(None)
+                .http1_title_case_headers(true)
+                .build::<_, hyper::Body>(https))
         }
     }
 

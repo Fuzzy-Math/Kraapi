@@ -1,3 +1,4 @@
+use http::method::Method;
 use hyper::client::ResponseFuture;
 use hyper::header::{CONTENT_TYPE, USER_AGENT};
 use hyper::{Client, Request, Body};
@@ -261,52 +262,50 @@ pub fn get_account_balance(client: &KrakenClient) -> ResponseFuture {
     let endpoint = format!("/{}/{}/{}", client.get_version(), "private", "Balance");
     let mut params = IndexMap::new();
     params.insert("nonce", &nonce);
-    let signature = client.get_auth().sign(&endpoint, &nonce, &format_params(&params));
-    params.remove("nonce");
-    let full_path = match params.len() {
-        0 => format!("{}{}", client.get_url(), endpoint),
-        _ => format!("{}{}?{}", client.get_url(), endpoint, format_params(&params))
-    };
+    let format_params = format_params(&params);
+    let signature = client.get_auth().sign(&endpoint, &nonce, &format_params);
+    let full_url = format!("{}{}", client.get_url(), endpoint);
 
-    println!("{:?}", full_path);
     let mut request = Request::builder()
         .method("POST")
-        .uri(full_path)
-        .body(Body::empty())
-        .unwrap();
-    
-    request.headers_mut().insert(CONTENT_TYPE, "application/www-form-url-encoded".parse().unwrap());
-    request.headers_mut().insert(USER_AGENT, "hyper/0.13.9".parse().unwrap());
+        .uri(full_url)
+        .body(Body::from(format_params))
+        .expect("Failed to form a correct http request");
+
+    request.headers_mut().insert(USER_AGENT, "krakenapi/0.1 (Kraken Rust Client)".parse().unwrap());
     request.headers_mut().insert("API-Key", client.get_auth().get_key().parse().unwrap());
     request.headers_mut().insert("API-Sign", signature.parse().unwrap());
+    request.headers_mut().insert(CONTENT_TYPE, "application/x-www-form-urlencoded".parse().unwrap());
+
+    println!("{:?}", request);
 
     client.request(request)
 }
 
 pub fn get_trade_balance(client: &KrakenClient) -> ResponseFuture {
     let nonce = KrakenAuth::nonce();
+    let asset = String::from("xbt");
     println!("{:?}", nonce);
     let endpoint = format!("/{}/{}/{}", client.get_version(), "private", "TradeBalance");
     let mut params = IndexMap::new();
     params.insert("nonce", &nonce);
-    let signature = client.get_auth().sign(&endpoint, &nonce, &format_params(&params));
-    params.remove("nonce");
-    let full_path = match params.len() {
-        0 => format!("{}{}", client.get_url(), endpoint),
-        _ => format!("{}{}?{}", client.get_url(), endpoint, format_params(&params))
-    };
+    params.insert("asset", &asset);
+    let format_params = format_params(&params);
+    let signature = client.get_auth().sign(&endpoint, &nonce, &format_params);
+    let full_url = format!("{}{}", client.get_url(), endpoint);
 
-    println!("{:?}", full_path);
     let mut request = Request::builder()
         .method("POST")
-        .uri(full_path)
-        .body(Body::empty())
-        .unwrap();
+        .uri(full_url)
+        .body(Body::from(format_params))
+        .expect("Failed to form a correct http request");
     
-    request.headers_mut().insert(CONTENT_TYPE, "application/www-form-url-encoded".parse().unwrap());
-    request.headers_mut().insert(USER_AGENT, "hyper/0.13.9".parse().unwrap());
+    request.headers_mut().insert(CONTENT_TYPE, "application/x-www-form-urlencoded".parse().unwrap());
+    request.headers_mut().insert(USER_AGENT, "krakenapi/0.1 (Kraken Rust Client)".parse().unwrap());
     request.headers_mut().insert("API-Key", client.get_auth().get_key().parse().unwrap());
     request.headers_mut().insert("API-Sign", signature.parse().unwrap());
+
+    println!("{:?}", request);
 
     client.request(request)
 }
@@ -314,30 +313,27 @@ pub fn get_trade_balance(client: &KrakenClient) -> ResponseFuture {
 pub fn get_trade_volume(client: &KrakenClient) -> ResponseFuture {
     let nonce = KrakenAuth::nonce();
     println!("{:?}", nonce);
-    let endpoint = format!("/{}/{}/{}", client.get_version(), "private", "TradeBalance");
-    let xbt = "\"xbt\"".to_string();
-    //let xbt = r#"xbt"#.to_string(); 
+    let endpoint = format!("/{}/{}/{}", client.get_version(), "private", "TradeVolume");
+    let xbt = "xbtusd".to_string();
     let mut params = IndexMap::new();
     params.insert("nonce", &nonce);
     params.insert("pair", &xbt);
-    let signature = client.get_auth().sign(&endpoint, &nonce, &format_params(&params));
-    params.remove("nonce");
-    let full_path = match params.len() {
-        0 => format!("{}{}", client.get_url(), endpoint),
-        _ => format!("{}{}?{}", client.get_url(), endpoint, format_params(&params))
-    };
+    let format_params = format_params(&params);
+    let signature = client.get_auth().sign(&endpoint, &nonce, &format_params);
+    let full_url = format!("{}{}", client.get_url(), endpoint);
 
-    println!("{:?}", full_path);
     let mut request = Request::builder()
         .method("POST")
-        .uri(full_path)
-        .body(Body::empty())
-        .unwrap();
+        .uri(full_url)
+        .body(Body::from(format_params))
+        .expect("Failed to form a correct http request");
     
-    request.headers_mut().insert(CONTENT_TYPE, "application/www-form-url-encoded".parse().unwrap());
-    request.headers_mut().insert(USER_AGENT, "hyper/0.13.9".parse().unwrap());
+    request.headers_mut().insert(CONTENT_TYPE, "application/x-www-form-urlencoded".parse().unwrap());
+    request.headers_mut().insert(USER_AGENT, "krakenapi/0.1 (Kraken Rust Client)".parse().unwrap());
     request.headers_mut().insert("API-Key", client.get_auth().get_key().parse().unwrap());
     request.headers_mut().insert("API-Sign", signature.parse().unwrap());
+
+    println!("{:?}", request);
 
     client.request(request)
 }

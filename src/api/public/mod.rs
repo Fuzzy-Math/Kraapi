@@ -1,10 +1,11 @@
 use serde::{Serialize, Deserialize};
 use std::collections::HashMap;
+use std::iter::Iterator;
 use indexmap::map::IndexMap;
 
 use crate::auth::KrakenAuth;
 use crate::client::KrakenClient;
-use crate::api::{Input, KrakenInput, MethodType, EndpointInfo};
+use crate::api::{Input, KAsset, KAssetPair, KrakenInput, MethodType, EndpointInfo};
 
 pub struct KIServerTime();
 
@@ -41,22 +42,6 @@ impl Input for KISystemStatus {
     }
 }
 
-// TODO: Query AssetInfo endpoint and write script to fill out the
-// enum and trait impl
-pub enum KAsset {
-    USD,
-    XBT,
-}
-
-impl std::fmt::Display for KAsset {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        match self {
-            KAsset::USD => write!(f, "{}", "ZUSD"),
-            KAsset::XBT => write!(f, "{}", "XXBT"),
-        }
-    }
-}
-
 pub struct KIAssetInfo {
     pub params: IndexMap<String, String>,
 }
@@ -69,16 +54,39 @@ impl KIAssetInfo {
     }
 
     pub fn asset(mut self, asset: KAsset) -> KIAssetInfo {
+        self.format(asset);
+        self
+    }
+
+    // Fun stuff. If there exists a list of assets (previously called asset()), then iterate
+    // over the list and comma-delimit the items. If no list exists before calling asset_list(),
+    // first consume the first item and then recursivly consume the rest. Note the recursion consumes self 
+    // and is equivalent to chaining calls to pair()
+    pub fn asset_list<T>(mut self, pairs: T) -> KIAssetInfo 
+        where T: IntoIterator<Item = KAsset>,
+    {
+        match self.params.contains_key("asset") {
+            true => {
+                pairs.into_iter().for_each(|pair| self.format(pair));
+                self
+            },
+            false => {
+                let mut iter = pairs.into_iter();
+                self.params.insert(String::from("asset"), iter.next().unwrap().to_string());
+                self.asset_list(iter)
+            }
+        }
+    }
+
+    fn format(&mut self, asset: KAsset) {
         // Either create a new asset or chain multiple assets into a comma separated list
         match self.params.get_mut("asset") {
             Some(list) => {
                 // FIXME: Find a way to avoid extra allocation
                 *list = format!("{},{}", list, asset.to_string());
-                self
             },
             None => {
                 self.params.insert("asset".to_string(), asset.to_string());
-                self
             },
         }
     }

@@ -1,4 +1,5 @@
 use krakenapi::public::*;
+use krakenapi::api::*;
 use krakenapi::client::KrakenClient;
 use krakenapi::api::Input;
 
@@ -15,8 +16,9 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     );
 
     let asset_info = KIAssetInfo::build()
-        .asset(KAsset::XBT)
-        .asset(KAsset::USD)
+        //.asset(KAsset::XBT)
+        //.asset(KAsset::USD)
+        .asset_list(vec!(KAsset::XBT, KAsset::USD))
         .finish_input();
     let res = client.request(&asset_info).await?;
 

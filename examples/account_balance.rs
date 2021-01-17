@@ -1,4 +1,5 @@
 use krakenapi::private::*;
+use krakenapi::api::*;
 use krakenapi::client::KrakenClient;
 
 #[tokio::main]

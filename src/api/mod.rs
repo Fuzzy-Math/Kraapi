@@ -5,6 +5,40 @@ use std::fmt::{Debug,Display};
 pub mod public;
 pub mod private;
 
+// TODO: Query AssetInfo endpoint and write script to fill out the
+// enum and trait impl
+pub enum KAsset {
+    EUR,
+    USD,
+    XBT,
+    XRP,
+}
+
+impl std::fmt::Display for KAsset {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            KAsset::EUR => write!(f, "{}", "ZEUR"),
+            KAsset::USD => write!(f, "{}", "ZUSD"),
+            KAsset::XBT => write!(f, "{}", "XXBT"),
+            KAsset::XRP => write!(f, "{}", "XXRP"),
+        }
+    }
+}
+
+impl Debug for KAsset {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "{}", self.to_string().get(1..).unwrap())
+    }
+}
+
+pub struct KAssetPair(KAsset, KAsset);
+
+impl fmt::Display for KAssetPair {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "{}{}", self.0.to_string(), self.1.to_string())
+    }
+}
+
 pub(crate) enum MethodType {
     PRIVATE,
     PUBLIC,

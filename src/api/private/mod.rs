@@ -3,11 +3,12 @@ use hyper::client::ResponseFuture;
 use hyper::{Client, Request, Body};
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
+use std::iter::Iterator;
 use indexmap::map::IndexMap;
 
 use crate::auth::KrakenAuth;
 use crate::client::KrakenClient;
-use crate::api::{Input, KrakenInput, MethodType, EndpointInfo};
+use crate::api::{Input, KAsset, KAssetPair, KrakenInput, MethodType, EndpointInfo};
 
 pub struct KIAccountBalance();
 
@@ -28,11 +29,103 @@ impl Input for KIAccountBalance {
     }
 }
 
-pub struct KITradeBalance();
+pub struct KITradeBalance {
+    pub params: IndexMap<String, String>,
+}
 
 impl KITradeBalance {
-    pub fn build() -> Self {
-       KITradeBalance {} 
+    pub fn build() -> KITradeBalance {
+        KITradeBalance {
+            params: IndexMap::new()
+        }
+    }
+
+    pub fn asset(mut self, asset: KAsset) -> KITradeBalance {
+        // Either create a new asset or chain multiple assets into a comma separated list
+        match self.params.get_mut("asset") {
+            Some(list) => {
+                // FIXME: Find a way to avoid extra allocation
+                *list = format!("{},{}", list, asset.to_string());
+                self
+            },
+            None => {
+                self.params.insert("asset".to_string(), asset.to_string());
+                self
+            },
+        }
+    }
+}
+
+impl Input for KITradeBalance {
+    fn finish_input(self) -> KrakenInput {
+       KrakenInput {
+           info: EndpointInfo { methodtype: MethodType::PUBLIC, endpoint: String::from("Assets") },
+           params: Some(self.params)
+       }
+    }
+}
+
+pub struct KITradeVolume {
+    pub params: IndexMap<String, String>,
+}
+
+impl KITradeVolume {
+    pub fn build() -> KITradeVolume {
+        KITradeVolume {
+            params: IndexMap::new()
+        }
+    }
+
+    pub fn pair(mut self, pair: KAssetPair) -> KITradeVolume {
+        self.format(pair);
+        self
+    }
+
+    // Fun stuff. If there exists a list of asset pairs (previously called pair()), then iterate
+    // over the list and comma-delimit the items. If no list exists before calling pair_list(),
+    // first consume the first item and then recursivly consume the rest. Note the recursion consumes self 
+    // and is equivalent to chaining calls to pair()
+    pub fn pair_list<T>(mut self, pairs: T) -> KITradeVolume 
+        where T: IntoIterator<Item = KAssetPair>,
+    {
+        match self.params.contains_key("pair") {
+            true => {
+                pairs.into_iter().for_each(|pair| self.format(pair));
+                self
+            },
+            false => {
+                let mut iter = pairs.into_iter();
+                self.params.insert(String::from("pair"), iter.next().unwrap().to_string());
+                self.pair_list(iter)
+            }
+        }
+    }
+
+    pub fn with_fee_info(mut self) -> KITradeVolume {
+        self.params.insert(String::from("fee-info"), String::from("true"));
+        self
+    }
+
+    fn format(&mut self, pair: KAssetPair) {
+        // Either create a new asset pair or chain multiple asset pairs into a comma separated list
+        match self.params.get_mut("pair") {
+            Some(list) => {
+                // FIXME: Find a way to avoid extra allocation
+                *list = format!("{},{}", list, pair.to_string());
+            },
+            None => {
+                self.params.insert("pair".to_string(), pair.to_string());
+            },
+        }
+    }
+}
+
+impl Input for KITradeVolume {
+    fn finish_input(self) -> KrakenInput {
+       KrakenInput {
+           info: EndpointInfo { methodtype: MethodType::PRIVATE, endpoint: String::from("TradeVolume") },
+           params: Some(self.params)
+       }
     }
 }
 

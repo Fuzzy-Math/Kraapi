@@ -1,4 +1,4 @@
-use krakenapi::api::private;
+use krakenapi::private::*;
 use krakenapi::client::KrakenClient;
 
 #[tokio::main]
@@ -12,7 +12,9 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         //"AapTPpkW+F4kTRDGMc9AoirfdwgPnzFL/iVH8fUGMMPvAftMRhjd0J0hqMIAmbk3RA3AmLdcxUtqc1Qu2weRyA=="
     //);
 
-    let res = private::get_account_balance(&client).await?;
+    //let res = private::get_account_balance(&client).await?;
+    let account_balance = KIAccountBalance::build();
+    let res = client.request(&account_balance).await?;
     println!("Response: {}", res.status());
     println!("Headers: {:#?}\n", res.headers());
 

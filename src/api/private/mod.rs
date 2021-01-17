@@ -1,14 +1,40 @@
 use http::method::Method;
 use hyper::client::ResponseFuture;
-use hyper::header::{CONTENT_TYPE, USER_AGENT};
 use hyper::{Client, Request, Body};
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
-use std::fmt::{Debug,Display};
 use indexmap::map::IndexMap;
 
 use crate::auth::KrakenAuth;
 use crate::client::KrakenClient;
+use crate::api::{Input, KrakenInput, MethodType, EndpointInfo};
+
+pub struct KIAccountBalance();
+
+impl KIAccountBalance {
+    pub fn build() -> KrakenInput {
+        let account_balance = KIAccountBalance();
+        account_balance.finish_input()
+    }
+}
+impl Input for KIAccountBalance {
+    fn finish_input(self) -> KrakenInput {
+       let mut map = IndexMap::new();
+       map.insert("nonce".to_string(), KrakenAuth::nonce());
+       KrakenInput {
+           info: EndpointInfo { methodtype: MethodType::PRIVATE, endpoint: String::from("Balance") },
+           params: Some(map)
+       }
+    }
+}
+
+pub struct KITradeBalance();
+
+impl KITradeBalance {
+    pub fn build() -> Self {
+       KITradeBalance {} 
+    }
+}
 
 #[derive(Deserialize, Serialize, Debug)]
 pub struct TradeBalance {
@@ -221,23 +247,7 @@ pub struct CanceldOrders {
     pending: u32,
 }
 
-pub fn format_params<T, U>(params: &IndexMap<T, U>) -> String
-    where T: Display,
-          U: Display
-{
-    let mut res = String::new();
-    for index in 0..params.len() {
-        let pair = params.get_index(index).unwrap();
-        if index == 0 {
-            res = format!("{}{}={}", res, pair.0, pair.1);
-        } else {
-            res = format!("{}&{}={}", res, pair.0, pair.1);
-        }
-    }
-    
-    return res;
-}
-
+/*
 pub fn get_server_time(client: &KrakenClient) -> ResponseFuture {
     let mut time = Request::builder()
         .method("GET")
@@ -257,13 +267,10 @@ pub fn get_system_status(client: &KrakenClient) -> ResponseFuture {
 }
 
 pub fn get_account_balance(client: &KrakenClient) -> ResponseFuture {
-    let nonce = KrakenAuth::nonce();
-    println!("{:?}", nonce);
+    let input = KIAccountBalance::new();
     let endpoint = format!("/{}/{}/{}", client.get_version(), "private", "Balance");
-    let mut params = IndexMap::new();
-    params.insert("nonce", &nonce);
-    let format_params = format_params(&params);
-    let signature = client.get_auth().sign(&endpoint, &nonce, &format_params);
+    let format_params = format_params(&input.params);
+    let signature = client.get_auth().sign(&endpoint, &input.params.get("nonce").unwrap(), &format_params);
     let full_url = format!("{}{}", client.get_url(), endpoint);
 
     let mut request = Request::builder()
@@ -288,8 +295,8 @@ pub fn get_trade_balance(client: &KrakenClient) -> ResponseFuture {
     println!("{:?}", nonce);
     let endpoint = format!("/{}/{}/{}", client.get_version(), "private", "TradeBalance");
     let mut params = IndexMap::new();
-    params.insert("nonce", &nonce);
     params.insert("asset", &asset);
+    params.insert("nonce", &nonce);
     let format_params = format_params(&params);
     let signature = client.get_auth().sign(&endpoint, &nonce, &format_params);
     let full_url = format!("{}{}", client.get_url(), endpoint);
@@ -337,3 +344,4 @@ pub fn get_trade_volume(client: &KrakenClient) -> ResponseFuture {
 
     client.request(request)
 }
+*/

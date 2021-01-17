@@ -1,5 +1,97 @@
 use serde::{Serialize, Deserialize};
 use std::collections::HashMap;
+use indexmap::map::IndexMap;
+
+use crate::auth::KrakenAuth;
+use crate::client::KrakenClient;
+use crate::api::{Input, KrakenInput, MethodType, EndpointInfo};
+
+pub struct KIServerTime();
+
+impl KIServerTime {
+    pub fn build() -> KrakenInput {
+        let time = KIServerTime();
+        time.finish_input()
+    }
+}
+impl Input for KIServerTime {
+    fn finish_input(self) -> KrakenInput {
+       KrakenInput {
+           info: EndpointInfo { methodtype: MethodType::PUBLIC, endpoint: String::from("Time") },
+           params: None 
+       }
+    }
+}
+
+pub struct KISystemStatus();
+
+impl KISystemStatus {
+    pub fn build() -> KrakenInput {
+        let status = KISystemStatus();
+        status.finish_input()
+    }
+}
+
+impl Input for KISystemStatus {
+    fn finish_input(self) -> KrakenInput {
+       KrakenInput {
+           info: EndpointInfo { methodtype: MethodType::PUBLIC, endpoint: String::from("SystemStatus") },
+           params: None
+       }
+    }
+}
+
+// TODO: Query AssetInfo endpoint and write script to fill out the
+// enum and trait impl
+pub enum KAsset {
+    USD,
+    XBT,
+}
+
+impl std::fmt::Display for KAsset {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            KAsset::USD => write!(f, "{}", "ZUSD"),
+            KAsset::XBT => write!(f, "{}", "XXBT"),
+        }
+    }
+}
+
+pub struct KIAssetInfo {
+    pub params: IndexMap<String, String>,
+}
+
+impl KIAssetInfo {
+    pub fn build() -> KIAssetInfo {
+        KIAssetInfo {
+            params: IndexMap::new()
+        }
+    }
+
+    pub fn asset(mut self, asset: KAsset) -> KIAssetInfo {
+        // Either create a new asset or chain multiple assets into a comma separated list
+        match self.params.get_mut("asset") {
+            Some(list) => {
+                // FIXME: Find a way to avoid extra allocation
+                *list = format!("{},{}", list, asset.to_string());
+                self
+            },
+            None => {
+                self.params.insert("asset".to_string(), asset.to_string());
+                self
+            },
+        }
+    }
+}
+
+impl Input for KIAssetInfo {
+    fn finish_input(self) -> KrakenInput {
+       KrakenInput {
+           info: EndpointInfo { methodtype: MethodType::PUBLIC, endpoint: String::from("Assets") },
+           params: Some(self.params)
+       }
+    }
+}
 
 #[derive(Deserialize, Serialize, Debug)]
 pub struct Time {

@@ -1,9 +1,11 @@
-use hyper::{Body, Client};
+use hyper::{Body, Client, Request};
 use hyper::client::{HttpConnector, ResponseFuture};
+use hyper::header::{CONTENT_TYPE, USER_AGENT};
 use hyper_tls::HttpsConnector;
 
 use super::auth::KrakenAuth;
-
+use crate::api::{KrakenInput, MethodType};
+use crate::api;
 
 type HttpClient = Box<hyper::Client<HttpsConnector<HttpConnector>, hyper::Body>>;
 
@@ -52,8 +54,62 @@ impl KrakenClient {
         &self.auth
     }
 
+    /*
     pub fn request(&self, request: hyper::Request<hyper::Body>) -> ResponseFuture {
         self.client.request(request)
+    }
+    */
+    pub fn request(&self, input: &KrakenInput) -> ResponseFuture {
+        match input.get_info().get_type() {
+            MethodType::PUBLIC => {
+                let endpoint = format!("/{}/{}/{}", self.get_version(), 
+                    input.get_info().get_type().to_string(), input.get_info().get_endpoint());
+                let formatted_params = api::format_params(&input.get_params());
+                let full_url = match formatted_params {
+                    Some(params) => format!("{}{}?{}", self.get_url(), endpoint, &params),
+                    None => format!("{}{}", self.get_url(), endpoint),
+                };
+
+                let mut request = Request::builder()
+                    .method("GET")
+                    .uri(full_url)
+                    .body(Body::empty())
+                    .expect("Failed to form a correct http request");
+                
+                request.headers_mut().insert(USER_AGENT, "krakenapi/0.1 (Kraken Rust Client)".parse().unwrap());
+                request.headers_mut().insert(CONTENT_TYPE, "application/x-www-form-urlencoded".parse().unwrap());
+
+                println!("{:?}", request);
+                self.client.request(request)        
+            },
+            MethodType::PRIVATE => {
+                let endpoint = format!("/{}/{}/{}", self.get_version(), 
+                    input.get_info().get_type().to_string(), input.get_info().get_endpoint());
+                let params = input.get_params();
+                let formatted_params = api::format_params(&params).unwrap();
+                // FIXME: Clean up the details behind get_params(), format_params() and KrakenInput
+                // It seems to work but the references are fragile
+                let signature = self.get_auth().sign(&endpoint,
+                    &params.expect("Add nonce when building private methods")
+                    .get("nonce").expect("Add nonce when building private methods"), 
+                    &formatted_params);
+                let full_url = format!("{}{}", self.get_url(), endpoint);
+
+                let mut request = Request::builder()
+                    .method("POST")
+                    .uri(full_url)
+                    .body(Body::from(formatted_params))
+                    .expect("Failed to form a correct http request");
+
+                request.headers_mut().insert(USER_AGENT, "krakenapi/0.1 (Kraken Rust Client)".parse().unwrap());
+                request.headers_mut().insert(CONTENT_TYPE, "application/x-www-form-urlencoded".parse().unwrap());
+                request.headers_mut().insert("API-Key", self.get_auth().get_key().parse().unwrap());
+                request.headers_mut().insert("API-Sign", signature.parse().unwrap());
+
+                println!("{:?}", request);
+                self.client.request(request)
+            },
+        }
     }
 }
 

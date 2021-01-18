@@ -25,6 +25,19 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     // Concatenate the body stream into a single buffer...
     let buf = hyper::body::to_bytes(res).await?;
     println!("body: {:?}", buf);
+    println!();
+    println!();
+
+    let asset_pairs = KIAssetPairs::build()
+        .pair(KAssetPair(KAsset::EUR, KAsset::CAD))
+        .info(APairInfo::MARGIN)
+        .finish_input();
+    let res = client.request(&asset_pairs).await?;
+
+    // Concatenate the body stream into a single buffer...
+    let buf = hyper::body::to_bytes(res).await?;
+    println!("body: {:?}", buf);
+    
     Ok(())
 }
 

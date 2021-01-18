@@ -3,9 +3,7 @@ use crypto::digest::Digest;
 use crypto::hmac::Hmac;
 use crypto::mac::Mac;
 use crypto::sha2::{Sha256,Sha512};
-use indexmap::map::IndexMap;
-use std::fmt::Display;
-use std::time::{Duration, SystemTime};
+use std::time::SystemTime;
 
 pub struct KrakenAuth {
     api_key: String,

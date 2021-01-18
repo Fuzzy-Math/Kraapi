@@ -61,7 +61,7 @@ impl KrakenClient {
     */
     pub fn request(&self, input: &KrakenInput) -> ResponseFuture {
         match input.get_info().get_type() {
-            MethodType::PUBLIC => {
+            MethodType::Public => {
                 let endpoint = format!("/{}/{}/{}", self.get_version(), 
                     input.get_info().get_type().to_string(), input.get_info().get_endpoint());
                 let formatted_params = api::format_params(&input.get_params());
@@ -82,7 +82,7 @@ impl KrakenClient {
                 println!("{:?}", request);
                 self.client.request(request)        
             },
-            MethodType::PRIVATE => {
+            MethodType::Private => {
                 let endpoint = format!("/{}/{}/{}", self.get_version(), 
                     input.get_info().get_type().to_string(), input.get_info().get_endpoint());
                 let params = input.get_params();

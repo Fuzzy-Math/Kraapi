@@ -1,14 +1,9 @@
-use http::method::Method;
-use hyper::client::ResponseFuture;
-use hyper::{Client, Request, Body};
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
-use std::iter::Iterator;
 use indexmap::map::IndexMap;
 
 use crate::auth::KrakenAuth;
-use crate::client::KrakenClient;
-use crate::api::{Input, KAsset, KAssetPair, KrakenInput, MethodType, EndpointInfo};
+use crate::api::{Input, KrakenInput, MethodType, EndpointInfo, Asset, Pair, PairList};
 
 pub struct KIAccountBalance();
 
@@ -21,9 +16,9 @@ impl KIAccountBalance {
 impl Input for KIAccountBalance {
     fn finish_input(self) -> KrakenInput {
        let mut map = IndexMap::new();
-       map.insert("nonce".to_string(), KrakenAuth::nonce());
+       map.insert(String::from("nonce"), KrakenAuth::nonce());
        KrakenInput {
-           info: EndpointInfo { methodtype: MethodType::PRIVATE, endpoint: String::from("Balance") },
+           info: EndpointInfo { methodtype: MethodType::Private, endpoint: String::from("Balance") },
            params: Some(map)
        }
     }
@@ -40,27 +35,23 @@ impl KITradeBalance {
         }
     }
 
-    pub fn asset(mut self, asset: KAsset) -> KITradeBalance {
-        // Either create a new asset or chain multiple assets into a comma separated list
-        match self.params.get_mut("asset") {
-            Some(list) => {
-                // FIXME: Find a way to avoid extra allocation
-                *list = format!("{},{}", list, asset.to_string());
-                self
-            },
-            None => {
-                self.params.insert("asset".to_string(), asset.to_string());
-                self
-            },
-        }
+    fn with_nonce(mut self) -> Self {
+        self.params.insert(String::from("nonce"), KrakenAuth::nonce());
+        self
+    }
+}
+
+impl Asset for KITradeBalance {
+    fn get_list(&mut self) -> &mut IndexMap<String, String> {
+        &mut self.params
     }
 }
 
 impl Input for KITradeBalance {
     fn finish_input(self) -> KrakenInput {
-       KrakenInput {
-           info: EndpointInfo { methodtype: MethodType::PUBLIC, endpoint: String::from("Assets") },
-           params: Some(self.params)
+        KrakenInput {
+           info: EndpointInfo { methodtype: MethodType::Private, endpoint: String::from("TradeBalance") },
+           params: Some(self.with_nonce().params)
        }
     }
 }
@@ -70,61 +61,36 @@ pub struct KITradeVolume {
 }
 
 impl KITradeVolume {
-    pub fn build() -> KITradeVolume {
+    pub fn build() -> Self {
         KITradeVolume {
             params: IndexMap::new()
         }
     }
 
-    pub fn pair(mut self, pair: KAssetPair) -> KITradeVolume {
-        self.format(pair);
-        self
-    }
-
-    // Fun stuff. If there exists a list of asset pairs (previously called pair()), then iterate
-    // over the list and comma-delimit the items. If no list exists before calling pair_list(),
-    // first consume the first item and then recursivly consume the rest. Note the recursion consumes self 
-    // and is equivalent to chaining calls to pair()
-    pub fn pair_list<T>(mut self, pairs: T) -> KITradeVolume 
-        where T: IntoIterator<Item = KAssetPair>,
-    {
-        match self.params.contains_key("pair") {
-            true => {
-                pairs.into_iter().for_each(|pair| self.format(pair));
-                self
-            },
-            false => {
-                let mut iter = pairs.into_iter();
-                self.params.insert(String::from("pair"), iter.next().unwrap().to_string());
-                self.pair_list(iter)
-            }
-        }
-    }
-
-    pub fn with_fee_info(mut self) -> KITradeVolume {
+    pub fn with_fee_info(mut self) -> Self {
         self.params.insert(String::from("fee-info"), String::from("true"));
         self
     }
 
-    fn format(&mut self, pair: KAssetPair) {
-        // Either create a new asset pair or chain multiple asset pairs into a comma separated list
-        match self.params.get_mut("pair") {
-            Some(list) => {
-                // FIXME: Find a way to avoid extra allocation
-                *list = format!("{},{}", list, pair.to_string());
-            },
-            None => {
-                self.params.insert("pair".to_string(), pair.to_string());
-            },
-        }
+    fn with_nonce(mut self) -> Self {
+        self.params.insert(String::from("nonce"), KrakenAuth::nonce());
+        self
     }
 }
+
+impl Pair for KITradeVolume {
+    fn get_list(&mut self) -> &mut IndexMap<String, String> {
+        &mut self.params
+    }
+}
+
+impl PairList for KITradeVolume {}
 
 impl Input for KITradeVolume {
     fn finish_input(self) -> KrakenInput {
        KrakenInput {
-           info: EndpointInfo { methodtype: MethodType::PRIVATE, endpoint: String::from("TradeVolume") },
-           params: Some(self.params)
+           info: EndpointInfo { methodtype: MethodType::Private, endpoint: String::from("TradeVolume") },
+           params: Some(self.with_nonce().params)
        }
     }
 }

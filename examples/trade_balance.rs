@@ -1,5 +1,7 @@
-use krakenapi::api::private;
+use krakenapi::private::*;
 use krakenapi::client::KrakenClient;
+use krakenapi::api::*;
+use krakenapi::api::{Asset, AssetList};
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
@@ -14,7 +16,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     );
 
     //let res = private::get_trade_balance(&client).await?;
-    let trade_balance = KITradeBalance::build();
+    let trade_balance = KITradeBalance::build().for_asset_list(vec!(KAsset::USD, KAsset::EUR))
+        .finish_input();
     let res = client.request(&trade_balance).await?;
 
     // Concatenate the body stream into a single buffer...

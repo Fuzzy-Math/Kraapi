@@ -1,4 +1,6 @@
 use krakenapi::private::*;
+use krakenapi::api::*;
+use krakenapi::api::PairList;
 use krakenapi::client::KrakenClient;
 
 #[tokio::main]
@@ -13,8 +15,11 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         "AapTPpkW+F4kTRDGMc9AoirfdwgPnzFL/iVH8fUGMMPvAftMRhjd0J0hqMIAmbk3RA3AmLdcxUtqc1Qu2weRyA=="
     );
 */
-    let account_balance = KITradeVolume::build();
-    let res = client.request(&account_balance).await?;
+    let trade_volume = KITradeVolume::build()
+    .for_pair_list(vec!(KAssetPair(KAsset::EUR, KAsset::CAD), KAssetPair(KAsset::EUR, KAsset::AUD)))
+    .with_fee_info()
+    .finish_input();
+    let res = client.request(&trade_volume).await?;
 
     // Concatenate the body stream into a single buffer...
     let buf = hyper::body::to_bytes(res).await?;

@@ -105,6 +105,100 @@ impl fmt::Display for OHLCInt {
     }
 }
 
+pub enum OrderCloseTime {
+    Open,
+    Close,
+    Both,
+}
+
+impl fmt::Display for OrderCloseTime {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            OrderCloseTime::Open => write!(f, "{}", "open"),
+            OrderCloseTime::Close => write!(f, "{}", "close"),
+            OrderCloseTime::Both => write!(f, "{}", "both"),
+        }
+    }
+}
+
+pub enum TradeHistoryType {
+    All,
+    PosAny,
+    PosClosed,
+    PosClosing,
+    PosNone,
+}
+
+impl fmt::Display for TradeHistoryType {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            TradeHistoryType::All => write!(f, "{}", "all"),
+            TradeHistoryType::PosAny => write!(f, "{}", "any+position"),
+            TradeHistoryType::PosClosed => write!(f, "{}", "closed+position"),
+            TradeHistoryType::PosClosing => write!(f, "{}", "closing+position"),
+            TradeHistoryType::PosNone => write!(f, "{}", "no+position"),
+        }
+    }
+}
+
+pub enum LedgerType {
+    All,
+    Deposit,
+    Withdrawal,
+    Trade,
+    Margin,
+}
+
+impl fmt::Display for LedgerType {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            LedgerType::All => write!(f, "{}", "all"),
+            LedgerType::Deposit => write!(f, "{}", "deposit"),
+            LedgerType::Withdrawal => write!(f, "{}", "withdrawal"),
+            LedgerType::Trade => write!(f, "{}", "trade"),
+            LedgerType::Margin => write!(f, "{}", "margin"),
+        }
+    }
+}
+
+pub enum TransactionType {
+    Buy,
+    Sell,
+}
+
+impl fmt::Display for TransactionType {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            TransactionType::Buy => write!(f, "{}", "buy"),
+            TransactionType::Sell => write!(f, "{}", "sell"),
+        }
+    }
+}
+
+pub enum OrderType {
+    Market,
+    Limit,
+    StopLoss,
+    TakeProfit,
+    StopLossLimit,
+    TakeProfitLimit,
+    SettlePosition,
+}
+
+impl fmt::Display for OrderType {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            OrderType::Market => write!(f, "{}", "market"),
+            OrderType::Limit => write!(f, "{}", "limit"),
+            OrderType::StopLoss => write!(f, "{}", "stop-loss"),
+            OrderType::TakeProfit => write!(f, "{}", "take-profit"),
+            OrderType::StopLossLimit => write!(f, "{}", "stop-loss-limit"),
+            OrderType::TakeProfitLimit => write!(f, "{}", "take-profit-limit"),
+            OrderType::SettlePosition => write!(f, "{}", "settle-position"),
+        }
+    }
+}
+
 pub(crate) struct EndpointInfo {
     methodtype: MethodType,
     endpoint: String,
@@ -138,94 +232,115 @@ impl KrakenInput {
 }
 
 pub trait Input {
-    fn finish_input(self) -> KrakenInput;
+    fn finish(self) -> KrakenInput;
+    fn finish_clone(self) -> (KrakenInput, Self);
 }
 
-pub trait Pair {
-    fn get_list(&mut self) -> &mut IndexMap<String, String>;
+// Module privatemod is needed to prevent leakage into the public API
+pub(crate) mod privatemod {
+    use indexmap::map::IndexMap;
+    // This trait allows us to get a mutable reference to the input data 
+    pub trait MutateInput {
+        // Get mutable access to the input parameters of the implementing type
+        fn list_mut(&mut self) -> &mut IndexMap<String, String>;
+    }
 
-    fn for_pair(mut self, pair: KAssetPair) -> Self 
-        where Self: Sized
+    // Trait Inheritance from MutateInput. Everything that implements IntoInputList also needs
+    // to implement MutateInput but MutateInput needs to be able to be implmented on types not
+    // implementing IntoInputList or its children
+    pub trait IntoInputList : MutateInput {
+        // Resolve the name of the key associated with the given list
+        // Allows to be generic over asset lists, asset pair lists, etc.
+        fn list_name(&self) -> String; 
+    }
+}
+
+// This trait is used in the public API to expose a method for adding a single key value pair.
+// Not all endpoints allow a list of items even though the two endpoints share the item type, so we
+// need to present two traits to allow/disallow lists of items for each unique endpoint
+// ListItem is some type that we want to format like above (assets, assets pairs, transaction ids,
+// ledger ids)
+pub trait InputListItem : privatemod::IntoInputList {
+    type ListItem;
+
+    fn for_item(mut self, item: Self::ListItem) -> Self 
+        where Self: Sized,
+              Self::ListItem: Display,
     {
-        self.format(pair);
+        self.format_item(item);
         self
     }
 
-    fn format(&mut self, pair: KAssetPair) {
-        match self.get_list().get_mut("pair") {
+    fn format_item(&mut self, item: Self::ListItem) 
+        where Self::ListItem: Display
+    {
+        let listname = self.list_name();
+        match self.list_mut().get_mut(&listname) {
             Some(list) => {
-                *list = format!("{},{}", list, pair.to_string());
+                // Silently disallow adding the same input to the list multiple times
+                if list.contains(&item.to_string()) {
+                    return;
+                }
+
+                *list = format!("{},{}", list, item.to_string());
             },
             None => {
-                self.get_list().insert(String::from("pair"), pair.to_string());
+                self.list_mut().insert(listname, item.to_string());
             },
         }
     }
 }
 
-pub trait PairList : Pair { 
-    // Fun stuff. If there exists a list of asset pairs (previously called for_pair()), then iterate
-    // over the list and comma separate the items. If no list exists before calling for_pair_list(),
-    // first consume the first item and then recursivly consume the rest. Note the recursion consumes self 
-    // and is equivalent to chaining calls to for_pair()
-    fn for_pair_list<U>(mut self, pairs: U) -> Self
-        where U: IntoIterator<Item = KAssetPair>,
-              Self: Sized
+// Fun stuff. If there exists a list of items (previously called for_item()), then iterate
+// over the list and comma separate the items. If no list exists before calling for_item_list(),
+// first consume the first item and then recursivly consume the rest. Note the recursion consumes self 
+// and is equivalent to chaining calls to for_item()
+// for_item_list is just syntactic sugar for chaining calls to for_item(). Alternating calls to
+// either method would also work since they would just concatenate a list item
+pub trait InputList : InputListItem {
+    fn for_item_list<U>(mut self, items: U) -> Self
+        where U: IntoIterator<Item = Self::ListItem>,
+              Self: Sized,
+              Self::ListItem: Display,
     {
-        match self.get_list().contains_key("pair") {
+        let listname = self.list_name();
+        match self.list_mut().contains_key(&listname) {
             true => {
-                pairs.into_iter().for_each(|pair| self.format(pair));
+                items.into_iter().for_each(|item| self.format_item(item));
                 self
             },
             false => {
-                let mut iter = pairs.into_iter();
-                self.get_list().insert(String::from("pair"), iter.next().unwrap().to_string());
-                self.for_pair_list(iter)
+                let mut iter = items.into_iter();
+                match iter.next() {
+                    Some(val) => {
+                        self.list_mut().insert(listname, val.to_string());
+                        self.for_item_list(iter)
+                    },
+                    None => self,
+                }
             }
         }
     }
 }
 
-pub trait Asset {
-    fn get_list(&mut self) -> &mut IndexMap<String, String>;
-
-    fn for_asset(mut self, asset: KAsset) -> Self 
-        where Self: Sized
+// This trait works somwehat similar to InputListItem but the key difference is successive calls
+// into InputListItem::for_item() will always concatenate the value to the end of a comma delimited
+// array whereas UpdateInput will always overwrite the previous value or create a new key value
+// pair if the key doesn't exist yet
+// This is a crate internal
+pub(crate) trait UpdateInput : privatemod::MutateInput {
+    fn update_item<T>(mut self, key: &str, value: T) -> Self 
+        where Self: Sized,
+              T: Display,
     {
-        self.format(asset);
-        self
-    }
-
-    fn format(&mut self, asset: KAsset) {
-        match self.get_list().get_mut("asset") {
-            Some(list) => {
-                *list = format!("{},{}", list, asset.to_string());
-            },
-            None => {
-                self.get_list().insert(String::from("asset"), asset.to_string());
-            },
-        }
-    }
-}
-
-pub trait AssetList : Asset { 
-    // Fun stuff. If there exists a list of assets (previously called for_asset()), then iterate
-    // over the list and comma separate the items. If no list exists before calling for_asset_list(),
-    // first consume the first item and then recursivly consume the rest. Note the recursion consumes self 
-    // and is equivalent to chaining calls to for_asset()
-    fn for_asset_list<U>(mut self, assets: U) -> Self
-        where U: IntoIterator<Item = KAsset>,
-              Self: Sized
-    {
-        match self.get_list().contains_key("asset") {
-            true => {
-                assets.into_iter().for_each(|asset| self.format(asset));
+        match self.list_mut().get_mut(key) {
+            Some(key) => {
+                *key = value.to_string();
                 self
-            },
-            false => {
-                let mut iter = assets.into_iter();
-                self.get_list().insert(String::from("asset"), iter.next().unwrap().to_string());
-                self.for_asset_list(iter)
+            }
+            None => {
+                self.list_mut().insert(String::from(key), value.to_string());
+                self
             }
         }
     }

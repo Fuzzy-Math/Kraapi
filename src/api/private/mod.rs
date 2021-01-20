@@ -2,27 +2,71 @@ use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use indexmap::map::IndexMap;
 
-use crate::auth::KrakenAuth;
-use crate::api::{Input, KrakenInput, MethodType, EndpointInfo, Asset, Pair, PairList};
+use super::super::auth::KrakenAuth;
+// Structs/Enums
+use super::{
+    EndpointInfo, KAsset,
+    KAssetPair, KrakenInput,
+    LedgerType, MethodType,
+    OrderCloseTime, TradeHistoryType
+};
 
-pub struct KIAccountBalance();
+// Traits
+use super::{
+    InputList, InputListItem, Input, 
+    privatemod::IntoInputList, privatemod::MutateInput, 
+    UpdateInput
+};
+
+pub struct KIAccountBalance {
+    pub params: IndexMap<String, String>,
+}
 
 impl KIAccountBalance {
     pub fn build() -> KrakenInput {
-        let account_balance = KIAccountBalance();
-        account_balance.finish_input()
+        let account_balance = KIAccountBalance {
+            params: IndexMap::new()
+        };
+        account_balance.finish()
+    }
+
+    pub fn build_clone() -> (KrakenInput, Self) {
+        let account_balance = KIAccountBalance {
+            params: IndexMap::new()
+        };
+        account_balance.finish_clone()
+    }
+
+    fn with_nonce(self) -> Self {
+        self.update_item("nonce", KrakenAuth::nonce())
     }
 }
+
 impl Input for KIAccountBalance {
-    fn finish_input(self) -> KrakenInput {
-       let mut map = IndexMap::new();
-       map.insert(String::from("nonce"), KrakenAuth::nonce());
+    fn finish(self) -> KrakenInput {
        KrakenInput {
            info: EndpointInfo { methodtype: MethodType::Private, endpoint: String::from("Balance") },
-           params: Some(map)
+           params: Some(self.with_nonce().params)
        }
     }
+
+    fn finish_clone(self) -> (KrakenInput, Self) {
+       let newself = self.with_nonce();
+       (KrakenInput {
+       info: EndpointInfo { methodtype: MethodType::Private, endpoint: String::from("Balance") },
+       params: Some(newself.params.clone())
+       },
+       newself)
+    }
 }
+
+impl MutateInput for KIAccountBalance {
+    fn list_mut(&mut self) -> &mut IndexMap<String, String> {
+        &mut self.params
+    }
+}
+
+impl UpdateInput for KIAccountBalance {}
 
 pub struct KITradeBalance {
     pub params: IndexMap<String, String>,
@@ -35,26 +79,793 @@ impl KITradeBalance {
         }
     }
 
-    fn with_nonce(mut self) -> Self {
-        self.params.insert(String::from("nonce"), KrakenAuth::nonce());
-        self
+    // FIXME: All instances of with_nonce need to handle updating the nonce if the key-value
+    // already exists
+    fn with_nonce(self) -> Self {
+        self.update_item("nonce", KrakenAuth::nonce())
     }
 }
 
-impl Asset for KITradeBalance {
-    fn get_list(&mut self) -> &mut IndexMap<String, String> {
+impl MutateInput for KITradeBalance {
+    fn list_mut(&mut self) -> &mut IndexMap<String, String> {
         &mut self.params
     }
 }
 
+impl UpdateInput for KITradeBalance {}
+
+impl IntoInputList for KITradeBalance {
+    fn list_name(&self) -> String {
+        String::from("asset")
+    }
+}
+
+impl InputListItem for KITradeBalance {
+    type ListItem = KAsset;
+}
+
 impl Input for KITradeBalance {
-    fn finish_input(self) -> KrakenInput {
+    fn finish(self) -> KrakenInput {
         KrakenInput {
            info: EndpointInfo { methodtype: MethodType::Private, endpoint: String::from("TradeBalance") },
            params: Some(self.with_nonce().params)
        }
     }
+
+    fn finish_clone(self) -> (KrakenInput, Self) {
+       let newself = self.with_nonce();
+       (KrakenInput {
+           info: EndpointInfo { methodtype: MethodType::Private, endpoint: String::from("TradeBalance") },
+           params: Some(newself.params.clone())
+       },
+       newself)
+    }
 }
+
+pub struct KIOpenOrders {
+    pub params: IndexMap<String, String>,
+}
+
+impl KIOpenOrders {
+    pub fn build() -> Self {
+        KIOpenOrders {
+            params: IndexMap::new()
+        }
+    }
+
+    pub fn with_trade_info(mut self) -> Self {
+        self.params.insert(String::from("trades"), String::from("true"));
+        self
+    }
+
+    pub fn with_userref (mut self, userref: &str) -> Self {
+        match self.params.get_mut("userref") {
+            Some(uref) => {
+                *uref = userref.to_string();
+                self
+            }
+            None => {
+                self.params.insert(String::from("userref"), userref.to_string());
+                self
+            }
+        }
+    }
+
+    fn with_nonce(self) -> Self {
+        self.update_item("nonce", KrakenAuth::nonce())
+    }
+}
+
+impl Input for KIOpenOrders {
+    fn finish(self) -> KrakenInput {
+       KrakenInput {
+           info: EndpointInfo { methodtype: MethodType::Private, endpoint: String::from("OpenOrders") },
+           params: Some(self.with_nonce().params)
+       }
+    }
+
+    fn finish_clone(self) -> (KrakenInput, Self) {
+       let newself = self.with_nonce();
+       (KrakenInput {
+           info: EndpointInfo { methodtype: MethodType::Private, endpoint: String::from("OpenOrders") },
+           params: Some(newself.params.clone())
+       },
+       newself)
+    }
+}
+
+impl MutateInput for KIOpenOrders {
+    fn list_mut(&mut self) -> &mut IndexMap<String, String> {
+        &mut self.params
+    }
+}
+
+impl UpdateInput for KIOpenOrders {}
+
+pub struct KIClosedOrders {
+    pub params: IndexMap<String, String>,
+}
+
+impl KIClosedOrders {
+    pub fn build() -> Self {
+        KIClosedOrders {
+            params: IndexMap::new()
+        }
+    }
+
+    pub fn with_trade_info(mut self) -> Self {
+        self.params.insert(String::from("trades"), String::from("true"));
+        self
+    }
+
+    pub fn with_userref (mut self, userref: &str) -> Self {
+        match self.params.get_mut("userref") {
+            Some(uref) => {
+                *uref = userref.to_string();
+                self
+            }
+            None => {
+                self.params.insert(String::from("userref"), userref.to_string());
+                self
+            }
+        }
+    }
+
+    pub fn from_timestamp(mut self, timestamp: u64) -> Self {
+        match self.params.get_mut("start") {
+            Some(time) => {
+                *time = timestamp.to_string();
+                self
+            }
+            None => {
+                self.params.insert(String::from("start"), timestamp.to_string());
+                self
+            }
+        }
+    }
+
+    pub fn to_timestamp(mut self, timestamp: u64) -> Self {
+        match self.params.get_mut("end") {
+            Some(time) => {
+                *time = timestamp.to_string();
+                self
+            }
+            None => {
+                self.params.insert(String::from("end"), timestamp.to_string());
+                self
+            }
+        }
+    }
+
+    pub fn from_txid(mut self, txid: u64) -> Self {
+        match self.params.get_mut("start") {
+            Some(time) => {
+                *time = txid.to_string();
+                self
+            }
+            None => {
+                self.params.insert(String::from("start"), txid.to_string());
+                self
+            }
+        }
+    }
+
+    pub fn to_txid(mut self, txid: u64) -> Self {
+        match self.params.get_mut("end") {
+            Some(time) => {
+                *time = txid.to_string();
+                self
+            }
+            None => {
+                self.params.insert(String::from("end"), txid.to_string());
+                self
+            }
+        }
+    }
+
+    pub fn with_offset(mut self, offset: u64) -> Self {
+        match self.params.get_mut("ofs") {
+            Some(ofs) => {
+                *ofs = offset.to_string();
+                self
+            }
+            None => {
+                self.params.insert(String::from("ofs"), offset.to_string());
+                self
+            }
+        }
+    }
+
+    pub fn with_closetime(mut self, closetime: OrderCloseTime) -> Self {
+        match self.params.get_mut("closetime") {
+            Some(ct) => {
+                *ct = closetime.to_string();
+                self
+            }
+            None => {
+                self.params.insert(String::from("closetime"), closetime.to_string());
+                self
+            }
+        }
+
+    }
+
+    fn with_nonce(self) -> Self {
+        self.update_item("nonce", KrakenAuth::nonce())
+    }
+}
+
+impl Input for KIClosedOrders {
+    fn finish(self) -> KrakenInput {
+       KrakenInput {
+           info: EndpointInfo { methodtype: MethodType::Private, endpoint: String::from("ClosedOrders") },
+           params: Some(self.with_nonce().params)
+       }
+    }
+
+    fn finish_clone(self) -> (KrakenInput, Self) {
+       let newself = self.with_nonce();
+       (KrakenInput {
+           info: EndpointInfo { methodtype: MethodType::Private, endpoint: String::from("ClosedOrders") },
+           params: Some(newself.params.clone())
+       },
+       newself)
+    }
+}
+
+impl MutateInput for KIClosedOrders {
+    fn list_mut(&mut self) -> &mut IndexMap<String, String> {
+        &mut self.params
+    }
+}
+
+impl UpdateInput for KIClosedOrders {}
+
+pub struct KIOrderInfo {
+    pub params: IndexMap<String, String>,
+}
+
+impl KIOrderInfo {
+    pub fn build(txid: u64) -> Self {
+        let order_info = KIOrderInfo {
+            params: IndexMap::new()
+        };
+        order_info.for_item(txid)
+    }
+
+    pub fn build_with_list<T>(txids: T) -> Self
+        where T: IntoIterator<Item = u64>
+    {
+        let order_info = KIOrderInfo {
+            params: IndexMap::new()
+        };
+        order_info.for_item_list(txids)
+    }
+
+    pub fn with_trade_info(mut self) -> Self {
+        self.params.insert(String::from("trades"), String::from("true"));
+        self
+    }
+
+    pub fn with_userref (mut self, userref: &str) -> Self {
+        match self.params.get_mut("userref") {
+            Some(uref) => {
+                *uref = userref.to_string();
+                self
+            }
+            None => {
+                self.params.insert(String::from("userref"), userref.to_string());
+                self
+            }
+        }
+    }
+
+    fn with_nonce(self) -> Self {
+        self.update_item("nonce", KrakenAuth::nonce())
+    }
+}
+
+impl Input for KIOrderInfo {
+    fn finish(self) -> KrakenInput {
+       KrakenInput {
+           info: EndpointInfo { methodtype: MethodType::Private, endpoint: String::from("QueryOrders") },
+           params: Some(self.with_nonce().params)
+       }
+    }
+
+    fn finish_clone(self) -> (KrakenInput, Self) {
+       let newself = self.with_nonce();
+       (KrakenInput {
+           info: EndpointInfo { methodtype: MethodType::Private, endpoint: String::from("QueryOrders") },
+           params: Some(newself.params.clone())
+       },
+       newself)
+    }
+}
+
+impl MutateInput for KIOrderInfo {
+    fn list_mut(&mut self) -> &mut IndexMap<String, String> {
+        &mut self.params
+    }
+}
+
+impl UpdateInput for KIOrderInfo {}
+
+impl IntoInputList for KIOrderInfo {
+    fn list_name(&self) -> String {
+        String::from("txid")
+    }
+}
+
+impl InputListItem for KIOrderInfo {
+    type ListItem = u64;
+}
+
+impl InputList for KIOrderInfo {}
+
+pub struct KITradeHistory {
+    pub params: IndexMap<String, String>,
+}
+
+impl KITradeHistory {
+    pub fn build() -> Self {
+        KITradeHistory {
+            params: IndexMap::new()
+        }
+    }
+
+    pub fn with_trade_type(mut self, tradetype: TradeHistoryType) -> Self {
+        match self.params.get_mut("type") {
+            Some(ty) => {
+                *ty = tradetype.to_string();
+                self
+            }
+            None => {
+                self.params.insert(String::from("type"), tradetype.to_string());
+                self
+            }
+        }
+    }
+
+    pub fn with_trade_info(mut self) -> Self {
+        self.params.insert(String::from("trades"), String::from("true"));
+        self
+    }
+
+    pub fn from_timestamp(mut self, timestamp: u64) -> Self {
+        match self.params.get_mut("start") {
+            Some(time) => {
+                *time = timestamp.to_string();
+                self
+            }
+            None => {
+                self.params.insert(String::from("start"), timestamp.to_string());
+                self
+            }
+        }
+    }
+
+    pub fn to_timestamp(mut self, timestamp: u64) -> Self {
+        match self.params.get_mut("end") {
+            Some(time) => {
+                *time = timestamp.to_string();
+                self
+            }
+            None => {
+                self.params.insert(String::from("end"), timestamp.to_string());
+                self
+            }
+        }
+    }
+
+    pub fn from_txid(mut self, txid: u64) -> Self {
+        match self.params.get_mut("start") {
+            Some(time) => {
+                *time = txid.to_string();
+                self
+            }
+            None => {
+                self.params.insert(String::from("start"), txid.to_string());
+                self
+            }
+        }
+    }
+
+    pub fn to_txid(mut self, txid: u64) -> Self {
+        match self.params.get_mut("end") {
+            Some(time) => {
+                *time = txid.to_string();
+                self
+            }
+            None => {
+                self.params.insert(String::from("end"), txid.to_string());
+                self
+            }
+        }
+    }
+
+    pub fn with_offset(mut self, offset: u64) -> Self {
+        match self.params.get_mut("ofs") {
+            Some(ofs) => {
+                *ofs = offset.to_string();
+                self
+            }
+            None => {
+                self.params.insert(String::from("ofs"), offset.to_string());
+                self
+            }
+        }
+    }
+
+    fn with_nonce(self) -> Self {
+        self.update_item("nonce", KrakenAuth::nonce())
+    }
+}
+
+impl Input for KITradeHistory {
+    fn finish(self) -> KrakenInput {
+       KrakenInput {
+           info: EndpointInfo { methodtype: MethodType::Private, endpoint: String::from("TradesHistory") },
+           params: Some(self.with_nonce().params)
+       }
+    }
+
+    fn finish_clone(self) -> (KrakenInput, Self) {
+       let newself = self.with_nonce();
+       (KrakenInput {
+           info: EndpointInfo { methodtype: MethodType::Private, endpoint: String::from("TradesHistory") },
+           params: Some(newself.params.clone())
+       },
+       newself)
+    }
+}
+
+impl MutateInput for KITradeHistory {
+    fn list_mut(&mut self) -> &mut IndexMap<String, String> {
+        &mut self.params
+    }
+}
+
+impl UpdateInput for KITradeHistory {}
+
+pub struct KITradesInfo {
+    pub params: IndexMap<String, String>,
+}
+
+impl KITradesInfo {
+    pub fn build(txid: u64) -> Self {
+        let trades_info = KITradesInfo {
+            params: IndexMap::new()
+        };
+        trades_info.for_item(txid)
+    }
+
+    pub fn build_with_list<T>(txids: T) -> Self
+        where T: IntoIterator<Item = u64>
+    {
+        let trades_info = KITradesInfo {
+            params: IndexMap::new()
+        };
+        trades_info.for_item_list(txids)
+    }
+
+    pub fn with_trade_info(mut self) -> Self {
+        self.params.insert(String::from("trades"), String::from("true"));
+        self
+    }
+
+    fn with_nonce(self) -> Self {
+        self.update_item("nonce", KrakenAuth::nonce())
+    }
+}
+
+impl Input for KITradesInfo {
+    fn finish(self) -> KrakenInput {
+       KrakenInput {
+           info: EndpointInfo { methodtype: MethodType::Private, endpoint: String::from("QueryTrades") },
+           params: Some(self.with_nonce().params)
+       }
+    }
+
+    fn finish_clone(self) -> (KrakenInput, Self) {
+       let newself = self.with_nonce();
+       (KrakenInput {
+           info: EndpointInfo { methodtype: MethodType::Private, endpoint: String::from("QueryTrades") },
+           params: Some(newself.params.clone())
+       },
+       newself)
+    }
+}
+
+impl MutateInput for KITradesInfo {
+    fn list_mut(&mut self) -> &mut IndexMap<String, String> {
+        &mut self.params
+    }
+}
+
+impl UpdateInput for KITradesInfo {}
+
+impl IntoInputList for KITradesInfo {
+    fn list_name(&self) -> String {
+        String::from("txid")
+    }
+}
+
+impl InputListItem for KITradesInfo {
+    type ListItem = u64;
+}
+
+impl InputList for KITradesInfo {}
+
+pub struct KIOpenPositions {
+    pub params: IndexMap<String, String>,
+}
+
+impl KIOpenPositions {
+    pub fn build(txid: u64) -> Self {
+        let open_positions = KIOpenPositions {
+            params: IndexMap::new()
+        };
+        open_positions.for_item(txid)
+    }
+
+    pub fn build_with_list<T>(txids: T) -> Self
+        where T: IntoIterator<Item = u64>
+    {
+        let open_positions = KIOpenPositions {
+            params: IndexMap::new()
+        };
+        open_positions.for_item_list(txids)
+    }
+
+    pub fn do_cals(mut self) -> Self {
+        self.params.insert(String::from("docalcs"), String::from("true"));
+        self
+    }
+
+    pub fn consolidate(mut self) -> Self {
+        self.params.insert(String::from("consolidation"), String::from("market"));
+        self
+    }
+
+    fn with_nonce(self) -> Self {
+        self.update_item("nonce", KrakenAuth::nonce())
+    }
+}
+
+impl Input for KIOpenPositions {
+    fn finish(self) -> KrakenInput {
+       KrakenInput {
+           info: EndpointInfo { methodtype: MethodType::Private, endpoint: String::from("OpenPositions") },
+           params: Some(self.with_nonce().params)
+       }
+    }
+
+    fn finish_clone(self) -> (KrakenInput, Self) {
+       let newself = self.with_nonce();
+       (KrakenInput {
+           info: EndpointInfo { methodtype: MethodType::Private, endpoint: String::from("OpenPositions") },
+           params: Some(newself.params.clone())
+       },
+       newself)
+    }
+}
+
+impl MutateInput for KIOpenPositions {
+    fn list_mut(&mut self) -> &mut IndexMap<String, String> {
+        &mut self.params
+    }
+}
+
+impl UpdateInput for KIOpenPositions {}
+
+impl IntoInputList for KIOpenPositions {
+    fn list_name(&self) -> String {
+        String::from("txid")
+    }
+}
+
+impl InputListItem for KIOpenPositions {
+    type ListItem = u64;
+}
+
+impl InputList for KIOpenPositions {}
+
+pub struct KILedgerInfo {
+    pub params: IndexMap<String, String>,
+}
+
+impl KILedgerInfo {
+    pub fn build() -> Self {
+        KILedgerInfo {
+            params: IndexMap::new()
+        }
+    }
+
+    pub fn with_trade_type(mut self, ledgertype: LedgerType) -> Self {
+        match self.params.get_mut("type") {
+            Some(ty) => {
+                *ty = ledgertype.to_string();
+                self
+            }
+            None => {
+                self.params.insert(String::from("type"), ledgertype.to_string());
+                self
+            }
+        }
+    }
+
+    pub fn from_timestamp(mut self, timestamp: u64) -> Self {
+        match self.params.get_mut("start") {
+            Some(time) => {
+                *time = timestamp.to_string();
+                self
+            }
+            None => {
+                self.params.insert(String::from("start"), timestamp.to_string());
+                self
+            }
+        }
+    }
+
+    pub fn to_timestamp(mut self, timestamp: u64) -> Self {
+        match self.params.get_mut("end") {
+            Some(time) => {
+                *time = timestamp.to_string();
+                self
+            }
+            None => {
+                self.params.insert(String::from("end"), timestamp.to_string());
+                self
+            }
+        }
+    }
+
+    pub fn from_txid(mut self, txid: u64) -> Self {
+        match self.params.get_mut("start") {
+            Some(time) => {
+                *time = txid.to_string();
+                self
+            }
+            None => {
+                self.params.insert(String::from("start"), txid.to_string());
+                self
+            }
+        }
+    }
+
+    pub fn to_txid(mut self, txid: u64) -> Self {
+        match self.params.get_mut("end") {
+            Some(time) => {
+                *time = txid.to_string();
+                self
+            }
+            None => {
+                self.params.insert(String::from("end"), txid.to_string());
+                self
+            }
+        }
+    }
+
+    pub fn with_offset(mut self, offset: u64) -> Self {
+        match self.params.get_mut("ofs") {
+            Some(ofs) => {
+                *ofs = offset.to_string();
+                self
+            }
+            None => {
+                self.params.insert(String::from("ofs"), offset.to_string());
+                self
+            }
+        }
+    }
+
+    fn with_nonce(self) -> Self {
+        self.update_item("nonce", KrakenAuth::nonce())
+    }
+}
+
+impl Input for KILedgerInfo {
+    fn finish(self) -> KrakenInput {
+       KrakenInput {
+           info: EndpointInfo { methodtype: MethodType::Private, endpoint: String::from("Ledgers") },
+           params: Some(self.with_nonce().params)
+       }
+    }
+
+    fn finish_clone(self) -> (KrakenInput, Self) {
+       let newself = self.with_nonce();
+       (KrakenInput {
+           info: EndpointInfo { methodtype: MethodType::Private, endpoint: String::from("Ledgers") },
+           params: Some(newself.params.clone())
+       },
+       newself)
+    }
+}
+
+impl MutateInput for KILedgerInfo {
+    fn list_mut(&mut self) -> &mut IndexMap<String, String> {
+        &mut self.params
+    }
+}
+
+impl UpdateInput for KILedgerInfo {}
+
+impl IntoInputList for KILedgerInfo {
+    fn list_name(&self) -> String {
+        String::from("asset")
+    }
+}
+
+impl InputListItem for KILedgerInfo {
+    type ListItem = KAsset;
+}
+
+impl InputList for KILedgerInfo {}
+
+pub struct KIQueryLedgers {
+    pub params: IndexMap<String, String>,
+}
+
+impl KIQueryLedgers {
+    pub fn build(txid: u64) -> Self {
+        let trades_info = KIQueryLedgers {
+            params: IndexMap::new()
+        };
+        trades_info.for_item(txid)
+    }
+
+    pub fn build_with_list<T>(txids: T) -> Self
+        where T: IntoIterator<Item = u64>
+    {
+        let trades_info = KIQueryLedgers {
+            params: IndexMap::new()
+        };
+        trades_info.for_item_list(txids)
+    }
+
+    fn with_nonce(self) -> Self {
+        self.update_item("nonce", KrakenAuth::nonce())
+    }
+}
+
+impl Input for KIQueryLedgers {
+    fn finish(self) -> KrakenInput {
+       KrakenInput {
+           info: EndpointInfo { methodtype: MethodType::Private, endpoint: String::from("QueryLedgers") },
+           params: Some(self.with_nonce().params)
+       }
+    }
+
+    fn finish_clone(self) -> (KrakenInput, Self) {
+       let newself = self.with_nonce();
+       (KrakenInput {
+           info: EndpointInfo { methodtype: MethodType::Private, endpoint: String::from("QueryLedgers") },
+           params: Some(newself.params.clone())
+       },
+       newself)
+    }
+}
+
+impl MutateInput for KIQueryLedgers {
+    fn list_mut(&mut self) -> &mut IndexMap<String, String> {
+        &mut self.params
+    }
+}
+
+impl UpdateInput for KIQueryLedgers {}
+
+impl IntoInputList for KIQueryLedgers {
+    fn list_name(&self) -> String {
+        String::from("id")
+    }
+}
+
+impl InputListItem for KIQueryLedgers {
+    type ListItem = u64;
+}
+
+impl InputList for KIQueryLedgers {}
 
 pub struct KITradeVolume {
     pub params: IndexMap<String, String>,
@@ -72,26 +883,46 @@ impl KITradeVolume {
         self
     }
 
-    fn with_nonce(mut self) -> Self {
-        self.params.insert(String::from("nonce"), KrakenAuth::nonce());
-        self
+    fn with_nonce(self) -> Self {
+        self.update_item("nonce", KrakenAuth::nonce())
     }
 }
 
-impl Pair for KITradeVolume {
-    fn get_list(&mut self) -> &mut IndexMap<String, String> {
+impl MutateInput for KITradeVolume {
+    fn list_mut(&mut self) -> &mut IndexMap<String, String> {
         &mut self.params
     }
 }
 
-impl PairList for KITradeVolume {}
+impl UpdateInput for KITradeVolume {}
+
+impl IntoInputList for KITradeVolume {
+    fn list_name(&self) -> String {
+        String::from("pair")
+    }
+}
+
+impl InputListItem for KITradeVolume {
+    type ListItem = KAssetPair;
+}
+
+impl InputList for KITradeVolume {}
 
 impl Input for KITradeVolume {
-    fn finish_input(self) -> KrakenInput {
+    fn finish(self) -> KrakenInput {
        KrakenInput {
            info: EndpointInfo { methodtype: MethodType::Private, endpoint: String::from("TradeVolume") },
            params: Some(self.with_nonce().params)
        }
+    }
+
+    fn finish_clone(self) -> (KrakenInput, Self) {
+       let newself = self.with_nonce();
+       (KrakenInput {
+           info: EndpointInfo { methodtype: MethodType::Private, endpoint: String::from("TradeVolume") },
+           params: Some(newself.params.clone())
+       },
+       newself)
     }
 }
 
@@ -306,101 +1137,3 @@ pub struct CanceldOrders {
     pending: u32,
 }
 
-/*
-pub fn get_server_time(client: &KrakenClient) -> ResponseFuture {
-    let mut time = Request::builder()
-        .method("GET")
-        .uri("https://api.kraken.com/0/public/Time")
-        .body(Body::empty())
-        .unwrap();
-    client.request(time)
-}
-
-pub fn get_system_status(client: &KrakenClient) -> ResponseFuture {
-    let mut status = Request::builder()
-        .method("GET")
-        .uri("https://api.kraken.com/0/public/SystemStatus")
-        .body(Body::empty())
-        .unwrap();
-    client.request(status)
-}
-
-pub fn get_account_balance(client: &KrakenClient) -> ResponseFuture {
-    let input = KIAccountBalance::new();
-    let endpoint = format!("/{}/{}/{}", client.get_version(), "private", "Balance");
-    let format_params = format_params(&input.params);
-    let signature = client.get_auth().sign(&endpoint, &input.params.get("nonce").unwrap(), &format_params);
-    let full_url = format!("{}{}", client.get_url(), endpoint);
-
-    let mut request = Request::builder()
-        .method("POST")
-        .uri(full_url)
-        .body(Body::from(format_params))
-        .expect("Failed to form a correct http request");
-
-    request.headers_mut().insert(USER_AGENT, "krakenapi/0.1 (Kraken Rust Client)".parse().unwrap());
-    request.headers_mut().insert("API-Key", client.get_auth().get_key().parse().unwrap());
-    request.headers_mut().insert("API-Sign", signature.parse().unwrap());
-    request.headers_mut().insert(CONTENT_TYPE, "application/x-www-form-urlencoded".parse().unwrap());
-
-    println!("{:?}", request);
-
-    client.request(request)
-}
-
-pub fn get_trade_balance(client: &KrakenClient) -> ResponseFuture {
-    let nonce = KrakenAuth::nonce();
-    let asset = String::from("xbt");
-    println!("{:?}", nonce);
-    let endpoint = format!("/{}/{}/{}", client.get_version(), "private", "TradeBalance");
-    let mut params = IndexMap::new();
-    params.insert("asset", &asset);
-    params.insert("nonce", &nonce);
-    let format_params = format_params(&params);
-    let signature = client.get_auth().sign(&endpoint, &nonce, &format_params);
-    let full_url = format!("{}{}", client.get_url(), endpoint);
-
-    let mut request = Request::builder()
-        .method("POST")
-        .uri(full_url)
-        .body(Body::from(format_params))
-        .expect("Failed to form a correct http request");
-    
-    request.headers_mut().insert(CONTENT_TYPE, "application/x-www-form-urlencoded".parse().unwrap());
-    request.headers_mut().insert(USER_AGENT, "krakenapi/0.1 (Kraken Rust Client)".parse().unwrap());
-    request.headers_mut().insert("API-Key", client.get_auth().get_key().parse().unwrap());
-    request.headers_mut().insert("API-Sign", signature.parse().unwrap());
-
-    println!("{:?}", request);
-
-    client.request(request)
-}
-
-pub fn get_trade_volume(client: &KrakenClient) -> ResponseFuture {
-    let nonce = KrakenAuth::nonce();
-    println!("{:?}", nonce);
-    let endpoint = format!("/{}/{}/{}", client.get_version(), "private", "TradeVolume");
-    let xbt = "xbtusd".to_string();
-    let mut params = IndexMap::new();
-    params.insert("nonce", &nonce);
-    params.insert("pair", &xbt);
-    let format_params = format_params(&params);
-    let signature = client.get_auth().sign(&endpoint, &nonce, &format_params);
-    let full_url = format!("{}{}", client.get_url(), endpoint);
-
-    let mut request = Request::builder()
-        .method("POST")
-        .uri(full_url)
-        .body(Body::from(format_params))
-        .expect("Failed to form a correct http request");
-    
-    request.headers_mut().insert(CONTENT_TYPE, "application/x-www-form-urlencoded".parse().unwrap());
-    request.headers_mut().insert(USER_AGENT, "krakenapi/0.1 (Kraken Rust Client)".parse().unwrap());
-    request.headers_mut().insert("API-Key", client.get_auth().get_key().parse().unwrap());
-    request.headers_mut().insert("API-Sign", signature.parse().unwrap());
-
-    println!("{:?}", request);
-
-    client.request(request)
-}
-*/

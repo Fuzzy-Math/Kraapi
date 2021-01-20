@@ -2,23 +2,41 @@ use serde::{Serialize, Deserialize};
 use std::collections::HashMap;
 use indexmap::map::IndexMap;
 
-use crate::api::{AssetPairInfo, Input, KAssetPair, KrakenInput, OHLCInt, MethodType, EndpointInfo,
-Asset, AssetList, Pair, PairList};
+use super::{
+    AssetPairInfo, InputList, InputListItem,
+    EndpointInfo, Input, KAsset, 
+    KAssetPair, KrakenInput, 
+    privatemod::{IntoInputList, MutateInput}, OHLCInt, MethodType
+};
 
 pub struct KIServerTime();
 
 impl KIServerTime {
     pub fn build() -> KrakenInput {
         let time = KIServerTime();
-        time.finish_input()
+        time.finish()
+    }
+
+    pub fn build_clone() -> (KrakenInput, Self) {
+        let time = KIServerTime();
+        time.finish_clone()
     }
 }
+
 impl Input for KIServerTime {
-    fn finish_input(self) -> KrakenInput {
+    fn finish(self) -> KrakenInput {
        KrakenInput {
            info: EndpointInfo { methodtype: MethodType::Public, endpoint: String::from("Time") },
            params: None 
        }
+    }
+
+    fn finish_clone(self) -> (KrakenInput, Self) {
+        (KrakenInput {
+           info: EndpointInfo { methodtype: MethodType::Public, endpoint: String::from("Time") },
+           params: None 
+        },
+        self)
     }
 }
 
@@ -27,16 +45,29 @@ pub struct KISystemStatus();
 impl KISystemStatus {
     pub fn build() -> KrakenInput {
         let status = KISystemStatus();
-        status.finish_input()
+        status.finish()
+    }
+
+    pub fn build_clone() -> (KrakenInput, Self) {
+        let status = KISystemStatus();
+        status.finish_clone()
     }
 }
 
 impl Input for KISystemStatus {
-    fn finish_input(self) -> KrakenInput {
+    fn finish(self) -> KrakenInput {
        KrakenInput {
            info: EndpointInfo { methodtype: MethodType::Public, endpoint: String::from("SystemStatus") },
            params: None
        }
+    }
+
+    fn finish_clone(self) -> (KrakenInput, Self) {
+       (KrakenInput {
+           info: EndpointInfo { methodtype: MethodType::Public, endpoint: String::from("SystemStatus") },
+           params: None
+       },
+       self)
     }
 }
 
@@ -53,21 +84,39 @@ impl KIAssetInfo {
 }
 
 impl Input for KIAssetInfo {
-    fn finish_input(self) -> KrakenInput {
+    fn finish(self) -> KrakenInput {
        KrakenInput {
            info: EndpointInfo { methodtype: MethodType::Public, endpoint: String::from("Assets") },
            params: Some(self.params)
        }
     }
+
+    fn finish_clone(self) -> (KrakenInput, Self) {
+       (KrakenInput {
+           info: EndpointInfo { methodtype: MethodType::Public, endpoint: String::from("Assets") },
+           params: Some(self.params.clone())
+       },
+       self)
+    }
 }
 
-impl Asset for KIAssetInfo {
-    fn get_list(&mut self) -> &mut IndexMap<String, String> {
+impl MutateInput for KIAssetInfo {
+    fn list_mut(&mut self) -> &mut IndexMap<String, String> {
         &mut self.params
     }
 }
 
-impl AssetList for KIAssetInfo {}
+impl IntoInputList for KIAssetInfo {
+    fn list_name(&self) -> String {
+        String::from("asset")
+    }
+}
+
+impl InputListItem for KIAssetInfo {
+    type ListItem = KAsset;
+}
+
+impl InputList for KIAssetInfo {}
 
 pub struct KIAssetPairs {
     pub params: IndexMap<String, String>,
@@ -87,21 +136,39 @@ impl KIAssetPairs {
 }
 
 impl Input for KIAssetPairs {
-    fn finish_input(self) -> KrakenInput {
+    fn finish(self) -> KrakenInput {
        KrakenInput {
            info: EndpointInfo { methodtype: MethodType::Public, endpoint: String::from("AssetPairs") },
            params: Some(self.params)
        }
     }
+
+    fn finish_clone(self) -> (KrakenInput, Self) {
+       (KrakenInput {
+           info: EndpointInfo { methodtype: MethodType::Public, endpoint: String::from("AssetPairs") },
+           params: Some(self.params.clone())
+       },
+       self)
+    }
 }
 
-impl Pair for KIAssetPairs {
-    fn get_list(&mut self) -> &mut IndexMap<String, String> {
+impl MutateInput for KIAssetPairs {
+    fn list_mut(&mut self) -> &mut IndexMap<String, String> {
         &mut self.params
     }
 }
 
-impl PairList for KIAssetPairs {}
+impl IntoInputList for KIAssetPairs {
+    fn list_name(&self) -> String {
+        String::from("pair")
+    }
+}
+
+impl InputListItem for KIAssetPairs {
+    type ListItem = KAssetPair;
+}
+
+impl InputList for KIAssetPairs {}
 
 pub struct KITicker {
     pub params: IndexMap<String, String>,
@@ -112,35 +179,53 @@ impl KITicker {
         let ticker = KITicker {
             params: IndexMap::new()
         };
-        ticker.for_pair(pair)
+        ticker.for_item(pair)
     }
 
-    pub fn build_with_list<T>(pairs: T) -> KITicker 
+    pub fn build_with_list<T>(pairs: T) -> Self 
         where T: IntoIterator<Item = KAssetPair>,
     {
         let ticker = KITicker {
             params: IndexMap::new()
         };
-        ticker.for_pair_list(pairs)
+        ticker.for_item_list(pairs)
     }
 }
 
 impl Input for KITicker {
-    fn finish_input(self) -> KrakenInput {
+    fn finish(self) -> KrakenInput {
        KrakenInput {
            info: EndpointInfo { methodtype: MethodType::Public, endpoint: String::from("Ticker") },
            params: Some(self.params)
        }
     }
+
+    fn finish_clone(self) -> (KrakenInput, Self) {
+       (KrakenInput {
+           info: EndpointInfo { methodtype: MethodType::Public, endpoint: String::from("Ticker") },
+           params: Some(self.params.clone())
+       },
+       self)
+    }
 }
 
-impl Pair for KITicker {
-    fn get_list(&mut self) -> &mut IndexMap<String, String> {
+impl MutateInput for KITicker {
+    fn list_mut(&mut self) -> &mut IndexMap<String, String> {
         &mut self.params
     }
 }
 
-impl PairList for KITicker {}
+impl IntoInputList for KITicker {
+    fn list_name(&self) -> String {
+        String::from("pair")
+    }
+}
+
+impl InputListItem for KITicker {
+    type ListItem = KAssetPair;
+}
+
+impl InputList for KITicker {}
 
 pub struct KIOHLC {
     pub params: IndexMap<String, String>,
@@ -151,7 +236,7 @@ impl KIOHLC {
         let ohlc = KIOHLC {
             params: IndexMap::new()
         };
-        ohlc.for_pair(pair)
+        ohlc.for_item(pair)
     }
 
     pub fn with_interval (mut self, interval: OHLCInt) -> Self {
@@ -166,18 +251,36 @@ impl KIOHLC {
 }
 
 impl Input for KIOHLC {
-    fn finish_input(self) -> KrakenInput {
+    fn finish(self) -> KrakenInput {
        KrakenInput {
            info: EndpointInfo { methodtype: MethodType::Public, endpoint: String::from("OHLC") },
            params: Some(self.params)
        }
     }
+
+    fn finish_clone(self) -> (KrakenInput, Self) {
+       (KrakenInput {
+           info: EndpointInfo { methodtype: MethodType::Public, endpoint: String::from("OHLC") },
+           params: Some(self.params.clone())
+       },
+       self)
+    }
 }
 
-impl Pair for KIOHLC {
-    fn get_list(&mut self) -> &mut IndexMap<String, String> {
+impl MutateInput for KIOHLC {
+    fn list_mut(&mut self) -> &mut IndexMap<String, String> {
         &mut self.params
     }
+}
+
+impl IntoInputList for KIOHLC {
+    fn list_name(&self) -> String {
+        String::from("pair")
+    }
+}
+
+impl InputListItem for KIOHLC {
+    type ListItem = KAssetPair;
 }
 
 pub struct KIOrderBook {
@@ -189,7 +292,7 @@ impl KIOrderBook {
         let order_book = KIOrderBook {
             params: IndexMap::new()
         };
-        order_book.for_pair(pair)
+        order_book.for_item(pair)
     }
 
     pub fn with_max (mut self, max: i64) -> Self {
@@ -199,18 +302,36 @@ impl KIOrderBook {
 }
 
 impl Input for KIOrderBook {
-    fn finish_input(self) -> KrakenInput {
+    fn finish(self) -> KrakenInput {
        KrakenInput {
            info: EndpointInfo { methodtype: MethodType::Public, endpoint: String::from("Depth") },
            params: Some(self.params)
        }
     }
+
+    fn finish_clone(self) -> (KrakenInput, Self) {
+       (KrakenInput {
+           info: EndpointInfo { methodtype: MethodType::Public, endpoint: String::from("Depth") },
+           params: Some(self.params.clone())
+       },
+       self)
+    }
 }
 
-impl Pair for KIOrderBook {
-    fn get_list(&mut self) -> &mut IndexMap<String, String> {
+impl MutateInput for KIOrderBook {
+    fn list_mut(&mut self) -> &mut IndexMap<String, String> {
         &mut self.params
     }
+}
+
+impl IntoInputList for KIOrderBook {
+    fn list_name(&self) -> String {
+        String::from("pair")
+    }
+}
+
+impl InputListItem for KIOrderBook {
+    type ListItem = KAssetPair;
 }
 
 pub struct KIRecentTrades {
@@ -222,7 +343,7 @@ impl KIRecentTrades {
         let recent_trades = KIRecentTrades {
             params: IndexMap::new()
         };
-        recent_trades.for_pair(pair)
+        recent_trades.for_item(pair)
     }
 
     pub fn since(mut self, id: String) -> Self{
@@ -232,18 +353,36 @@ impl KIRecentTrades {
 }
 
 impl Input for KIRecentTrades {
-    fn finish_input(self) -> KrakenInput {
+    fn finish(self) -> KrakenInput {
        KrakenInput {
            info: EndpointInfo { methodtype: MethodType::Public, endpoint: String::from("Trades") },
            params: Some(self.params)
        }
     }
+
+    fn finish_clone(self) -> (KrakenInput, Self) {
+       (KrakenInput {
+           info: EndpointInfo { methodtype: MethodType::Public, endpoint: String::from("Trades") },
+           params: Some(self.params.clone())
+       },
+       self)
+    }
 }
 
-impl Pair for KIRecentTrades {
-    fn get_list(&mut self) -> &mut IndexMap<String, String> {
+impl MutateInput for KIRecentTrades {
+    fn list_mut(&mut self) -> &mut IndexMap<String, String> {
         &mut self.params
     }
+}
+
+impl IntoInputList for KIRecentTrades {
+    fn list_name(&self) -> String {
+        String::from("pair")
+    }
+}
+
+impl InputListItem for KIRecentTrades {
+    type ListItem = KAssetPair;
 }
 
 pub struct KISpreadData {
@@ -255,7 +394,7 @@ impl KISpreadData {
         let spread = KISpreadData {
             params: IndexMap::new()
         };
-        spread.for_pair(pair)
+        spread.for_item(pair)
     }
 
     pub fn since(mut self, id: String) -> Self {
@@ -265,18 +404,36 @@ impl KISpreadData {
 }
 
 impl Input for KISpreadData {
-    fn finish_input(self) -> KrakenInput {
+    fn finish(self) -> KrakenInput {
        KrakenInput {
            info: EndpointInfo { methodtype: MethodType::Public, endpoint: String::from("Spread") },
            params: Some(self.params)
        }
     }
+
+    fn finish_clone(self) -> (KrakenInput, Self) {
+       (KrakenInput {
+           info: EndpointInfo { methodtype: MethodType::Public, endpoint: String::from("Spread") },
+           params: Some(self.params.clone())
+       },
+       self)
+    }
 }
 
-impl Pair for KISpreadData {
-    fn get_list(&mut self) -> &mut IndexMap<String, String> {
+impl MutateInput for KISpreadData {
+    fn list_mut(&mut self) -> &mut IndexMap<String, String> {
         &mut self.params
     }
+}
+
+impl IntoInputList for KISpreadData {
+    fn list_name(&self) -> String {
+        String::from("pair")
+    }
+}
+
+impl InputListItem for KISpreadData {
+    type ListItem = KAssetPair;
 }
 
 #[derive(Deserialize, Serialize, Debug)]

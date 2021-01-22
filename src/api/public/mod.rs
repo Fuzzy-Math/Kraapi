@@ -6,7 +6,8 @@ use super::{
     AssetPairInfo, InputList, InputListItem,
     EndpointInfo, Input, KAsset, 
     KAssetPair, KrakenInput, 
-    privatemod::{IntoInputList, MutateInput}, OHLCInt, MethodType
+    privatemod::{IntoInputList, MutateInput}, OHLCInt, 
+    MethodType, UpdateInput
 };
 
 pub struct KIServerTime();
@@ -129,9 +130,8 @@ impl KIAssetPairs {
         }
     }
 
-    pub fn info (mut self, info: AssetPairInfo) -> Self {
-        self.params.insert(String::from("info"), info.to_string());
-        self
+    pub fn info (self, info: AssetPairInfo) -> Self {
+        self.update_input("info", info.to_string())
     }
 }
 
@@ -157,6 +157,8 @@ impl MutateInput for KIAssetPairs {
         &mut self.params
     }
 }
+
+impl UpdateInput for KIAssetPairs {}
 
 impl IntoInputList for KIAssetPairs {
     fn list_name(&self) -> String {
@@ -239,14 +241,12 @@ impl KIOHLC {
         ohlc.for_item(pair)
     }
 
-    pub fn with_interval (mut self, interval: OHLCInt) -> Self {
-        self.params.insert(String::from("interval"), interval.to_string());
-        self
+    pub fn with_interval (self, interval: OHLCInt) -> Self {
+        self.update_input("interval", interval.to_string())
     }
 
-    pub fn since(mut self, id: String) -> Self {
-        self.params.insert(String::from("since"), id);
-        self
+    pub fn since(self, id: String) -> Self {
+        self.update_input("since", id)
     }
 }
 
@@ -273,6 +273,8 @@ impl MutateInput for KIOHLC {
     }
 }
 
+impl UpdateInput for KIOHLC {}
+
 impl IntoInputList for KIOHLC {
     fn list_name(&self) -> String {
         String::from("pair")
@@ -295,9 +297,8 @@ impl KIOrderBook {
         order_book.for_item(pair)
     }
 
-    pub fn with_max (mut self, max: i64) -> Self {
-        self.params.insert(String::from("count"), max.to_string());
-        self
+    pub fn with_max (self, max: i64) -> Self {
+        self.update_input("count", max.to_string())
     }
 }
 
@@ -324,6 +325,8 @@ impl MutateInput for KIOrderBook {
     }
 }
 
+impl UpdateInput for KIOrderBook {}
+
 impl IntoInputList for KIOrderBook {
     fn list_name(&self) -> String {
         String::from("pair")
@@ -346,9 +349,8 @@ impl KIRecentTrades {
         recent_trades.for_item(pair)
     }
 
-    pub fn since(mut self, id: String) -> Self{
-        self.params.insert(String::from("since"), id);
-        self
+    pub fn since(self, id: String) -> Self{
+        self.update_input("since", id)
     }
 }
 
@@ -375,6 +377,8 @@ impl MutateInput for KIRecentTrades {
     }
 }
 
+impl UpdateInput for KIRecentTrades {}
+
 impl IntoInputList for KIRecentTrades {
     fn list_name(&self) -> String {
         String::from("pair")
@@ -397,9 +401,8 @@ impl KISpreadData {
         spread.for_item(pair)
     }
 
-    pub fn since(mut self, id: String) -> Self {
-        self.params.insert(String::from("since"), id);
-        self
+    pub fn since(self, id: String) -> Self {
+        self.update_input("since", id)
     }
 }
 
@@ -425,6 +428,8 @@ impl MutateInput for KISpreadData {
         &mut self.params
     }
 }
+
+impl UpdateInput for KISpreadData {}
 
 impl IntoInputList for KISpreadData {
     fn list_name(&self) -> String {

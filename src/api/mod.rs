@@ -175,26 +175,121 @@ impl fmt::Display for TransactionType {
     }
 }
 
+/// Order Type
+///
+/// Prices can be preceded by +, -, or # to signify the price as a relative amount 
+/// (with the exception of trailing stops, which are always relative). + adds the amount 
+/// to the current offered price. - subtracts the amount from the current offered price. 
+/// # will either add or subtract the amount to the current offered price, depending on 
+/// the type and order type used. Relative prices can be suffixed with a % to signify 
+/// the relative amount as a percentage of the offered price.
 pub enum OrderType {
+    /// Market order type with market price inferred
     Market,
-    Limit,
-    StopLoss,
-    TakeProfit,
-    StopLossLimit,
-    TakeProfitLimit,
+    /// Limit order along with the limit price
+    Limit(String),
+    /// Stop Loss order with the stop loss price
+    StopLoss(String),
+    /// Take Profit order with the take profit price
+    TakeProfit(String),
+    /// Stop Loss Limit order with the stop loss trigger price and the triggered limit price
+    StopLossLimit(String, String),
+    /// Take Profit Limit order with the take profit trigger price and the triggered limit price
+    TakeProfitLimit(String, String),
     SettlePosition,
+}
+
+use OrderType::{Market, Limit, StopLoss, TakeProfit, StopLossLimit, TakeProfitLimit, SettlePosition};
+impl OrderType {
+    // FIXME: Avoid the empty strings using options and fix the pattern matching in
+    // percent_encode()
+    fn elide(&self) -> (Option<String>, Option<String>) {
+        match self {
+            Market => (None, None),
+            Limit(price1) => (Some(price1.to_string()), None),
+            StopLoss(price1) => (Some(price1.to_string()), None),
+            TakeProfit(price1) => (Some(price1.to_string()), None),
+            StopLossLimit(price1, price2) => (Some(price1.to_string()), Some(price2.to_string())),
+            TakeProfitLimit(price1, price2) => (Some(price1.to_string()), Some(price2.to_string())),
+            SettlePosition => (None, None),
+        }
+    }
+
+    pub(crate) fn percent_encode(&self) -> (Option<String>, Option<String>) {
+        match self.elide() {
+            (Some(price1), Some(price2)) => {
+                let encoded_price1 = price1
+                    .replace("+", "%2B")
+                    .replace("#", "%23")
+                    .replace("%", "%25");
+
+                let encoded_price2 = price2
+                    .replace("+", "%2B")
+                    .replace("#", "%23")
+                    .replace("%", "%25");
+
+                (Some(encoded_price1), Some(encoded_price2))
+            },
+            (Some(price1), None) => {
+                let encoded_price1 = price1
+                    .replace("+", "%2B")
+                    .replace("#", "%23")
+                    .replace("%", "%25");
+
+                (Some(encoded_price1), None)
+            },
+            (None, Some(_)) => {
+                unreachable!()
+            }
+            (None, None) => {
+                (None, None)
+            },
+        }
+    }
+
+    pub(crate) fn get_price1(&self) -> Option<String> {
+        match self.percent_encode() {
+            (Some(price), _) => Some(price),
+            (None, _) => None,
+        }
+    }
+
+    pub(crate) fn get_price2(&self) -> Option<String> {
+        match self.percent_encode() {
+            (_, Some(price)) => {Some(price)},
+            (_, None) => {None},
+        }
+    }
 }
 
 impl fmt::Display for OrderType {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
             OrderType::Market => write!(f, "{}", "market"),
-            OrderType::Limit => write!(f, "{}", "limit"),
-            OrderType::StopLoss => write!(f, "{}", "stop-loss"),
-            OrderType::TakeProfit => write!(f, "{}", "take-profit"),
-            OrderType::StopLossLimit => write!(f, "{}", "stop-loss-limit"),
-            OrderType::TakeProfitLimit => write!(f, "{}", "take-profit-limit"),
+            OrderType::Limit(_) => write!(f, "{}", "limit"),
+            OrderType::StopLoss(_) => write!(f, "{}", "stop-loss"),
+            OrderType::TakeProfit(_) => write!(f, "{}", "take-profit"),
+            OrderType::StopLossLimit(_, _) => write!(f, "{}", "stop-loss-limit"),
+            OrderType::TakeProfitLimit(_, _) => write!(f, "{}", "take-profit-limit"),
             OrderType::SettlePosition => write!(f, "{}", "settle-position"),
+        }
+    }
+}
+
+pub enum OrderFlags {
+    BaseCurrency,
+    QuoteCurrency,
+    NoMarketPriceProtection,
+    PostOnly,
+}
+
+impl fmt::Display for OrderFlags {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            OrderFlags::BaseCurrency => write!(f, "{}", "fcib"),
+            OrderFlags::QuoteCurrency => write!(f, "{}", "fciq"),
+            OrderFlags::NoMarketPriceProtection => write!(f, "{}", "nompp"),
+            OrderFlags::PostOnly => write!(f, "{}", "post"),
         }
     }
 }
@@ -327,9 +422,8 @@ pub trait InputList : InputListItem {
 // into InputListItem::for_item() will always concatenate the value to the end of a comma delimited
 // array whereas UpdateInput will always overwrite the previous value or create a new key value
 // pair if the key doesn't exist yet
-// This is a crate internal
 pub(crate) trait UpdateInput : privatemod::MutateInput {
-    fn update_item<T>(mut self, key: &str, value: T) -> Self 
+    fn update_input<T>(mut self, key: &str, value: T) -> Self 
         where Self: Sized,
               T: Display,
     {

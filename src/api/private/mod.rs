@@ -8,7 +8,9 @@ use super::{
     EndpointInfo, KAsset,
     KAssetPair, KrakenInput,
     LedgerType, MethodType,
-    OrderCloseTime, TradeHistoryType
+    OrderCloseTime, OrderType,
+    OrderFlags, TradeHistoryType, 
+    TransactionType
 };
 
 // Traits
@@ -19,7 +21,7 @@ use super::{
 };
 
 pub struct KIAccountBalance {
-    pub params: IndexMap<String, String>,
+    params: IndexMap<String, String>,
 }
 
 impl KIAccountBalance {
@@ -38,7 +40,7 @@ impl KIAccountBalance {
     }
 
     fn with_nonce(self) -> Self {
-        self.update_item("nonce", KrakenAuth::nonce())
+        self.update_input("nonce", KrakenAuth::nonce())
     }
 }
 
@@ -69,7 +71,7 @@ impl MutateInput for KIAccountBalance {
 impl UpdateInput for KIAccountBalance {}
 
 pub struct KITradeBalance {
-    pub params: IndexMap<String, String>,
+    params: IndexMap<String, String>,
 }
 
 impl KITradeBalance {
@@ -82,7 +84,7 @@ impl KITradeBalance {
     // FIXME: All instances of with_nonce need to handle updating the nonce if the key-value
     // already exists
     fn with_nonce(self) -> Self {
-        self.update_item("nonce", KrakenAuth::nonce())
+        self.update_input("nonce", KrakenAuth::nonce())
     }
 }
 
@@ -123,7 +125,7 @@ impl Input for KITradeBalance {
 }
 
 pub struct KIOpenOrders {
-    pub params: IndexMap<String, String>,
+    params: IndexMap<String, String>,
 }
 
 impl KIOpenOrders {
@@ -133,26 +135,16 @@ impl KIOpenOrders {
         }
     }
 
-    pub fn with_trade_info(mut self) -> Self {
-        self.params.insert(String::from("trades"), String::from("true"));
-        self
+    pub fn with_trade_info(self, include_trades: bool) -> Self {
+        self.update_input("trades", include_trades.to_string())
     }
 
-    pub fn with_userref (mut self, userref: &str) -> Self {
-        match self.params.get_mut("userref") {
-            Some(uref) => {
-                *uref = userref.to_string();
-                self
-            }
-            None => {
-                self.params.insert(String::from("userref"), userref.to_string());
-                self
-            }
-        }
+    pub fn with_userref (self, userref: &str) -> Self {
+        self.update_input("userref", userref.to_string())
     }
 
     fn with_nonce(self) -> Self {
-        self.update_item("nonce", KrakenAuth::nonce())
+        self.update_input("nonce", KrakenAuth::nonce())
     }
 }
 
@@ -183,7 +175,7 @@ impl MutateInput for KIOpenOrders {
 impl UpdateInput for KIOpenOrders {}
 
 pub struct KIClosedOrders {
-    pub params: IndexMap<String, String>,
+    params: IndexMap<String, String>,
 }
 
 impl KIClosedOrders {
@@ -193,105 +185,40 @@ impl KIClosedOrders {
         }
     }
 
-    pub fn with_trade_info(mut self) -> Self {
-        self.params.insert(String::from("trades"), String::from("true"));
-        self
+    pub fn with_trade_info(self, include_trades: bool) -> Self {
+        self.update_input("trades", include_trades.to_string())
     }
 
-    pub fn with_userref (mut self, userref: &str) -> Self {
-        match self.params.get_mut("userref") {
-            Some(uref) => {
-                *uref = userref.to_string();
-                self
-            }
-            None => {
-                self.params.insert(String::from("userref"), userref.to_string());
-                self
-            }
-        }
+    pub fn with_userref (self, userref: &str) -> Self {
+        self.update_input("userref", userref.to_string())
     }
 
-    pub fn from_timestamp(mut self, timestamp: u64) -> Self {
-        match self.params.get_mut("start") {
-            Some(time) => {
-                *time = timestamp.to_string();
-                self
-            }
-            None => {
-                self.params.insert(String::from("start"), timestamp.to_string());
-                self
-            }
-        }
+    pub fn from_timestamp(self, timestamp: u64) -> Self {
+        self.update_input("start", timestamp.to_string())
     }
 
-    pub fn to_timestamp(mut self, timestamp: u64) -> Self {
-        match self.params.get_mut("end") {
-            Some(time) => {
-                *time = timestamp.to_string();
-                self
-            }
-            None => {
-                self.params.insert(String::from("end"), timestamp.to_string());
-                self
-            }
-        }
+    pub fn to_timestamp(self, timestamp: u64) -> Self {
+        self.update_input("end", timestamp.to_string())
     }
 
-    pub fn from_txid(mut self, txid: u64) -> Self {
-        match self.params.get_mut("start") {
-            Some(time) => {
-                *time = txid.to_string();
-                self
-            }
-            None => {
-                self.params.insert(String::from("start"), txid.to_string());
-                self
-            }
-        }
+    pub fn from_txid(self, txid: u64) -> Self {
+        self.update_input("start", txid.to_string())
     }
 
-    pub fn to_txid(mut self, txid: u64) -> Self {
-        match self.params.get_mut("end") {
-            Some(time) => {
-                *time = txid.to_string();
-                self
-            }
-            None => {
-                self.params.insert(String::from("end"), txid.to_string());
-                self
-            }
-        }
+    pub fn to_txid(self, txid: u64) -> Self {
+        self.update_input("end", txid.to_string())
     }
 
-    pub fn with_offset(mut self, offset: u64) -> Self {
-        match self.params.get_mut("ofs") {
-            Some(ofs) => {
-                *ofs = offset.to_string();
-                self
-            }
-            None => {
-                self.params.insert(String::from("ofs"), offset.to_string());
-                self
-            }
-        }
+    pub fn with_offset(self, offset: u64) -> Self {
+        self.update_input("ofs", offset.to_string())
     }
 
-    pub fn with_closetime(mut self, closetime: OrderCloseTime) -> Self {
-        match self.params.get_mut("closetime") {
-            Some(ct) => {
-                *ct = closetime.to_string();
-                self
-            }
-            None => {
-                self.params.insert(String::from("closetime"), closetime.to_string());
-                self
-            }
-        }
-
+    pub fn with_closetime(self, closetime: OrderCloseTime) -> Self {
+        self.update_input("closetime", closetime.to_string())
     }
 
     fn with_nonce(self) -> Self {
-        self.update_item("nonce", KrakenAuth::nonce())
+        self.update_input("nonce", KrakenAuth::nonce())
     }
 }
 
@@ -322,7 +249,7 @@ impl MutateInput for KIClosedOrders {
 impl UpdateInput for KIClosedOrders {}
 
 pub struct KIOrderInfo {
-    pub params: IndexMap<String, String>,
+    params: IndexMap<String, String>,
 }
 
 impl KIOrderInfo {
@@ -342,26 +269,16 @@ impl KIOrderInfo {
         order_info.for_item_list(txids)
     }
 
-    pub fn with_trade_info(mut self) -> Self {
-        self.params.insert(String::from("trades"), String::from("true"));
-        self
+    pub fn with_trade_info(self, include_trades: bool) -> Self {
+        self.update_input("trades", include_trades.to_string())
     }
 
-    pub fn with_userref (mut self, userref: &str) -> Self {
-        match self.params.get_mut("userref") {
-            Some(uref) => {
-                *uref = userref.to_string();
-                self
-            }
-            None => {
-                self.params.insert(String::from("userref"), userref.to_string());
-                self
-            }
-        }
+    pub fn with_userref (self, userref: &str) -> Self {
+        self.update_input("userref", userref.to_string())
     }
 
     fn with_nonce(self) -> Self {
-        self.update_item("nonce", KrakenAuth::nonce())
+        self.update_input("nonce", KrakenAuth::nonce())
     }
 }
 
@@ -404,7 +321,7 @@ impl InputListItem for KIOrderInfo {
 impl InputList for KIOrderInfo {}
 
 pub struct KITradeHistory {
-    pub params: IndexMap<String, String>,
+    params: IndexMap<String, String>,
 }
 
 impl KITradeHistory {
@@ -414,91 +331,36 @@ impl KITradeHistory {
         }
     }
 
-    pub fn with_trade_type(mut self, tradetype: TradeHistoryType) -> Self {
-        match self.params.get_mut("type") {
-            Some(ty) => {
-                *ty = tradetype.to_string();
-                self
-            }
-            None => {
-                self.params.insert(String::from("type"), tradetype.to_string());
-                self
-            }
-        }
+    pub fn with_trade_type(self, tradetype: TradeHistoryType) -> Self {
+        self.update_input("type", tradetype.to_string())
     }
 
-    pub fn with_trade_info(mut self) -> Self {
-        self.params.insert(String::from("trades"), String::from("true"));
-        self
+    pub fn with_trade_info(self, include_trades: bool) -> Self {
+        self.update_input("trades", include_trades.to_string())
     }
 
-    pub fn from_timestamp(mut self, timestamp: u64) -> Self {
-        match self.params.get_mut("start") {
-            Some(time) => {
-                *time = timestamp.to_string();
-                self
-            }
-            None => {
-                self.params.insert(String::from("start"), timestamp.to_string());
-                self
-            }
-        }
+    pub fn from_timestamp(self, timestamp: u64) -> Self {
+        self.update_input("start", timestamp.to_string())
     }
 
-    pub fn to_timestamp(mut self, timestamp: u64) -> Self {
-        match self.params.get_mut("end") {
-            Some(time) => {
-                *time = timestamp.to_string();
-                self
-            }
-            None => {
-                self.params.insert(String::from("end"), timestamp.to_string());
-                self
-            }
-        }
+    pub fn to_timestamp(self, timestamp: u64) -> Self {
+        self.update_input("end", timestamp.to_string())
     }
 
-    pub fn from_txid(mut self, txid: u64) -> Self {
-        match self.params.get_mut("start") {
-            Some(time) => {
-                *time = txid.to_string();
-                self
-            }
-            None => {
-                self.params.insert(String::from("start"), txid.to_string());
-                self
-            }
-        }
+    pub fn from_txid(self, txid: u64) -> Self {
+        self.update_input("start", txid.to_string())
     }
 
-    pub fn to_txid(mut self, txid: u64) -> Self {
-        match self.params.get_mut("end") {
-            Some(time) => {
-                *time = txid.to_string();
-                self
-            }
-            None => {
-                self.params.insert(String::from("end"), txid.to_string());
-                self
-            }
-        }
+    pub fn to_txid(self, txid: u64) -> Self {
+        self.update_input("end", txid.to_string())
     }
 
-    pub fn with_offset(mut self, offset: u64) -> Self {
-        match self.params.get_mut("ofs") {
-            Some(ofs) => {
-                *ofs = offset.to_string();
-                self
-            }
-            None => {
-                self.params.insert(String::from("ofs"), offset.to_string());
-                self
-            }
-        }
+    pub fn with_offset(self, offset: u64) -> Self {
+        self.update_input("ofs", offset.to_string())
     }
 
     fn with_nonce(self) -> Self {
-        self.update_item("nonce", KrakenAuth::nonce())
+        self.update_input("nonce", KrakenAuth::nonce())
     }
 }
 
@@ -529,7 +391,7 @@ impl MutateInput for KITradeHistory {
 impl UpdateInput for KITradeHistory {}
 
 pub struct KITradesInfo {
-    pub params: IndexMap<String, String>,
+    params: IndexMap<String, String>,
 }
 
 impl KITradesInfo {
@@ -549,13 +411,12 @@ impl KITradesInfo {
         trades_info.for_item_list(txids)
     }
 
-    pub fn with_trade_info(mut self) -> Self {
-        self.params.insert(String::from("trades"), String::from("true"));
-        self
+    pub fn with_trade_info(self, include_trades: bool) -> Self {
+        self.update_input("trades", include_trades.to_string())
     }
 
     fn with_nonce(self) -> Self {
-        self.update_item("nonce", KrakenAuth::nonce())
+        self.update_input("nonce", KrakenAuth::nonce())
     }
 }
 
@@ -598,7 +459,7 @@ impl InputListItem for KITradesInfo {
 impl InputList for KITradesInfo {}
 
 pub struct KIOpenPositions {
-    pub params: IndexMap<String, String>,
+    params: IndexMap<String, String>,
 }
 
 impl KIOpenPositions {
@@ -618,18 +479,21 @@ impl KIOpenPositions {
         open_positions.for_item_list(txids)
     }
 
-    pub fn do_cals(mut self) -> Self {
-        self.params.insert(String::from("docalcs"), String::from("true"));
-        self
+    pub fn do_cals(self, docalcs: bool) -> Self {
+        self.update_input("docalcs", docalcs.to_string())
     }
 
-    pub fn consolidate(mut self) -> Self {
-        self.params.insert(String::from("consolidation"), String::from("market"));
-        self
+    // FIXME: Currently there is no way to disable the consolidation data point
+    // In general, it's probably better to create new builders if you need to remove fields from
+    // a query. We could allow all input methods to deal with options and then remove input fields
+    // if a. the field already exists and b. None is passed in by the user, but I feel this would
+    // muddy the interface unnecessarily
+    pub fn consolidate(self) -> Self {
+        self.update_input("consolidation", String::from("market"))
     }
 
     fn with_nonce(self) -> Self {
-        self.update_item("nonce", KrakenAuth::nonce())
+        self.update_input("nonce", KrakenAuth::nonce())
     }
 }
 
@@ -672,7 +536,7 @@ impl InputListItem for KIOpenPositions {
 impl InputList for KIOpenPositions {}
 
 pub struct KILedgerInfo {
-    pub params: IndexMap<String, String>,
+    params: IndexMap<String, String>,
 }
 
 impl KILedgerInfo {
@@ -682,86 +546,32 @@ impl KILedgerInfo {
         }
     }
 
-    pub fn with_trade_type(mut self, ledgertype: LedgerType) -> Self {
-        match self.params.get_mut("type") {
-            Some(ty) => {
-                *ty = ledgertype.to_string();
-                self
-            }
-            None => {
-                self.params.insert(String::from("type"), ledgertype.to_string());
-                self
-            }
-        }
+    pub fn with_trade_type(self, ledgertype: LedgerType) -> Self {
+        self.update_input("type", ledgertype.to_string())
     }
 
-    pub fn from_timestamp(mut self, timestamp: u64) -> Self {
-        match self.params.get_mut("start") {
-            Some(time) => {
-                *time = timestamp.to_string();
-                self
-            }
-            None => {
-                self.params.insert(String::from("start"), timestamp.to_string());
-                self
-            }
-        }
+    pub fn from_timestamp(self, timestamp: u64) -> Self {
+        self.update_input("start", timestamp.to_string())
     }
 
-    pub fn to_timestamp(mut self, timestamp: u64) -> Self {
-        match self.params.get_mut("end") {
-            Some(time) => {
-                *time = timestamp.to_string();
-                self
-            }
-            None => {
-                self.params.insert(String::from("end"), timestamp.to_string());
-                self
-            }
-        }
+    pub fn to_timestamp(self, timestamp: u64) -> Self {
+        self.update_input("end", timestamp.to_string())
     }
 
-    pub fn from_txid(mut self, txid: u64) -> Self {
-        match self.params.get_mut("start") {
-            Some(time) => {
-                *time = txid.to_string();
-                self
-            }
-            None => {
-                self.params.insert(String::from("start"), txid.to_string());
-                self
-            }
-        }
+    pub fn from_txid(self, txid: u64) -> Self {
+        self.update_input("start", txid.to_string())
     }
 
-    pub fn to_txid(mut self, txid: u64) -> Self {
-        match self.params.get_mut("end") {
-            Some(time) => {
-                *time = txid.to_string();
-                self
-            }
-            None => {
-                self.params.insert(String::from("end"), txid.to_string());
-                self
-            }
-        }
+    pub fn to_txid(self, txid: u64) -> Self {
+        self.update_input("end", txid.to_string())
     }
 
-    pub fn with_offset(mut self, offset: u64) -> Self {
-        match self.params.get_mut("ofs") {
-            Some(ofs) => {
-                *ofs = offset.to_string();
-                self
-            }
-            None => {
-                self.params.insert(String::from("ofs"), offset.to_string());
-                self
-            }
-        }
+    pub fn with_offset(self, offset: u64) -> Self {
+        self.update_input("ofs", offset.to_string())
     }
 
     fn with_nonce(self) -> Self {
-        self.update_item("nonce", KrakenAuth::nonce())
+        self.update_input("nonce", KrakenAuth::nonce())
     }
 }
 
@@ -804,7 +614,7 @@ impl InputListItem for KILedgerInfo {
 impl InputList for KILedgerInfo {}
 
 pub struct KIQueryLedgers {
-    pub params: IndexMap<String, String>,
+    params: IndexMap<String, String>,
 }
 
 impl KIQueryLedgers {
@@ -825,7 +635,7 @@ impl KIQueryLedgers {
     }
 
     fn with_nonce(self) -> Self {
-        self.update_item("nonce", KrakenAuth::nonce())
+        self.update_input("nonce", KrakenAuth::nonce())
     }
 }
 
@@ -868,7 +678,7 @@ impl InputListItem for KIQueryLedgers {
 impl InputList for KIQueryLedgers {}
 
 pub struct KITradeVolume {
-    pub params: IndexMap<String, String>,
+    params: IndexMap<String, String>,
 }
 
 impl KITradeVolume {
@@ -878,13 +688,12 @@ impl KITradeVolume {
         }
     }
 
-    pub fn with_fee_info(mut self) -> Self {
-        self.params.insert(String::from("fee-info"), String::from("true"));
-        self
+    pub fn with_fee_info(self, feeinfo: bool) -> Self {
+        self.update_input("fee-info", feeinfo.to_string())
     }
 
     fn with_nonce(self) -> Self {
-        self.update_item("nonce", KrakenAuth::nonce())
+        self.update_input("nonce", KrakenAuth::nonce())
     }
 }
 
@@ -920,6 +729,184 @@ impl Input for KITradeVolume {
        let newself = self.with_nonce();
        (KrakenInput {
            info: EndpointInfo { methodtype: MethodType::Private, endpoint: String::from("TradeVolume") },
+           params: Some(newself.params.clone())
+       },
+       newself)
+    }
+}
+
+pub struct KIAddOrder {
+    params: IndexMap<String, String>,
+}
+
+impl KIAddOrder {
+    pub fn build(pair: KAssetPair, transtype: TransactionType, ordertype: OrderType, volume: f64) -> Self {
+        let new = KIAddOrder {
+            params: IndexMap::new()
+        };
+
+        new.for_item(pair)
+           .with_transaction_type(transtype)
+           .with_order_type_ref(&ordertype)
+           .with_price1(&ordertype)
+           .with_price2(&ordertype)
+           .with_volume(volume)
+    }
+
+    pub fn with_transaction_type(self, transtype: TransactionType) -> Self {
+        self.update_input("type", transtype.to_string())
+    }
+
+    pub fn with_order_type(self, ordertype: OrderType) -> Self {
+        self.update_input("ordertype", ordertype.to_string())
+    }
+
+    fn with_order_type_ref(self, ordertype: &OrderType) -> Self {
+        self.update_input("ordertype", ordertype.to_string())
+    }
+
+    fn with_price1(self, ordertype: &OrderType) -> Self {
+        match ordertype.get_price1() {
+            Some(price) => {self.update_input("price", price)},
+            None => self
+        }
+    }
+
+    fn with_price2(self, ordertype: &OrderType) -> Self {
+        match ordertype.get_price2() {
+            Some(price) => {self.update_input("price2", price)},
+            None => self
+        }
+    }
+
+    pub fn with_volume(self, volume: f64) -> Self {
+        self.update_input("volume", volume.to_string())
+    }
+
+    pub fn with_leverage(self, leverage: (u8, u8)) -> Self {
+        self.update_input("leverage", format!("{}:{}", leverage.0, leverage.1))
+    }
+
+    pub fn with_order_flags<T>(mut self, flags: T) -> Self
+        where T: IntoIterator<Item = OrderFlags>
+    {
+        let listname = String::from("oflags");
+        match self.params.contains_key(&listname) {
+            true => {
+                flags.into_iter().for_each(|flag| self.format_flag(flag));
+                self
+            },
+            false => {
+                let mut iter = flags.into_iter();
+                match iter.next() {
+                    Some(val) => {
+                        self.params.insert(listname, val.to_string());
+                        self.with_order_flags(iter)
+                    },
+                    None => self,
+                }
+            }
+        }
+    }
+
+    pub fn start_in(self, secs: u32) -> Self {
+        self.update_input("starttm", String::from("%2B") + &secs.to_string())
+    }
+
+    pub fn start_at(self, timestamp: u64) -> Self {
+        self.update_input("starttm", timestamp.to_string())
+    }
+
+    pub fn expire_in(self, secs: u32) -> Self {
+        self.update_input("expiretm", secs.to_string())
+    }
+
+    pub fn expire_at(self, timestamp: u64) -> Self {
+        self.update_input("expiretm", timestamp.to_string())
+    }
+
+    pub fn with_userref(self, userref: u32) -> Self {
+        self.update_input("userref", userref.to_string())
+    }
+
+    pub fn validate(self, validate: bool) -> Self {
+        self.update_input("validate", validate.to_string())
+    }
+
+    pub fn with_closing_order(self, ordertype: OrderType) -> Self{
+        let price1 = ordertype.get_price1();
+        let price2 = ordertype.get_price2();
+        match (price1, price2) {
+            (Some(price1), Some(price2)) => {
+                self.update_input("close%5Bordertype%5D", ordertype.to_string())
+                    .update_input("close%5Bprice%5D", price1)
+                    .update_input("close%5Bprice2%5D", price2)
+            },
+            (Some(price1), None) => {
+                self.update_input("close%5Bordertype%5D", ordertype.to_string())
+                    .update_input("close%5Bprice%5D", price1)
+            },
+            (None, Some(_)) => {
+                unreachable!()
+            },
+            (None, None) => {
+                self
+            },
+        }
+    }
+
+    fn with_nonce(self) -> Self {
+        self.update_input("nonce", KrakenAuth::nonce())
+    }
+
+    fn format_flag(&mut self, flag: OrderFlags) 
+    {
+        let listname = String::from("oflags");
+        match self.params.get_mut(&listname) {
+            Some(list) => {
+                // Silently disallow adding the same input to the list multiple times
+                if list.contains(&flag.to_string()) {
+                    return;
+                }
+
+                *list = format!("{},{}", list, flag.to_string());
+            },
+            None => {
+                self.list_mut().insert(listname, flag.to_string());
+            },
+        }
+    }
+}
+impl MutateInput for KIAddOrder {
+    fn list_mut(&mut self) -> &mut IndexMap<String, String> {
+        &mut self.params
+    }
+}
+
+impl UpdateInput for KIAddOrder {}
+
+impl IntoInputList for KIAddOrder {
+    fn list_name(&self) -> String {
+        String::from("pair")
+    }
+}
+
+impl InputListItem for KIAddOrder {
+    type ListItem = KAssetPair;
+}
+
+impl Input for KIAddOrder {
+    fn finish(self) -> KrakenInput {
+       KrakenInput {
+           info: EndpointInfo { methodtype: MethodType::Private, endpoint: String::from("AddOrder") },
+           params: Some(self.with_nonce().params)
+       }
+    }
+
+    fn finish_clone(self) -> (KrakenInput, Self) {
+       let newself = self.with_nonce();
+       (KrakenInput {
+           info: EndpointInfo { methodtype: MethodType::Private, endpoint: String::from("AddOrder") },
            params: Some(newself.params.clone())
        },
        newself)
@@ -1066,7 +1053,7 @@ pub enum TradeType {
 }
 
 #[derive(Deserialize, Serialize, Debug)]
-pub enum OrderType {
+pub enum OrderType1 {
     Market,
     /// (price = limit price)
     Limit,
@@ -1097,7 +1084,7 @@ pub struct NewOrder {
     pub pair: String,
     /// type of order (buy/sell)
     pub kind: TradeType,
-    pub order_type: OrderType,
+    pub order_type: OrderType1,
     /// price (optional.  dependent upon ordertype)
     pub price: Option<String>,
     /// secondary price (optional.  dependent upon ordertype)

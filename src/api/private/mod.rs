@@ -913,6 +913,150 @@ impl Input for KIAddOrder {
     }
 }
 
+pub struct KICancelOrder {
+    params: IndexMap<String, String>,
+}
+
+impl KICancelOrder {
+    pub fn build(txid: u64) -> KICancelOrder {
+        let cancelorder = KICancelOrder {
+            params: IndexMap::new()
+        };
+        cancelorder.for_txid(txid)
+    }
+
+    fn for_txid(self, txid: u64) -> Self {
+        self.update_input("txid", txid.to_string())
+    }
+
+    fn with_nonce(self) -> Self {
+        self.update_input("nonce", KrakenAuth::nonce())
+    }
+}
+
+impl MutateInput for KICancelOrder {
+    fn list_mut(&mut self) -> &mut IndexMap<String, String> {
+        &mut self.params
+    }
+}
+
+impl UpdateInput for KICancelOrder {}
+
+impl Input for KICancelOrder {
+    fn finish(self) -> KrakenInput {
+        KrakenInput {
+           info: EndpointInfo { methodtype: MethodType::Private, endpoint: String::from("CancelOrder") },
+           params: Some(self.with_nonce().params)
+       }
+    }
+
+    fn finish_clone(self) -> (KrakenInput, Self) {
+       let newself = self.with_nonce();
+       (KrakenInput {
+           info: EndpointInfo { methodtype: MethodType::Private, endpoint: String::from("CancelOrder") },
+           params: Some(newself.params.clone())
+       },
+       newself)
+    }
+}
+
+pub struct KICancelAllOrders {
+    params: IndexMap<String, String>,
+}
+
+impl KICancelAllOrders {
+    pub fn build() -> KrakenInput {
+        let cancelorders = KICancelAllOrders {
+            params: IndexMap::new()
+        };
+        cancelorders.finish()
+    }
+
+    pub fn build_clone() -> (KrakenInput, Self) {
+        let cancelorders = KICancelAllOrders {
+            params: IndexMap::new()
+        };
+        cancelorders.finish_clone()
+    }
+
+    fn with_nonce(self) -> Self {
+        self.update_input("nonce", KrakenAuth::nonce())
+    }
+}
+
+impl Input for KICancelAllOrders {
+    fn finish(self) -> KrakenInput {
+       KrakenInput {
+           info: EndpointInfo { methodtype: MethodType::Private, endpoint: String::from("CancelAll") },
+           params: Some(self.with_nonce().params)
+       }
+    }
+
+    fn finish_clone(self) -> (KrakenInput, Self) {
+       let newself = self.with_nonce();
+       (KrakenInput {
+       info: EndpointInfo { methodtype: MethodType::Private, endpoint: String::from("CancelAll") },
+       params: Some(newself.params.clone())
+       },
+       newself)
+    }
+}
+
+impl MutateInput for KICancelAllOrders {
+    fn list_mut(&mut self) -> &mut IndexMap<String, String> {
+        &mut self.params
+    }
+}
+
+impl UpdateInput for KICancelAllOrders {}
+
+pub struct KICancelOnTimeout {
+    params: IndexMap<String, String>,
+}
+
+impl KICancelOnTimeout {
+    pub fn build(timeout: u32) -> KICancelOnTimeout {
+        let cancelorder = KICancelOnTimeout {
+            params: IndexMap::new()
+        };
+        cancelorder.on_timeout(timeout)
+    }
+
+    fn on_timeout(self, timeout: u32) -> Self {
+        self.update_input("timeout", timeout.to_string())
+    }
+
+    fn with_nonce(self) -> Self {
+        self.update_input("nonce", KrakenAuth::nonce())
+    }
+}
+
+impl MutateInput for KICancelOnTimeout {
+    fn list_mut(&mut self) -> &mut IndexMap<String, String> {
+        &mut self.params
+    }
+}
+
+impl UpdateInput for KICancelOnTimeout {}
+
+impl Input for KICancelOnTimeout {
+    fn finish(self) -> KrakenInput {
+        KrakenInput {
+           info: EndpointInfo { methodtype: MethodType::Private, endpoint: String::from("CancelAllOrdersAfter") },
+           params: Some(self.with_nonce().params)
+       }
+    }
+
+    fn finish_clone(self) -> (KrakenInput, Self) {
+       let newself = self.with_nonce();
+       (KrakenInput {
+           info: EndpointInfo { methodtype: MethodType::Private, endpoint: String::from("CancelAllOrdersAfter") },
+           params: Some(newself.params.clone())
+       },
+       newself)
+    }
+}
+
 #[derive(Deserialize, Serialize, Debug)]
 pub struct TradeBalance {
     /// equivalent balance (combined balance of all currencies)

@@ -10,7 +10,7 @@ use super::{
     LedgerType, MethodType,
     OrderCloseTime, OrderType,
     OrderFlags, TradeHistoryType, 
-    TransactionType
+    TradeType
 };
 
 // Traits
@@ -81,8 +81,6 @@ impl KITradeBalance {
         }
     }
 
-    // FIXME: All instances of with_nonce need to handle updating the nonce if the key-value
-    // already exists
     fn with_nonce(self) -> Self {
         self.update_input("nonce", KrakenAuth::nonce())
     }
@@ -135,11 +133,13 @@ impl KIOpenOrders {
         }
     }
 
+    // FIXME: AFter testing, trades=false still causes trade data to be returned. So the entire key
+    // value pair needs to be removed on false input
     pub fn with_trade_info(self, include_trades: bool) -> Self {
         self.update_input("trades", include_trades.to_string())
     }
 
-    pub fn with_userref (self, userref: &str) -> Self {
+    pub fn with_userref (self, userref: u32) -> Self {
         self.update_input("userref", userref.to_string())
     }
 
@@ -189,7 +189,7 @@ impl KIClosedOrders {
         self.update_input("trades", include_trades.to_string())
     }
 
-    pub fn with_userref (self, userref: &str) -> Self {
+    pub fn with_userref (self, userref: u32) -> Self {
         self.update_input("userref", userref.to_string())
     }
 
@@ -201,12 +201,12 @@ impl KIClosedOrders {
         self.update_input("end", timestamp.to_string())
     }
 
-    pub fn from_txid(self, txid: u64) -> Self {
-        self.update_input("start", txid.to_string())
+    pub fn from_txid(self, txid: String) -> Self {
+        self.update_input("start", txid)
     }
 
-    pub fn to_txid(self, txid: u64) -> Self {
-        self.update_input("end", txid.to_string())
+    pub fn to_txid(self, txid: String) -> Self {
+        self.update_input("end", txid)
     }
 
     pub fn with_offset(self, offset: u64) -> Self {
@@ -253,7 +253,7 @@ pub struct KIOrderInfo {
 }
 
 impl KIOrderInfo {
-    pub fn build(txid: u64) -> Self {
+    pub fn build(txid: String) -> Self {
         let order_info = KIOrderInfo {
             params: IndexMap::new()
         };
@@ -261,7 +261,7 @@ impl KIOrderInfo {
     }
 
     pub fn build_with_list<T>(txids: T) -> Self
-        where T: IntoIterator<Item = u64>
+        where T: IntoIterator<Item = String>
     {
         let order_info = KIOrderInfo {
             params: IndexMap::new()
@@ -273,7 +273,7 @@ impl KIOrderInfo {
         self.update_input("trades", include_trades.to_string())
     }
 
-    pub fn with_userref (self, userref: &str) -> Self {
+    pub fn with_userref (self, userref: u32) -> Self {
         self.update_input("userref", userref.to_string())
     }
 
@@ -315,7 +315,7 @@ impl IntoInputList for KIOrderInfo {
 }
 
 impl InputListItem for KIOrderInfo {
-    type ListItem = u64;
+    type ListItem = String;
 }
 
 impl InputList for KIOrderInfo {}
@@ -347,12 +347,12 @@ impl KITradeHistory {
         self.update_input("end", timestamp.to_string())
     }
 
-    pub fn from_txid(self, txid: u64) -> Self {
-        self.update_input("start", txid.to_string())
+    pub fn from_txid(self, txid: String) -> Self {
+        self.update_input("start", txid)
     }
 
-    pub fn to_txid(self, txid: u64) -> Self {
-        self.update_input("end", txid.to_string())
+    pub fn to_txid(self, txid: String) -> Self {
+        self.update_input("end", txid)
     }
 
     pub fn with_offset(self, offset: u64) -> Self {
@@ -395,7 +395,7 @@ pub struct KITradesInfo {
 }
 
 impl KITradesInfo {
-    pub fn build(txid: u64) -> Self {
+    pub fn build(txid: String) -> Self {
         let trades_info = KITradesInfo {
             params: IndexMap::new()
         };
@@ -403,7 +403,7 @@ impl KITradesInfo {
     }
 
     pub fn build_with_list<T>(txids: T) -> Self
-        where T: IntoIterator<Item = u64>
+        where T: IntoIterator<Item = String>
     {
         let trades_info = KITradesInfo {
             params: IndexMap::new()
@@ -453,7 +453,7 @@ impl IntoInputList for KITradesInfo {
 }
 
 impl InputListItem for KITradesInfo {
-    type ListItem = u64;
+    type ListItem = String;
 }
 
 impl InputList for KITradesInfo {}
@@ -463,7 +463,7 @@ pub struct KIOpenPositions {
 }
 
 impl KIOpenPositions {
-    pub fn build(txid: u64) -> Self {
+    pub fn build(txid: String) -> Self {
         let open_positions = KIOpenPositions {
             params: IndexMap::new()
         };
@@ -471,7 +471,7 @@ impl KIOpenPositions {
     }
 
     pub fn build_with_list<T>(txids: T) -> Self
-        where T: IntoIterator<Item = u64>
+        where T: IntoIterator<Item = String>
     {
         let open_positions = KIOpenPositions {
             params: IndexMap::new()
@@ -530,7 +530,7 @@ impl IntoInputList for KIOpenPositions {
 }
 
 impl InputListItem for KIOpenPositions {
-    type ListItem = u64;
+    type ListItem = String;
 }
 
 impl InputList for KIOpenPositions {}
@@ -558,12 +558,12 @@ impl KILedgerInfo {
         self.update_input("end", timestamp.to_string())
     }
 
-    pub fn from_txid(self, txid: u64) -> Self {
-        self.update_input("start", txid.to_string())
+    pub fn from_txid(self, txid: String) -> Self {
+        self.update_input("start", txid)
     }
 
-    pub fn to_txid(self, txid: u64) -> Self {
-        self.update_input("end", txid.to_string())
+    pub fn to_txid(self, txid: String) -> Self {
+        self.update_input("end", txid)
     }
 
     pub fn with_offset(self, offset: u64) -> Self {
@@ -618,7 +618,7 @@ pub struct KIQueryLedgers {
 }
 
 impl KIQueryLedgers {
-    pub fn build(txid: u64) -> Self {
+    pub fn build(txid: String) -> Self {
         let trades_info = KIQueryLedgers {
             params: IndexMap::new()
         };
@@ -626,7 +626,7 @@ impl KIQueryLedgers {
     }
 
     pub fn build_with_list<T>(txids: T) -> Self
-        where T: IntoIterator<Item = u64>
+        where T: IntoIterator<Item = String>
     {
         let trades_info = KIQueryLedgers {
             params: IndexMap::new()
@@ -672,7 +672,7 @@ impl IntoInputList for KIQueryLedgers {
 }
 
 impl InputListItem for KIQueryLedgers {
-    type ListItem = u64;
+    type ListItem = String;
 }
 
 impl InputList for KIQueryLedgers {}
@@ -740,21 +740,21 @@ pub struct KIAddOrder {
 }
 
 impl KIAddOrder {
-    pub fn build(pair: KAssetPair, transtype: TransactionType, ordertype: OrderType, volume: f64) -> Self {
+    pub fn build(pair: KAssetPair, tradetype: TradeType, ordertype: OrderType, volume: f64) -> Self {
         let new = KIAddOrder {
             params: IndexMap::new()
         };
 
         new.for_item(pair)
-           .with_transaction_type(transtype)
+           .with_transaction_type(tradetype)
            .with_order_type_ref(&ordertype)
            .with_price1(&ordertype)
            .with_price2(&ordertype)
            .with_volume(volume)
     }
 
-    pub fn with_transaction_type(self, transtype: TransactionType) -> Self {
-        self.update_input("type", transtype.to_string())
+    pub fn with_transaction_type(self, tradetype: TradeType) -> Self {
+        self.update_input("type", tradetype.to_string())
     }
 
     pub fn with_order_type(self, ordertype: OrderType) -> Self {
@@ -918,15 +918,15 @@ pub struct KICancelOrder {
 }
 
 impl KICancelOrder {
-    pub fn build(txid: u64) -> KICancelOrder {
+    pub fn build(txid: String) -> KICancelOrder {
         let cancelorder = KICancelOrder {
             params: IndexMap::new()
         };
         cancelorder.for_txid(txid)
     }
 
-    fn for_txid(self, txid: u64) -> Self {
-        self.update_input("txid", txid.to_string())
+    fn for_txid(self, txid: String) -> Self {
+        self.update_input("txid", txid)
     }
 
     fn with_nonce(self) -> Self {
@@ -1058,37 +1058,47 @@ impl Input for KICancelOnTimeout {
 }
 
 #[derive(Deserialize, Serialize, Debug)]
-pub struct TradeBalance {
-    /// equivalent balance (combined balance of all currencies)
-    pub eb: String,
-    /// trade balance (combined balance of all equity currencies)
-    pub tb: String,
-    /// margin amount of open positions
-    pub m: String,
-    /// unrealized net profit/loss of open positions
-    pub n: String,
+#[serde(rename_all = "UPPERCASE")]
+pub struct KOAccountBalance {
+    pub xxbt: String,
+    pub zusd: String,
+}
+
+#[derive(Deserialize, Serialize, Debug)]
+pub struct KOTradeBalance {
     /// cost basis of open positions
     pub c: String,
-    /// current floating valuation of open positions
-    pub v: String,
     /// equity = trade balance + unrealized net profit/loss
     pub e: String,
+    /// equivalent balance (combined balance of all currencies)
+    pub eb: String,
+    /// margin amount of open positions
+    pub m: String,
     /// free margin = equity - initial margin (maximum margin available to open new positions)
     pub mf: String,
     /// margin level = (equity / initial margin) * 100
-    pub ml: Option<String>,
+    pub ml: String,
+    /// unrealized net profit/loss of open positions
+    pub n: String,
+    /// trade balance (combined balance of all equity currencies)
+    pub tb: String,
+    /// current floating valuation of open positions
+    pub v: String,
 }
 
 #[derive(Deserialize, Serialize, Debug)]
 pub struct OrderDescription {
-    pub leverage: String,
-    pub order: String,
-    pub ordertype: String,
     pub pair: String,
+    #[serde(rename = "type")]
+    pub tradetype: String,
+    pub ordertype: String,
     pub price: String,
     pub price2: String,
-    #[serde(rename = "type")]
-    pub kind: String,
+    pub leverage: String,
+    #[serde(rename = "order")]
+    pub desc: String,
+    #[serde(rename = "close")]
+    pub closedesc: String,
 }
 
 #[derive(Deserialize, Serialize, Debug)]
@@ -1109,15 +1119,34 @@ pub enum OrderStatus {
 /// General order info object
 #[derive(Deserialize, Serialize, Debug)]
 pub struct OrderInfo {
-    /// unix timestamp of when order was closed
-    pub closetm: Option<f64>,
-    /// total cost (quote currency unless unless viqc set in oflags)
-    pub cost: String,
-    pub descr: OrderDescription,
+    /// Referral order transaction id that created this order
+    pub refid: Option<String>,
+    /// user reference id
+    pub userref: Option<u32>,
+    /// status of order:
+    pub status: OrderStatus,
+    /// unix timestamp of when order was placed
+    pub opentm: f64,
+    /// unix timestamp of order start time (or 0 if not set)
+    pub starttm: f64,
     /// unix timestamp of order end time (or 0 if not set)
     pub expiretm: f64,
+    /// order description info
+    pub descr: OrderDescription,
+    /// volume of order (base currency unless viqc set in oflags)
+    pub vol: String,
+    /// volume executed (base currency unless viqc set in oflags)
+    pub vol_exec: String,
+    /// total cost (quote currency unless unless viqc set in oflags)
+    pub cost: String,
     /// total fee (quote currency)
     pub fee: String,
+    /// average price (quote currency unless viqc set in oflags)
+    pub price: String,
+    /// stop price (quote currency, for trailing stops)
+    pub stopprice: Option<String>,
+    /// triggered limit price (quote currency, when limit based order type triggered)
+    pub limitprice: Option<String>,
     /// comma delimited list of miscellaneous info:
     /// + stopped = triggered by stop price
     /// + touched = triggered by touch price
@@ -1130,28 +1159,13 @@ pub struct OrderInfo {
     /// + fciq = prefer fee in quote currency (default if buying)
     /// + nompp = no market price protection
     pub oflags: String,
-    /// unix timestamp of when order was placed
-    pub opentm: f64,
-    /// average price (quote currency unless viqc set in oflags)
-    pub price: String,
-    /// stop price (quote currency, for trailing stops)
-    pub stopprice: Option<String>,
-    /// triggered limit price (quote currency, when limit based order type triggered)
-    pub limitprice: Option<String>,
-    /// additional info on status (if any)
+    /// array of trade ids related to order (if trades info requested and data available)
+    pub trades: Option<Vec<String>>,
+    /// unix timestamp of when order was closed. Field only present when calling ClosedOrders
+    /// endpoint
+    pub closetm: Option<f64>,
+    /// additional info on status (if any). Field only present when calling ClosedOrders
     pub reason: Option<String>,
-    /// Referral order transaction id that created this order
-    pub refid: Option<String>,
-    /// unix timestamp of order start time (or 0 if not set)
-    pub starttm: f64,
-    /// status of order:
-    pub status: OrderStatus,
-    /// user reference id
-    pub userref: Option<String>,
-    /// volume of order (base currency unless viqc set in oflags)
-    pub vol: String,
-    /// volume executed (base currency unless viqc set in oflags)
-    pub vol_exec: String,
 }
 
 /// Open orders
@@ -1167,97 +1181,31 @@ pub struct ClosedOrders {
     pub count: u32,
 }
 
-#[derive(Deserialize, Serialize, Debug)]
-pub enum ClosedOrdersConfigCloseTime {
-    Open,
-    Close,
-    Both,
-}
+/// Orders query results
+pub type QueriedOrders = HashMap<String, OrderInfo>;
 
 #[derive(Deserialize, Serialize, Debug)]
-pub struct ClosedOrdersConfig {
-    /// whether or not to include trades in output (optional.  default = false).
-    pub trades: Option<bool>,
-    /// restrict results to given user reference id (optional).
-    pub userref: Option<String>,
-    /// starting unix timestamp or order tx id of results (optional.  exclusive).
-    pub start: Option<i64>,
-    /// ending unix timestamp or order tx id of results (optional.  inclusive).
-    pub end: Option<i64>,
-    /// result offset.
-    pub ofs: Option<u64>,
-    /// which time to use (optional).
-    pub closetime: Option<ClosedOrdersConfigCloseTime>,
+pub struct TradeInfo {
+    /// Order responsible for execution of trade
+    ordertxid: String,
+    pair: String,
+    time: f64,
+    #[serde(rename = "type")]
+    tradetype: String,
+    ordertype: String,
+    price: String,
+    cost: String,
+    fee: String,
+    vol: String,
+    margin: String,
+    misc: String,
 }
 
+/// Closed order result
 #[derive(Deserialize, Serialize, Debug)]
-pub enum TradeType {
-    Buy,
-    Sell,
-}
-
-#[derive(Deserialize, Serialize, Debug)]
-pub enum OrderType1 {
-    Market,
-    /// (price = limit price)
-    Limit,
-    /// (price = stop loss price)
-    StopLoss,
-    /// (price = take profit price)
-    TakeProfit,
-    /// (price = stop loss price, price2 = take profit price)
-    StopLossProfit,
-    /// (price = stop loss price, price2 = take profit price)
-    StopLossProfitLimit,
-    /// (price = stop loss trigger price, price2 = triggered limit price)
-    StopLossLimit,
-    /// (price = take profit trigger price, price2 = triggered limit price)
-    TakeProfitLimit,
-    /// (price = trailing stop offset)
-    TrailingStop,
-    /// (price = trailing stop offset, price2 = triggered limit offset)
-    TrailingStopLimit,
-    /// (price = stop loss price, price2 = limit price)
-    StopLossAndLimit,
-    SettlePosition,
-}
-
-#[derive(Deserialize, Serialize, Debug)]
-pub struct NewOrder {
-    /// asset pair
-    pub pair: String,
-    /// type of order (buy/sell)
-    pub kind: TradeType,
-    pub order_type: OrderType1,
-    /// price (optional.  dependent upon ordertype)
-    pub price: Option<String>,
-    /// secondary price (optional.  dependent upon ordertype)
-    pub price2: Option<String>,
-    /// order volume in lots
-    pub volume: String,
-    /// amount of leverage desired (optional.  default = none)
-    pub leverage: Option<String>,
-    /// comma delimited list of order flags (optional):
-    ///   + viqc = volume in quote currency (not available for leveraged orders)
-    ///   + fcib = prefer fee in base currency
-    ///   + fciq = prefer fee in quote currency
-    ///   + nompp = no market price protection
-    ///   + post = post only order (available when ordertype = limit)
-    pub oflags: Option<String>,
-    /// scheduled start time (optional):
-    ///   + 0 = now (default)
-    ///   + +<n> = schedule start time <n> seconds from now
-    ///   + <n> = unix timestamp of start time
-    pub starttm: Option<i64>,
-    /// expiration time (optional):
-    ///   + 0 = no expiration (default)
-    ///   + +<n> = expire <n> seconds from now
-    ///   + <n> = unix timestamp of expiration time
-    pub expiretm: Option<i64>,
-    /// user reference id.  32-bit signed number.  (optional)
-    pub userref: Option<String>,
-    /// validate inputs only.  do not submit order (optional)
-    pub validate: Option<bool>,
+pub struct TradeHistory {
+    pub closed: HashMap<String, TradeInfo>,
+    pub count: u32,
 }
 
 #[derive(Deserialize, Serialize, Debug)]

@@ -536,8 +536,3 @@ pub struct DepthPair {
 
 pub type Depth = HashMap<String, DepthPair>;
 
-#[derive(Deserialize, Serialize, Debug)]
-pub struct KrakenResult<T> {
-    pub error: Vec<String>,
-    pub result: Option<T>,
-}

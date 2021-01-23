@@ -1,9 +1,16 @@
 use std::fmt;
 use indexmap::map::IndexMap;
 use std::fmt::{Debug,Display};
+use serde::{Deserialize, Serialize};
 
 pub mod public;
 pub mod private;
+
+#[derive(Deserialize, Serialize, Debug)]
+pub struct KrakenResult<T> {
+    pub error: Vec<String>,
+    pub result: Option<T>,
+}
 
 // TODO: Query AssetInfo endpoint and write script to fill out the
 // enum and trait impl
@@ -161,16 +168,16 @@ impl fmt::Display for LedgerType {
     }
 }
 
-pub enum TransactionType {
+pub enum TradeType {
     Buy,
     Sell,
 }
 
-impl fmt::Display for TransactionType {
+impl fmt::Display for TradeType {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
-            TransactionType::Buy => write!(f, "{}", "buy"),
-            TransactionType::Sell => write!(f, "{}", "sell"),
+            TradeType::Buy => write!(f, "{}", "buy"),
+            TradeType::Sell => write!(f, "{}", "sell"),
         }
     }
 }

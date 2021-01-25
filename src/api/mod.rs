@@ -84,7 +84,7 @@ impl fmt::Display for AssetPairInfo {
 }
 
 // Used for the OHLC endpoint
-pub enum OHLCInt {
+pub enum OHLCInterval {
     One,
     Five,
     Fifteen,
@@ -96,18 +96,18 @@ pub enum OHLCInt {
     TwentyoneSixty,
 }
 
-impl fmt::Display for OHLCInt {
+impl fmt::Display for OHLCInterval {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
-            OHLCInt::One => write!(f, "{}", "1"),
-            OHLCInt::Five => write!(f, "{}", "5"),
-            OHLCInt::Fifteen => write!(f, "{}", "15"),
-            OHLCInt::Thirty => write!(f, "{}", "30"),
-            OHLCInt::Sixty => write!(f, "{}", "60"),
-            OHLCInt::TwoForty => write!(f, "{}", "240"),
-            OHLCInt::FourteenForty => write!(f, "{}", "1440"),
-            OHLCInt::TenEighty => write!(f, "{}", "10080"),
-            OHLCInt::TwentyoneSixty => write!(f, "{}", "21600"),
+            OHLCInterval::One => write!(f, "{}", "1"),
+            OHLCInterval::Five => write!(f, "{}", "5"),
+            OHLCInterval::Fifteen => write!(f, "{}", "15"),
+            OHLCInterval::Thirty => write!(f, "{}", "30"),
+            OHLCInterval::Sixty => write!(f, "{}", "60"),
+            OHLCInterval::TwoForty => write!(f, "{}", "240"),
+            OHLCInterval::FourteenForty => write!(f, "{}", "1440"),
+            OHLCInterval::TenEighty => write!(f, "{}", "10080"),
+            OHLCInterval::TwentyoneSixty => write!(f, "{}", "21600"),
         }
     }
 }
@@ -362,10 +362,10 @@ pub(crate) mod privatemod {
 // need to present two traits to allow/disallow lists of items for each unique endpoint
 // ListItem is some type that we want to format like above (assets, assets pairs, transaction ids,
 // ledger ids)
-pub trait InputListItem : privatemod::IntoInputList {
+pub(crate) trait InputListItem : privatemod::IntoInputList {
     type ListItem;
 
-    fn for_item(mut self, item: Self::ListItem) -> Self 
+    fn with_item(mut self, item: Self::ListItem) -> Self 
         where Self: Sized,
               Self::ListItem: Display,
     {
@@ -393,14 +393,14 @@ pub trait InputListItem : privatemod::IntoInputList {
     }
 }
 
-// Fun stuff. If there exists a list of items (previously called for_item()), then iterate
-// over the list and comma separate the items. If no list exists before calling for_item_list(),
+// Fun stuff. If there exists a list of items (previously called with_item()), then iterate
+// over the list and comma separate the items. If no list exists before calling with_item_list(),
 // first consume the first item and then recursivly consume the rest. Note the recursion consumes self 
-// and is equivalent to chaining calls to for_item()
-// for_item_list is just syntactic sugar for chaining calls to for_item(). Alternating calls to
+// and is equivalent to chaining calls to with_item()
+// with_item_list is just syntactic sugar for chaining calls to with_item(). Alternating calls to
 // either method would also work since they would just concatenate a list item
-pub trait InputList : InputListItem {
-    fn for_item_list<U>(mut self, items: U) -> Self
+pub(crate) trait InputList : InputListItem {
+    fn with_item_list<U>(mut self, items: U) -> Self
         where U: IntoIterator<Item = Self::ListItem>,
               Self: Sized,
               Self::ListItem: Display,
@@ -416,7 +416,7 @@ pub trait InputList : InputListItem {
                 match iter.next() {
                     Some(val) => {
                         self.list_mut().insert(listname, val.to_string());
-                        self.for_item_list(iter)
+                        self.with_item_list(iter)
                     },
                     None => self,
                 }
@@ -426,7 +426,7 @@ pub trait InputList : InputListItem {
 }
 
 // This trait works somwehat similar to InputListItem but the key difference is successive calls
-// into InputListItem::for_item() will always concatenate the value to the end of a comma delimited
+// into InputListItem::with_item() will always concatenate the value to the end of a comma delimited
 // array whereas UpdateInput will always overwrite the previous value or create a new key value
 // pair if the key doesn't exist yet
 pub(crate) trait UpdateInput : privatemod::MutateInput {

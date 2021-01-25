@@ -6,7 +6,7 @@ use super::{
     AssetPairInfo, InputList, InputListItem,
     EndpointInfo, Input, KAsset, 
     KAssetPair, KrakenInput, 
-    privatemod::{IntoInputList, MutateInput}, OHLCInt, 
+    privatemod::{IntoInputList, MutateInput}, OHLCInterval, 
     MethodType, UpdateInput
 };
 
@@ -81,6 +81,16 @@ impl KIAssetInfo {
         KIAssetInfo {
             params: IndexMap::new()
         }
+    }
+
+    pub fn with_asset(self, asset: KAsset) -> Self {
+        self.with_item(asset)
+    }
+
+    pub fn with_asset_list<T>(self, assets: T) -> Self
+        where T: IntoIterator<Item = KAsset>
+    {
+        self.with_item_list(assets)
     }
 }
 
@@ -181,7 +191,7 @@ impl KITicker {
         let ticker = KITicker {
             params: IndexMap::new()
         };
-        ticker.for_item(pair)
+        ticker.with_item(pair)
     }
 
     pub fn build_with_list<T>(pairs: T) -> Self 
@@ -190,7 +200,7 @@ impl KITicker {
         let ticker = KITicker {
             params: IndexMap::new()
         };
-        ticker.for_item_list(pairs)
+        ticker.with_item_list(pairs)
     }
 }
 
@@ -238,10 +248,10 @@ impl KIOHLC {
         let ohlc = KIOHLC {
             params: IndexMap::new()
         };
-        ohlc.for_item(pair)
+        ohlc.with_item(pair)
     }
 
-    pub fn with_interval (self, interval: OHLCInt) -> Self {
+    pub fn with_interval (self, interval: OHLCInterval) -> Self {
         self.update_input("interval", interval.to_string())
     }
 
@@ -294,7 +304,7 @@ impl KIOrderBook {
         let order_book = KIOrderBook {
             params: IndexMap::new()
         };
-        order_book.for_item(pair)
+        order_book.with_item(pair)
     }
 
     pub fn with_max (self, max: i64) -> Self {
@@ -346,7 +356,7 @@ impl KIRecentTrades {
         let recent_trades = KIRecentTrades {
             params: IndexMap::new()
         };
-        recent_trades.for_item(pair)
+        recent_trades.with_item(pair)
     }
 
     pub fn since(self, id: String) -> Self{
@@ -398,7 +408,7 @@ impl KISpreadData {
         let spread = KISpreadData {
             params: IndexMap::new()
         };
-        spread.for_item(pair)
+        spread.with_item(pair)
     }
 
     pub fn since(self, id: String) -> Self {

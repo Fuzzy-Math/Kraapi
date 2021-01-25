@@ -257,7 +257,7 @@ impl KIOrderInfo {
         let order_info = KIOrderInfo {
             params: IndexMap::new()
         };
-        order_info.for_item(txid)
+        order_info.with_item(txid)
     }
 
     pub fn build_with_list<T>(txids: T) -> Self
@@ -266,7 +266,7 @@ impl KIOrderInfo {
         let order_info = KIOrderInfo {
             params: IndexMap::new()
         };
-        order_info.for_item_list(txids)
+        order_info.with_item_list(txids)
     }
 
     pub fn with_trade_info(self, include_trades: bool) -> Self {
@@ -399,7 +399,7 @@ impl KITradesInfo {
         let trades_info = KITradesInfo {
             params: IndexMap::new()
         };
-        trades_info.for_item(txid)
+        trades_info.with_item(txid)
     }
 
     pub fn build_with_list<T>(txids: T) -> Self
@@ -408,7 +408,7 @@ impl KITradesInfo {
         let trades_info = KITradesInfo {
             params: IndexMap::new()
         };
-        trades_info.for_item_list(txids)
+        trades_info.with_item_list(txids)
     }
 
     pub fn with_trade_info(self, include_trades: bool) -> Self {
@@ -467,7 +467,7 @@ impl KIOpenPositions {
         let open_positions = KIOpenPositions {
             params: IndexMap::new()
         };
-        open_positions.for_item(txid)
+        open_positions.with_item(txid)
     }
 
     pub fn build_with_list<T>(txids: T) -> Self
@@ -476,7 +476,7 @@ impl KIOpenPositions {
         let open_positions = KIOpenPositions {
             params: IndexMap::new()
         };
-        open_positions.for_item_list(txids)
+        open_positions.with_item_list(txids)
     }
 
     pub fn do_cals(self, docalcs: bool) -> Self {
@@ -622,7 +622,7 @@ impl KIQueryLedgers {
         let trades_info = KIQueryLedgers {
             params: IndexMap::new()
         };
-        trades_info.for_item(txid)
+        trades_info.with_item(txid)
     }
 
     pub fn build_with_list<T>(txids: T) -> Self
@@ -631,7 +631,7 @@ impl KIQueryLedgers {
         let trades_info = KIQueryLedgers {
             params: IndexMap::new()
         };
-        trades_info.for_item_list(txids)
+        trades_info.with_item_list(txids)
     }
 
     fn with_nonce(self) -> Self {
@@ -745,7 +745,7 @@ impl KIAddOrder {
             params: IndexMap::new()
         };
 
-        new.for_item(pair)
+        new.with_item(pair)
            .with_transaction_type(tradetype)
            .with_order_type_ref(&ordertype)
            .with_price1(&ordertype)

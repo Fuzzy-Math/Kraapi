@@ -2,6 +2,7 @@ use krakenapi::public::*;
 use krakenapi::api::*;
 use krakenapi::client::KrakenClient;
 use krakenapi::api::Input;
+use serde_json::Value;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
@@ -18,25 +19,27 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let asset_info = KIAssetInfo::build()
         //.asset(KAsset::XBT)
         //.asset(KAsset::USD)
-        .asset_list(vec!(KAsset::XBT, KAsset::USD))
-        .finish_input();
+        .for_item_list(vec!(KAsset::XBT, KAsset::USD))
+        .finish();
     let res = client.request(&asset_info).await?;
 
     // Concatenate the body stream into a single buffer...
     let buf = hyper::body::to_bytes(res).await?;
-    println!("body: {:?}", buf);
+    let v: Value = serde_json::from_slice(&buf)?;
+    println!("body: {:?}", v);
     println!();
     println!();
 
     let asset_pairs = KIAssetPairs::build()
-        .pair(KAssetPair(KAsset::EUR, KAsset::CAD))
-        .info(APairInfo::MARGIN)
-        .finish_input();
+        .for_item(KAssetPair(KAsset::EUR, KAsset::CAD))
+        .info(AssetPairInfo::Margin)
+        .finish();
     let res = client.request(&asset_pairs).await?;
 
     // Concatenate the body stream into a single buffer...
     let buf = hyper::body::to_bytes(res).await?;
-    println!("body: {:?}", buf);
+    let v: Value = serde_json::from_slice(&buf)?;
+    println!("body: {:?}", v);
     
     Ok(())
 }

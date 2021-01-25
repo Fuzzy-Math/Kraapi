@@ -442,16 +442,22 @@ impl InputListItem for KISpreadData {
 }
 
 #[derive(Deserialize, Serialize, Debug)]
-pub struct Time {
+pub struct ServerTime {
     /// as unix timestamp
-    pub unixtime: i64,
+    pub unixtime: u64,
     /// as RFC 1123 time format
     pub rfc1123: String,
 }
 
+#[derive(Deserialize, Serialize, Debug)]
+pub struct SystemStatus {
+    status: String,
+    timestamp: String,
+}
+
 /// A currency asset
 #[derive(Deserialize, Serialize, Debug)]
-pub struct KOAsset {
+pub struct Asset {
     /// asset class
     pub aclass: String,
     /// alternate name
@@ -462,34 +468,13 @@ pub struct KOAsset {
     pub display_decimals: u32,
 }
 
-/// Ticker info
-#[derive(Deserialize, Serialize, Debug)]
-pub struct Tick {
-    /// ask array(<price>, <whole lot volume>, <lot volume>)
-    pub a: Vec<String>,
-    /// bid array(<price>, <whole lot volume>, <lot volume>)
-    pub b: Vec<String>,
-    /// last trade closed array(<price>, <lot volume>)
-    pub c: Vec<String>,
-    /// volume array(<today>, <last 24 hours>)
-    pub v: Vec<String>,
-    /// volume weighted average price array(<today>, <last 24 hours>)
-    pub p: Vec<String>,
-    /// number of trades array(<today>, <last 24 hours>)
-    pub t: Vec<u32>,
-    /// low array(<today>, <last 24 hours>)
-    pub l: Vec<String>,
-    /// high array(<today>, <last 24 hours>)
-    pub h: Vec<String>,
-    /// today's opening price
-    pub o: String,
-}
-
 /// Tradable asset pairs
 #[derive(Deserialize, Serialize, Debug)]
 pub struct AssetPair {
     /// alternate pair name
     pub altname: String,
+    /// websocket pair name (if available)
+    pub wsname: String,
     /// asset class of base component
     pub aclass_base: String,
     /// asset id of base component
@@ -520,7 +505,33 @@ pub struct AssetPair {
     pub margin_call: u32,
     /// stop-out/liquidation margin level
     pub margin_stop: u32,
+    /// minimum order volume for pair
+    pub ordermin: String,
 }
+
+/// Ticker info
+#[derive(Deserialize, Serialize, Debug)]
+pub struct Tick {
+    /// ask array(<price>, <whole lot volume>, <lot volume>)
+    pub a: Vec<String>,
+    /// bid array(<price>, <whole lot volume>, <lot volume>)
+    pub b: Vec<String>,
+    /// last trade closed array(<price>, <lot volume>)
+    pub c: Vec<String>,
+    /// volume array(<today>, <last 24 hours>)
+    pub v: Vec<String>,
+    /// volume weighted average price array(<today>, <last 24 hours>)
+    pub p: Vec<String>,
+    /// number of trades array(<today>, <last 24 hours>)
+    pub t: Vec<u32>,
+    /// low array(<today>, <last 24 hours>)
+    pub l: Vec<String>,
+    /// high array(<today>, <last 24 hours>)
+    pub h: Vec<String>,
+    /// today's opening price
+    pub o: String,
+}
+
 
 /// Open High Low Close data
 pub type OHLC = HashMap<String, serde_json::Value>;

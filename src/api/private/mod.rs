@@ -1059,13 +1059,13 @@ impl Input for KICancelOnTimeout {
 
 #[derive(Deserialize, Serialize, Debug)]
 #[serde(rename_all = "UPPERCASE")]
-pub struct KOAccountBalance {
+pub struct AccountBalance {
     pub xxbt: String,
     pub zusd: String,
 }
 
 #[derive(Deserialize, Serialize, Debug)]
-pub struct KOTradeBalance {
+pub struct TradeBalance {
     /// cost basis of open positions
     pub c: String,
     /// equity = trade balance + unrealized net profit/loss
@@ -1197,19 +1197,92 @@ pub struct TradeInfo {
     cost: String,
     fee: String,
     vol: String,
-    margin: String,
+    margin: Option<String>,
     misc: String,
+    posstatus: Option<String>,
+    cprice: Option<String>,
+    cfee: Option<String>,
+    cvol: Option<String>,
+    cmargin: Option<String>,
+    net: Option<String>,
+    trades: Option<String>,
 }
 
-/// Closed order result
 #[derive(Deserialize, Serialize, Debug)]
 pub struct TradeHistory {
     pub closed: HashMap<String, TradeInfo>,
     pub count: u32,
 }
 
+pub type QueriedTrades = HashMap<String, TradeInfo>;
+
 #[derive(Deserialize, Serialize, Debug)]
-pub struct CanceldOrders {
+pub struct PositionInfo {
+    /// Order responsible for execution of trade
+    ordertxid: String,
+    pair: String,
+    time: f64,
+    #[serde(rename = "type")]
+    tradetype: String,
+    ordertype: String,
+    cost: String,
+    fee: String,
+    vol: String,
+    vol_closed: String,
+    margin: Option<String>,
+    value: Option<String>,
+    net: Option<String>,
+    misc: String,
+    oflags: Option<String>,
+}
+
+pub type OpenPositions = HashMap<String, PositionInfo>;
+
+#[derive(Deserialize, Serialize, Debug)]
+pub struct LedgerInfo {
+    /// Order responsible for execution of trade
+    refid: String,
+    time: f64,
+    #[serde(rename = "type")]
+    ledgertype: String,
+    aclass: String,
+    asset: String,
+    amount: String,
+    fee: String,
+    balance: Option<String>,
+}
+
+pub type Ledgers = HashMap<String, LedgerInfo>;
+
+#[derive(Deserialize, Serialize, Debug)]
+pub struct FeeInfo {
+    fee: String,
+    minfee: Option<String>,
+    maxfee: Option<String>,
+    nextfee: Option<String>,
+    nextvolume: Option<String>,
+}
+
+#[derive(Deserialize, Serialize, Debug)]
+pub struct MakerFeeInfo {
+    fee: String,
+    minfee: Option<String>,
+    maxfee: Option<String>,
+    nextfee: Option<String>,
+    nextvolume: Option<String>,
+    tiervolume: Option<String>,
+}
+
+#[derive(Deserialize, Serialize, Debug)]
+pub struct TradeVolume {
+    currency: String,
+    volume: String,
+    fees: Option<HashMap<String, FeeInfo>>,
+    fees_maker: Option<HashMap<String, MakerFeeInfo>>,
+}
+
+#[derive(Deserialize, Serialize, Debug)]
+pub struct CancelledOrders {
     /// number of orders canceled
     count: u32,
     /// if set, order(s) is/are pending cancellation

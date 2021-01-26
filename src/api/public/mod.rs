@@ -83,6 +83,10 @@ impl KIAssetInfo {
         }
     }
 
+    pub fn clear_asset_list(self) -> Self {
+        self.update_input("asset", String::from(""))
+    }
+
     pub fn with_asset(self, asset: KAsset) -> Self {
         self.with_item(asset)
     }
@@ -127,6 +131,8 @@ impl InputListItem for KIAssetInfo {
     type ListItem = KAsset;
 }
 
+impl UpdateInput for KIAssetInfo {}
+
 impl InputList for KIAssetInfo {}
 
 pub struct KIAssetPairs {
@@ -138,6 +144,20 @@ impl KIAssetPairs {
         KIAssetPairs {
             params: IndexMap::new()
         }
+    }
+
+    pub fn clear_pair_list(self) -> Self {
+        self.update_input("pair", String::from(""))
+    }
+
+    pub fn with_asset_pair(self, pair: KAssetPair) -> Self {
+        self.with_item(pair)
+    }
+
+    pub fn with_asset_pair_list<T>(self, pairs: T) -> Self
+        where T: IntoIterator<Item = KAssetPair>
+    {
+        self.with_item_list(pairs)
     }
 
     pub fn info (self, info: AssetPairInfo) -> Self {
@@ -194,6 +214,12 @@ impl KITicker {
         ticker.with_item(pair)
     }
 
+    pub fn update_pair_list<T>(self, pairs: T) -> Self
+        where T: IntoIterator<Item = KAssetPair>
+    {
+        self.update_input("pair", String::from("")).with_item_list(pairs)
+    }
+
     pub fn build_with_list<T>(pairs: T) -> Self 
         where T: IntoIterator<Item = KAssetPair>,
     {
@@ -237,6 +263,8 @@ impl InputListItem for KITicker {
     type ListItem = KAssetPair;
 }
 
+impl UpdateInput for KITicker {}
+
 impl InputList for KITicker {}
 
 pub struct KIOHLC {
@@ -249,6 +277,10 @@ impl KIOHLC {
             params: IndexMap::new()
         };
         ohlc.with_item(pair)
+    }
+
+    pub fn update_pair(self, pair: KAssetPair) -> Self {
+        self.update_input("pair", pair.to_string())
     }
 
     pub fn with_interval (self, interval: OHLCInterval) -> Self {
@@ -307,6 +339,10 @@ impl KIOrderBook {
         order_book.with_item(pair)
     }
 
+    pub fn update_pair(self, pair: KAssetPair) -> Self {
+        self.update_input("pair", pair.to_string())
+    }
+
     pub fn with_max (self, max: i64) -> Self {
         self.update_input("count", max.to_string())
     }
@@ -357,6 +393,10 @@ impl KIRecentTrades {
             params: IndexMap::new()
         };
         recent_trades.with_item(pair)
+    }
+
+    pub fn update_pair(self, pair: KAssetPair) -> Self {
+        self.update_input("pair", pair.to_string())
     }
 
     pub fn since(self, id: String) -> Self{
@@ -411,6 +451,10 @@ impl KISpreadData {
         spread.with_item(pair)
     }
 
+    pub fn update_pair(self, pair: KAssetPair) -> Self {
+        self.update_input("pair", pair.to_string())
+    }
+
     pub fn since(self, id: String) -> Self {
         self.update_input("since", id)
     }
@@ -452,7 +496,7 @@ impl InputListItem for KISpreadData {
 }
 
 #[derive(Deserialize, Serialize, Debug)]
-pub struct ServerTime {
+pub struct KOServerTime {
     /// as unix timestamp
     pub unixtime: u64,
     /// as RFC 1123 time format
@@ -460,14 +504,14 @@ pub struct ServerTime {
 }
 
 #[derive(Deserialize, Serialize, Debug)]
-pub struct SystemStatus {
+pub struct KOSystemStatus {
     status: String,
     timestamp: String,
 }
 
 /// A currency asset
 #[derive(Deserialize, Serialize, Debug)]
-pub struct Asset {
+pub struct KOAsset {
     /// asset class
     pub aclass: String,
     /// alternate name
@@ -480,7 +524,7 @@ pub struct Asset {
 
 /// Tradable asset pairs
 #[derive(Deserialize, Serialize, Debug)]
-pub struct AssetPair {
+pub struct KOAssetPair {
     /// alternate pair name
     pub altname: String,
     /// websocket pair name (if available)
@@ -521,7 +565,7 @@ pub struct AssetPair {
 
 /// Ticker info
 #[derive(Deserialize, Serialize, Debug)]
-pub struct Tick {
+pub struct KOTick {
     /// ask array(<price>, <whole lot volume>, <lot volume>)
     pub a: Vec<String>,
     /// bid array(<price>, <whole lot volume>, <lot volume>)
@@ -544,16 +588,16 @@ pub struct Tick {
 
 
 /// Open High Low Close data
-pub type OHLC = HashMap<String, serde_json::Value>;
+pub type KOOHLC = HashMap<String, serde_json::Value>;
 
 #[derive(Deserialize, Serialize, Debug)]
-pub struct DepthPairTuple(String, String, i64);
+pub struct KODepthPairTuple(String, String, i64);
 
 #[derive(Deserialize, Serialize, Debug)]
-pub struct DepthPair {
-    pub asks: Vec<DepthPairTuple>,
-    pub bids: Vec<DepthPairTuple>,
+pub struct KODepthPair {
+    pub asks: Vec<KODepthPairTuple>,
+    pub bids: Vec<KODepthPairTuple>,
 }
 
-pub type Depth = HashMap<String, DepthPair>;
+pub type Depth = HashMap<String, KODepthPair>;
 

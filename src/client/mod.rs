@@ -54,11 +54,6 @@ impl KrakenClient {
         &self.auth
     }
 
-    /*
-    pub fn request(&self, request: hyper::Request<hyper::Body>) -> ResponseFuture {
-        self.client.request(request)
-    }
-    */
     pub fn request(&self, input: &KrakenInput) -> ResponseFuture {
         match input.get_info().get_type() {
             MethodType::Public => {

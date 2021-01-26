@@ -358,7 +358,7 @@ pub(crate) trait IntoInputList : MutateInput {
 // need to present two traits to allow/disallow lists of items for each unique endpoint
 // ListItem is some type that we want to format like above (assets, assets pairs, transaction ids,
 // ledger ids)
-pub(crate) trait InputListItem : privatemod::IntoInputList {
+pub(crate) trait InputListItem : IntoInputList {
     type ListItem;
 
     fn with_item(mut self, item: Self::ListItem) -> Self 
@@ -425,7 +425,7 @@ pub(crate) trait InputList : InputListItem {
 // into InputListItem::with_item() will always concatenate the value to the end of a comma delimited
 // array whereas UpdateInput will always overwrite the previous value or create a new key value
 // pair if the key doesn't exist yet
-pub(crate) trait UpdateInput : privatemod::MutateInput {
+pub(crate) trait UpdateInput : MutateInput {
     fn update_input<T>(mut self, key: &str, value: T) -> Self 
         where Self: Sized,
               T: Display,

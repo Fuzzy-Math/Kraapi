@@ -16,7 +16,7 @@ use super::{
 // Traits
 use super::{
     InputList, InputListItem, Input, 
-    privatemod::IntoInputList, privatemod::MutateInput, 
+    IntoInputList, MutateInput, 
     UpdateInput
 };
 

@@ -6,7 +6,7 @@ use super::{
     AssetPairInfo, InputList, InputListItem,
     EndpointInfo, Input, KAsset, 
     KAssetPair, KrakenInput, 
-    privatemod::{IntoInputList, MutateInput}, OHLCInterval, 
+    IntoInputList, MutateInput, OHLCInterval, 
     MethodType, UpdateInput
 };
 

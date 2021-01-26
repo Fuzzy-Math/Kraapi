@@ -36,7 +36,6 @@ impl KrakenAuth {
     }
 
     pub fn sign(&self, path: &str, nonce: &str, params: &str) -> String {
-        println!("{} - {} - {}", &path, &nonce, &params);
         let api_secret = base64::decode(&self.api_secret).unwrap();
         let mut sha256 = Sha256::new();
         let mut hmac = Hmac::new(Sha512::new(), &api_secret);

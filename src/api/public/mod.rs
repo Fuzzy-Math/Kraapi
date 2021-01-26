@@ -214,12 +214,6 @@ impl KITicker {
         ticker.with_item(pair)
     }
 
-    pub fn update_pair_list<T>(self, pairs: T) -> Self
-        where T: IntoIterator<Item = KAssetPair>
-    {
-        self.update_input("pair", String::from("")).with_item_list(pairs)
-    }
-
     pub fn build_with_list<T>(pairs: T) -> Self 
         where T: IntoIterator<Item = KAssetPair>,
     {
@@ -227,6 +221,12 @@ impl KITicker {
             params: IndexMap::new()
         };
         ticker.with_item_list(pairs)
+    }
+
+    pub fn update_pair_list<T>(self, pairs: T) -> Self
+        where T: IntoIterator<Item = KAssetPair>
+    {
+        self.update_input("pair", String::from("")).with_item_list(pairs)
     }
 }
 
@@ -333,7 +333,7 @@ impl KIOrderBook {
         self.update_input("pair", pair.to_string())
     }
 
-    pub fn with_max (self, max: i64) -> Self {
+    pub fn with_max(self, max: i64) -> Self {
         self.update_input("count", max.to_string())
     }
 }
@@ -472,57 +472,60 @@ pub struct KOSystemStatus {
 /// A currency asset
 #[derive(Deserialize, Serialize, Debug)]
 pub struct KOAsset {
-    /// asset class
-    pub aclass: String,
     /// alternate name
     pub altname: String,
+    /// asset class
+    pub aclass: String,
     /// scaling decimal places for record keeping
     pub decimals: u32,
     /// scaling decimal places for output display
     pub display_decimals: u32,
 }
 
+pub type KOAssetInfo = HashMap<String, KOAsset>;
+
 /// Tradable asset pairs
 #[derive(Deserialize, Serialize, Debug)]
 pub struct KOAssetPair {
-    /// alternate pair name
-    pub altname: String,
-    /// websocket pair name (if available)
-    pub wsname: String,
     /// asset class of base component
     pub aclass_base: String,
-    /// asset id of base component
-    pub base: String,
     /// asset class of quote component
     pub aclass_quote: String,
-    /// asset id of quote component
-    pub quote: String,
-    /// volume lot size
-    pub lot: String,
-    /// scaling decimal places for pair
-    pub pair_decimals: u32,
-    /// scaling decimal places for volume
-    pub lot_decimals: u32,
-    /// amount to multiply lot volume by to get currency volume
-    pub lot_multiplier: u32,
-    /// array of leverage amounts available when buying
-    pub leverage_buy: Vec<u32>,
-    /// array of leverage amounts available when selling
-    pub leverage_sell: Vec<u32>,
+    /// alternate pair name
+    pub altname: String,
+    /// asset id of base component
+    pub base: String,
+    /// volume discount currency
+    pub fee_volume_currency: String,
     /// fee schedule array in [volume, percent fee] tuples
     pub fees: Vec<(u64, f64)>,
     /// maker fee schedule array in [volume, percent fee] tuples (if on maker/taker)
     pub fees_maker: Option<Vec<(u64, f64)>>,
-    /// volume discount currency
-    pub fee_volume_currency: String,
+    /// array of leverage amounts available when buying
+    pub leverage_buy: Vec<u32>,
+    /// array of leverage amounts available when selling
+    pub leverage_sell: Vec<u32>,
+    /// volume lot size
+    pub lot: String,
+    /// scaling decimal places for volume
+    pub lot_decimals: u32,
+    /// amount to multiply lot volume by to get currency volume
+    pub lot_multiplier: u32,
     /// margin call level
     pub margin_call: u32,
     /// stop-out/liquidation margin level
     pub margin_stop: u32,
     /// minimum order volume for pair
-    pub ordermin: String,
+    pub ordermin: Option<String>,
+    /// scaling decimal places for pair
+    pub pair_decimals: u32,
+    /// asset id of quote component
+    pub quote: String,
+    /// websocket pair name (if available)
+    pub wsname: Option<String>,
 }
 
+pub type KOAssetPairInfo = HashMap<String, KOAssetPair>;
 /// Ticker info
 #[derive(Deserialize, Serialize, Debug)]
 pub struct KOTick {

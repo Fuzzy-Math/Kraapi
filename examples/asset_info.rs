@@ -19,26 +19,27 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let asset_info = KIAssetInfo::build()
         //.asset(KAsset::XBT)
         //.asset(KAsset::USD)
-        .for_item_list(vec!(KAsset::XBT, KAsset::USD))
+        .with_asset_list(vec!(KAsset::XBT, KAsset::USD))
         .finish();
     let res = client.request(&asset_info).await?;
 
     // Concatenate the body stream into a single buffer...
     let buf = hyper::body::to_bytes(res).await?;
-    let v: Value = serde_json::from_slice(&buf)?;
+    //let v: Value = serde_json::from_slice(&buf)?;
+    let v: KrakenResult<KOAssetInfo> = serde_json::from_slice(&buf)?;
     println!("body: {:?}", v);
     println!();
     println!();
 
     let asset_pairs = KIAssetPairs::build()
-        .for_item(KAssetPair(KAsset::EUR, KAsset::CAD))
-        .info(AssetPairInfo::Margin)
+        .with_asset_pair(KAssetPair(KAsset::EUR, KAsset::CAD))
         .finish();
     let res = client.request(&asset_pairs).await?;
 
     // Concatenate the body stream into a single buffer...
     let buf = hyper::body::to_bytes(res).await?;
-    let v: Value = serde_json::from_slice(&buf)?;
+    //let v: Value = serde_json::from_slice(&buf)?;
+    let v: KrakenResult<KOAssetPairInfo> = serde_json::from_slice(&buf)?;
     println!("body: {:?}", v);
     
     Ok(())

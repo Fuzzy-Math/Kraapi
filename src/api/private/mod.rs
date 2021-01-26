@@ -81,6 +81,10 @@ impl KITradeBalance {
         }
     }
 
+    pub fn with_asset(self, asset: KAsset) -> Self {
+        self.update_input("asset", asset.to_string())
+    }
+
     fn with_nonce(self) -> Self {
         self.update_input("nonce", KrakenAuth::nonce())
     }
@@ -93,16 +97,6 @@ impl MutateInput for KITradeBalance {
 }
 
 impl UpdateInput for KITradeBalance {}
-
-impl IntoInputList for KITradeBalance {
-    fn list_name(&self) -> String {
-        String::from("asset")
-    }
-}
-
-impl InputListItem for KITradeBalance {
-    type ListItem = KAsset;
-}
 
 impl Input for KITradeBalance {
     fn finish(self) -> KrakenInput {
@@ -269,6 +263,12 @@ impl KIOrderInfo {
         order_info.with_item_list(txids)
     }
 
+    pub fn update_transaction_list<T>(self, txids: T) -> Self
+        where T: IntoIterator<Item = String>
+    {
+        self.update_input("txid", String::from("")).with_item_list(txids)
+    }
+
     pub fn with_trade_info(self, include_trades: bool) -> Self {
         self.update_input("trades", include_trades.to_string())
     }
@@ -411,6 +411,12 @@ impl KITradesInfo {
         trades_info.with_item_list(txids)
     }
 
+    pub fn update_transaction_list<T>(self, txids: T) -> Self
+        where T: IntoIterator<Item = String>
+    {
+        self.update_input("txid", String::from("")).with_item_list(txids)
+    }
+
     pub fn with_trade_info(self, include_trades: bool) -> Self {
         self.update_input("trades", include_trades.to_string())
     }
@@ -479,6 +485,12 @@ impl KIOpenPositions {
         open_positions.with_item_list(txids)
     }
 
+    pub fn update_transaction_list<T>(self, txids: T) -> Self
+        where T: IntoIterator<Item = String>
+    {
+        self.update_input("txid", String::from("")).with_item_list(txids)
+    }
+
     pub fn do_cals(self, docalcs: bool) -> Self {
         self.update_input("docalcs", docalcs.to_string())
     }
@@ -544,6 +556,20 @@ impl KILedgerInfo {
         KILedgerInfo {
             params: IndexMap::new()
         }
+    }
+
+    pub fn clear_asset_list(self) -> Self {
+        self.update_input("asset", String::from(""))
+    }
+
+    pub fn with_asset(self, asset: KAsset) -> Self {
+        self.with_item(asset)
+    }
+
+    pub fn with_asset_list<T>(self, assets: T) -> Self
+        where T: IntoIterator<Item = KAsset>
+    {
+        self.with_item_list(assets)
     }
 
     pub fn with_trade_type(self, ledgertype: LedgerType) -> Self {
@@ -618,20 +644,26 @@ pub struct KIQueryLedgers {
 }
 
 impl KIQueryLedgers {
-    pub fn build(txid: String) -> Self {
-        let trades_info = KIQueryLedgers {
+    pub fn build(ledgerid: String) -> Self {
+        let ledgers = KIQueryLedgers {
             params: IndexMap::new()
         };
-        trades_info.with_item(txid)
+        ledgers.with_item(ledgerid)
     }
 
-    pub fn build_with_list<T>(txids: T) -> Self
+    pub fn build_with_list<T>(ledgerids: T) -> Self
         where T: IntoIterator<Item = String>
     {
-        let trades_info = KIQueryLedgers {
+        let ledgers = KIQueryLedgers {
             params: IndexMap::new()
         };
-        trades_info.with_item_list(txids)
+        ledgers.with_item_list(ledgerids)
+    }
+
+    pub fn update_transaction_list<T>(self, ledgerids: T) -> Self
+        where T: IntoIterator<Item = String>
+    {
+        self.update_input("id", String::from("")).with_item_list(ledgerids)
     }
 
     fn with_nonce(self) -> Self {
@@ -686,6 +718,20 @@ impl KITradeVolume {
         KITradeVolume {
             params: IndexMap::new()
         }
+    }
+
+    pub fn clear_pair_list(self) -> Self {
+        self.update_input("pair", String::from(""))
+    }
+
+    pub fn with_pair(self, pair: KAssetPair) -> Self {
+        self.with_item(pair)
+    }
+
+    pub fn with_pair_list<T>(self, pairs: T) -> Self
+        where T: IntoIterator<Item = KAssetPair>
+    {
+        self.with_item_list(pairs)
     }
 
     pub fn with_fee_info(self, feeinfo: bool) -> Self {
@@ -745,12 +791,16 @@ impl KIAddOrder {
             params: IndexMap::new()
         };
 
-        new.with_item(pair)
+        new.with_pair(pair)
            .with_transaction_type(tradetype)
            .with_order_type_ref(&ordertype)
            .with_price1(&ordertype)
            .with_price2(&ordertype)
            .with_volume(volume)
+    }
+
+    pub fn with_pair(self, pair: KAssetPair) -> Self {
+        self.update_input("pair", pair.to_string())
     }
 
     pub fn with_transaction_type(self, tradetype: TradeType) -> Self {
@@ -885,16 +935,6 @@ impl MutateInput for KIAddOrder {
 
 impl UpdateInput for KIAddOrder {}
 
-impl IntoInputList for KIAddOrder {
-    fn list_name(&self) -> String {
-        String::from("pair")
-    }
-}
-
-impl InputListItem for KIAddOrder {
-    type ListItem = KAssetPair;
-}
-
 impl Input for KIAddOrder {
     fn finish(self) -> KrakenInput {
        KrakenInput {
@@ -922,10 +962,10 @@ impl KICancelOrder {
         let cancelorder = KICancelOrder {
             params: IndexMap::new()
         };
-        cancelorder.for_txid(txid)
+        cancelorder.with_txid(txid)
     }
 
-    fn for_txid(self, txid: String) -> Self {
+    pub fn with_txid(self, txid: String) -> Self {
         self.update_input("txid", txid)
     }
 
@@ -1022,7 +1062,7 @@ impl KICancelOnTimeout {
         cancelorder.on_timeout(timeout)
     }
 
-    fn on_timeout(self, timeout: u32) -> Self {
+    pub fn on_timeout(self, timeout: u32) -> Self {
         self.update_input("timeout", timeout.to_string())
     }
 
@@ -1057,15 +1097,10 @@ impl Input for KICancelOnTimeout {
     }
 }
 
-#[derive(Deserialize, Serialize, Debug)]
-#[serde(rename_all = "UPPERCASE")]
-pub struct AccountBalance {
-    pub xxbt: String,
-    pub zusd: String,
-}
+pub type KOAccountBalance = HashMap<String, String>;
 
 #[derive(Deserialize, Serialize, Debug)]
-pub struct TradeBalance {
+pub struct KOTradeBalance {
     /// cost basis of open positions
     pub c: String,
     /// equity = trade balance + unrealized net profit/loss
@@ -1087,7 +1122,7 @@ pub struct TradeBalance {
 }
 
 #[derive(Deserialize, Serialize, Debug)]
-pub struct OrderDescription {
+pub struct KOOrderDescription {
     pub pair: String,
     #[serde(rename = "type")]
     pub tradetype: String,
@@ -1103,7 +1138,7 @@ pub struct OrderDescription {
 
 #[derive(Deserialize, Serialize, Debug)]
 #[serde(rename_all = "lowercase")]
-pub enum OrderStatus {
+pub enum KOOrderStatus {
     /// order pending book entry
     Pending,
     /// open order
@@ -1118,13 +1153,13 @@ pub enum OrderStatus {
 
 /// General order info object
 #[derive(Deserialize, Serialize, Debug)]
-pub struct OrderInfo {
+pub struct KOOrderInfo {
     /// Referral order transaction id that created this order
     pub refid: Option<String>,
     /// user reference id
     pub userref: Option<u32>,
     /// status of order:
-    pub status: OrderStatus,
+    pub status: KOOrderStatus,
     /// unix timestamp of when order was placed
     pub opentm: f64,
     /// unix timestamp of order start time (or 0 if not set)
@@ -1132,7 +1167,7 @@ pub struct OrderInfo {
     /// unix timestamp of order end time (or 0 if not set)
     pub expiretm: f64,
     /// order description info
-    pub descr: OrderDescription,
+    pub descr: KOOrderDescription,
     /// volume of order (base currency unless viqc set in oflags)
     pub vol: String,
     /// volume executed (base currency unless viqc set in oflags)
@@ -1170,22 +1205,22 @@ pub struct OrderInfo {
 
 /// Open orders
 #[derive(Deserialize, Serialize, Debug)]
-pub struct OpenOrders {
-    pub open: HashMap<String, OrderInfo>,
+pub struct KOOpenOrders {
+    pub open: HashMap<String, KOOrderInfo>,
 }
 
 /// Closed order result
 #[derive(Deserialize, Serialize, Debug)]
-pub struct ClosedOrders {
-    pub closed: HashMap<String, OrderInfo>,
+pub struct KOClosedOrders {
+    pub closed: HashMap<String, KOOrderInfo>,
     pub count: u32,
 }
 
 /// Orders query results
-pub type QueriedOrders = HashMap<String, OrderInfo>;
+pub type KOQueriedOrders = HashMap<String, KOOrderInfo>;
 
 #[derive(Deserialize, Serialize, Debug)]
-pub struct TradeInfo {
+pub struct KOTradeInfo {
     /// Order responsible for execution of trade
     ordertxid: String,
     pair: String,
@@ -1209,15 +1244,15 @@ pub struct TradeInfo {
 }
 
 #[derive(Deserialize, Serialize, Debug)]
-pub struct TradeHistory {
-    pub closed: HashMap<String, TradeInfo>,
+pub struct KOTradeHistory {
+    pub closed: HashMap<String, KOTradeInfo>,
     pub count: u32,
 }
 
-pub type QueriedTrades = HashMap<String, TradeInfo>;
+pub type KOQueriedTrades = HashMap<String, KOTradeInfo>;
 
 #[derive(Deserialize, Serialize, Debug)]
-pub struct PositionInfo {
+pub struct KOPositionInfo {
     /// Order responsible for execution of trade
     ordertxid: String,
     pair: String,
@@ -1236,10 +1271,10 @@ pub struct PositionInfo {
     oflags: Option<String>,
 }
 
-pub type OpenPositions = HashMap<String, PositionInfo>;
+pub type KOOpenPositions = HashMap<String, KOPositionInfo>;
 
 #[derive(Deserialize, Serialize, Debug)]
-pub struct LedgerInfo {
+pub struct KOLedgerInfo {
     /// Order responsible for execution of trade
     refid: String,
     time: f64,
@@ -1252,10 +1287,10 @@ pub struct LedgerInfo {
     balance: Option<String>,
 }
 
-pub type Ledgers = HashMap<String, LedgerInfo>;
+pub type KOLedgers = HashMap<String, KOLedgerInfo>;
 
 #[derive(Deserialize, Serialize, Debug)]
-pub struct FeeInfo {
+pub struct KOFeeInfo {
     fee: String,
     minfee: Option<String>,
     maxfee: Option<String>,
@@ -1264,7 +1299,7 @@ pub struct FeeInfo {
 }
 
 #[derive(Deserialize, Serialize, Debug)]
-pub struct MakerFeeInfo {
+pub struct KOMakerFeeInfo {
     fee: String,
     minfee: Option<String>,
     maxfee: Option<String>,
@@ -1274,15 +1309,15 @@ pub struct MakerFeeInfo {
 }
 
 #[derive(Deserialize, Serialize, Debug)]
-pub struct TradeVolume {
+pub struct KOTradeVolume {
     currency: String,
     volume: String,
-    fees: Option<HashMap<String, FeeInfo>>,
-    fees_maker: Option<HashMap<String, MakerFeeInfo>>,
+    fees: Option<HashMap<String, KOFeeInfo>>,
+    fees_maker: Option<HashMap<String, KOMakerFeeInfo>>,
 }
 
 #[derive(Deserialize, Serialize, Debug)]
-pub struct CancelledOrders {
+pub struct KOCancelledOrders {
     /// number of orders canceled
     count: u32,
     /// if set, order(s) is/are pending cancellation

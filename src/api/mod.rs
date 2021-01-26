@@ -338,23 +338,19 @@ pub trait Input {
     fn finish_clone(self) -> (KrakenInput, Self);
 }
 
-// Module privatemod is needed to prevent leakage into the public API
-pub(crate) mod privatemod {
-    use indexmap::map::IndexMap;
-    // This trait allows us to get a mutable reference to the input data 
-    pub trait MutateInput {
-        // Get mutable access to the input parameters of the implementing type
-        fn list_mut(&mut self) -> &mut IndexMap<String, String>;
-    }
+// This trait allows us to get a mutable reference to the input data 
+pub(crate) trait MutateInput {
+    // Get mutable access to the input parameters of the implementing type
+    fn list_mut(&mut self) -> &mut IndexMap<String, String>;
+}
 
-    // Trait Inheritance from MutateInput. Everything that implements IntoInputList also needs
-    // to implement MutateInput but MutateInput needs to be able to be implmented on types not
-    // implementing IntoInputList or its children
-    pub trait IntoInputList : MutateInput {
-        // Resolve the name of the key associated with the given list
-        // Allows to be generic over asset lists, asset pair lists, etc.
-        fn list_name(&self) -> String; 
-    }
+// Trait Inheritance from MutateInput. Everything that implements IntoInputList also needs
+// to implement MutateInput but MutateInput needs to be able to be implmented on types not
+// implementing IntoInputList or its children
+pub(crate) trait IntoInputList : MutateInput {
+    // Resolve the name of the key associated with the given list
+    // Allows to be generic over asset lists, asset pair lists, etc.
+    fn list_name(&self) -> String; 
 }
 
 // This trait is used in the public API to expose a method for adding a single key value pair.

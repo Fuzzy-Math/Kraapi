@@ -18,7 +18,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     //let res = private::get_trade_balance(&client).await?;
     let trade_balance = KITradeBalance::build()
-        .for_item(KAsset::XBT)
+        .with_asset(KAsset::XBT)
         .finish();
     let res = client.request(&trade_balance).await?;
 

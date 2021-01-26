@@ -24,7 +24,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     // Concatenate the body stream into a single buffer...
     let buf = hyper::body::to_bytes(res).await?;
     //let v: Value = serde_json::from_slice(&buf)?;
-    let v: KrakenResult<TradeVolume> = serde_json::from_slice(&buf)?;
+    let v: KrakenResult<KOTradeVolume> = serde_json::from_slice(&buf)?;
     println!("body: {:?}", v);
     Ok(())
 }

@@ -276,7 +276,7 @@ impl KIOHLC {
         let ohlc = KIOHLC {
             params: IndexMap::new()
         };
-        ohlc.with_item(pair)
+        ohlc.update_pair(pair)
     }
 
     pub fn update_pair(self, pair: KAssetPair) -> Self {
@@ -317,16 +317,6 @@ impl MutateInput for KIOHLC {
 
 impl UpdateInput for KIOHLC {}
 
-impl IntoInputList for KIOHLC {
-    fn list_name(&self) -> String {
-        String::from("pair")
-    }
-}
-
-impl InputListItem for KIOHLC {
-    type ListItem = KAssetPair;
-}
-
 pub struct KIOrderBook {
     pub params: IndexMap<String, String>,
 }
@@ -336,7 +326,7 @@ impl KIOrderBook {
         let order_book = KIOrderBook {
             params: IndexMap::new()
         };
-        order_book.with_item(pair)
+        order_book.update_pair(pair)
     }
 
     pub fn update_pair(self, pair: KAssetPair) -> Self {
@@ -373,16 +363,6 @@ impl MutateInput for KIOrderBook {
 
 impl UpdateInput for KIOrderBook {}
 
-impl IntoInputList for KIOrderBook {
-    fn list_name(&self) -> String {
-        String::from("pair")
-    }
-}
-
-impl InputListItem for KIOrderBook {
-    type ListItem = KAssetPair;
-}
-
 pub struct KIRecentTrades {
     pub params: IndexMap<String, String>,
 }
@@ -392,7 +372,7 @@ impl KIRecentTrades {
         let recent_trades = KIRecentTrades {
             params: IndexMap::new()
         };
-        recent_trades.with_item(pair)
+        recent_trades.update_pair(pair)
     }
 
     pub fn update_pair(self, pair: KAssetPair) -> Self {
@@ -429,16 +409,6 @@ impl MutateInput for KIRecentTrades {
 
 impl UpdateInput for KIRecentTrades {}
 
-impl IntoInputList for KIRecentTrades {
-    fn list_name(&self) -> String {
-        String::from("pair")
-    }
-}
-
-impl InputListItem for KIRecentTrades {
-    type ListItem = KAssetPair;
-}
-
 pub struct KISpreadData {
     pub params: IndexMap<String, String>,
 }
@@ -448,7 +418,7 @@ impl KISpreadData {
         let spread = KISpreadData {
             params: IndexMap::new()
         };
-        spread.with_item(pair)
+        spread.update_pair(pair)
     }
 
     pub fn update_pair(self, pair: KAssetPair) -> Self {
@@ -484,16 +454,6 @@ impl MutateInput for KISpreadData {
 }
 
 impl UpdateInput for KISpreadData {}
-
-impl IntoInputList for KISpreadData {
-    fn list_name(&self) -> String {
-        String::from("pair")
-    }
-}
-
-impl InputListItem for KISpreadData {
-    type ListItem = KAssetPair;
-}
 
 #[derive(Deserialize, Serialize, Debug)]
 pub struct KOServerTime {

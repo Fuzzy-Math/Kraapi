@@ -130,7 +130,11 @@ impl KIOpenOrders {
     // FIXME: AFter testing, trades=false still causes trade data to be returned. So the entire key
     // value pair needs to be removed on false input
     pub fn with_trade_info(self, include_trades: bool) -> Self {
-        self.update_input("trades", include_trades.to_string())
+        if(include_trades) {
+            self.update_input("trades", include_trades.to_string())
+        } else {
+            self.update_input("trades", String::from(""))
+        }
     }
 
     pub fn with_userref (self, userref: u32) -> Self {

@@ -1,7 +1,9 @@
 use hyper::{Body, Client, Request};
-use hyper::client::{HttpConnector, ResponseFuture};
+use hyper::body;
+use hyper::client::HttpConnector;
 use hyper::header::{CONTENT_TYPE, USER_AGENT};
 use hyper_tls::HttpsConnector;
+use serde::de::DeserializeOwned;
 
 use super::auth::KrakenAuth;
 use crate::api::{KrakenInput, MethodType};
@@ -54,7 +56,10 @@ impl KrakenClient {
         &self.auth
     }
 
-    pub fn request(&self, input: &KrakenInput) -> ResponseFuture {
+    pub async fn request<'a, T>(&self, input: &KrakenInput) -> 
+        Result<T, Box<dyn std::error::Error>> 
+        where T: DeserializeOwned
+    {
         match input.get_info().get_type() {
             MethodType::Public => {
                 let endpoint = format!("/{}/{}/{}", self.get_version(), 
@@ -74,8 +79,7 @@ impl KrakenClient {
                 request.headers_mut().insert(USER_AGENT, "krakenapi/0.1 (Kraken Rust Client)".parse().unwrap());
                 request.headers_mut().insert(CONTENT_TYPE, "application/x-www-form-urlencoded".parse().unwrap());
 
-                println!("{:?}", request);
-                self.client.request(request)        
+                Ok(serde_json::from_slice(&body::to_bytes(self.client.request(request).await?).await?)?)
             },
             MethodType::Private => {
                 let endpoint = format!("/{}/{}/{}", self.get_version(), 
@@ -101,8 +105,7 @@ impl KrakenClient {
                 request.headers_mut().insert("API-Key", self.get_auth().get_key().parse().unwrap());
                 request.headers_mut().insert("API-Sign", signature.parse().unwrap());
 
-                println!("{:?}", request);
-                self.client.request(request)
+                Ok(serde_json::from_slice(&body::to_bytes(self.client.request(request).await?).await?)?)
             },
         }
     }

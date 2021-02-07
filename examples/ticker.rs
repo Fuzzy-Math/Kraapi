@@ -13,8 +13,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         .finish();
 
     // Both of these do the same thing
-    let res = client.request::<KOTick>(&ticker).await?;
-    //let res: KOTick = client.request(&ticker).await?;
+    let res = client.request::<KOTicker>(&ticker).await?;
+    //let res: KOTicker = client.request(&ticker).await?;
 
     println!("{:?}", res);
 

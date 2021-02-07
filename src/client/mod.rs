@@ -6,7 +6,7 @@ use hyper_tls::HttpsConnector;
 use serde::de::DeserializeOwned;
 
 use super::auth::KrakenAuth;
-use crate::api::{KrakenInput, MethodType};
+use crate::api::{KrakenInput, KrakenResult, MethodType};
 use crate::api;
 
 type HttpClient = Box<hyper::Client<HttpsConnector<HttpConnector>, hyper::Body>>;
@@ -57,8 +57,8 @@ impl KrakenClient {
     }
 
     pub async fn request<'a, T>(&self, input: &KrakenInput) -> 
-        Result<T, Box<dyn std::error::Error>> 
-        where T: DeserializeOwned
+        Result<KrakenResult<T>, Box<dyn std::error::Error>> 
+        where KrakenResult<T>: DeserializeOwned
     {
         match input.get_info().get_type() {
             MethodType::Public => {

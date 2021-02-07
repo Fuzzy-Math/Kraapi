@@ -526,6 +526,7 @@ pub struct KOAssetPair {
 }
 
 pub type KOAssetPairInfo = HashMap<String, KOAssetPair>;
+
 /// Ticker info
 #[derive(Deserialize, Serialize, Debug)]
 pub struct KOTick {
@@ -549,6 +550,7 @@ pub struct KOTick {
     pub o: String,
 }
 
+pub type KOTicker = HashMap<String, KOTick>;
 
 /// Open High Low Close data
 pub type KOOHLC = HashMap<String, serde_json::Value>;

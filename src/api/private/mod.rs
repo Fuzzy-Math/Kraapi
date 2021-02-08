@@ -1344,3 +1344,17 @@ pub struct KOCancelledOrders {
     pending: u32,
 }
 
+#[derive(Deserialize, Serialize, Debug)]
+pub struct KOAddOrder {
+    /// Order description info
+    descr: AddOrderDesc,
+    /// Array of transaction ids for order (if order was added successfully)
+    txid: Option<Vec<String>>,
+}
+
+struct AddOrderDesc {
+    /// Order description
+    order: String,
+    /// Conditional close order description (if order was added successfully)
+    close: Option<String>,
+}

@@ -47,14 +47,14 @@
  use krakenapi::api::{KAsset, KAssetPair};
 
  async fn main() -> hyper::Result<()> {
- let client = KrakenClient::new("", "");
+	 let client = KrakenClient::new("", "");
 
- let ticker_input = KITicker::build(KAssetPair(KAsset::XBT, KAsset::USD)).finish();
+	 let ticker_input = KITicker::build(KAssetPair(KAsset::XBT, KAsset::USD)).finish();
 
- let ticker_output = client.request::<KOTicker>(&ticker_input).await?;
+	 let ticker_output = client.request::<KOTicker>(&ticker_input).await?;
 
- println!("{:?}", ticker_output);
- Ok(())
+	 println!("{:?}", ticker_output);
+	 Ok(())
  }
  ```
  ## Private Endpoint - Add Order
@@ -67,24 +67,24 @@
      TradeType, OrderType};
 
  async fn main() -> hyper::Result<()> {
- let client = KrakenClient::new(
-     "<Your-API-Key>", 
-     "<Your-API-Secret>"
-     );
+	 let client = KrakenClient::new(
+	     "<Your-API-Key>", 
+	     "<Your-API-Secret>"
+	     );
 
- let add_order_input = KIAddOrder::build(
-     KAssetPair(KAsset::XBT, KAsset::USD),
-     TradeType::Buy,
-     OrderType::Limit("101.9901"),
-     2.12345678)
-     .with_leverage((2, 1))
-     .with_closing_order(OrderType::StopLossLimit("#5%", "#10"))
-     .validate()
-     .finish();
+	 let add_order_input = KIAddOrder::build(
+	     KAssetPair(KAsset::XBT, KAsset::USD),
+	     TradeType::Buy,
+	     OrderType::Limit("101.9901"),
+	     2.12345678)
+	     .with_leverage((2, 1))
+	     .with_closing_order(OrderType::StopLossLimit("#5%", "#10"))
+	     .validate()
+	     .finish();
 
- let add_order_output = client.request::<KOAddOrder>(&add_order_input).await?;
+	 let add_order_output = client.request::<KOAddOrder>(&add_order_input).await?;
 
- println!("{:?}", add_order_output);
- Ok(())
+	 println!("{:?}", add_order_output);
+	 Ok(())
  }
  ```

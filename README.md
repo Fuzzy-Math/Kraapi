@@ -23,8 +23,8 @@
  - Builder methods require ownership so if you must perform some application logic while
    building a KrakenInput you must reassign the variable like so:
  ```
- # use krakenapi::api::AssetPairInfo;
- # use krakenapi::public::KIAssetPairs;
+ use krakenapi::api::AssetPairInfo;
+ use krakenapi::public::KIAssetPairs;
  let some_application_logic = true;
  let input = KIAssetPairs::build();
 
@@ -46,7 +46,7 @@
  use krakenapii::public::{KITicker, KOTicker};
  use krakenapi::api::{KAsset, KAssetPair};
 
- # async fn main() -> hyper::Result<()> {
+ async fn main() -> hyper::Result<()> {
  let client = KrakenClient::new("", "");
 
  let ticker_input = KITicker::build(KAssetPair(KAsset::XBT, KAsset::USD)).finish();
@@ -54,8 +54,8 @@
  let ticker_output = client.request::<KOTicker>(&ticker_input).await?;
 
  println!("{:?}", ticker_output);
- # Ok(())
- # }
+ Ok(())
+ }
  ```
  ## Private Endpoint - Add Order
  ```
@@ -66,7 +66,7 @@
      KAsset, KAssetPair,
      TradeType, OrderType};
 
- # async fn main() -> hyper::Result<()> {
+ async fn main() -> hyper::Result<()> {
  let client = KrakenClient::new(
      "<Your-API-Key>", 
      "<Your-API-Secret>"
@@ -85,6 +85,6 @@
  let add_order_output = client.request::<KOAddOrder>(&add_order_input).await?;
 
  println!("{:?}", add_order_output);
- # Ok(())
- # }
+ Ok(())
+ }
  ```

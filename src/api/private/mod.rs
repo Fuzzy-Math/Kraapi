@@ -1352,6 +1352,7 @@ pub struct KOAddOrder {
     txid: Option<Vec<String>>,
 }
 
+#[derive(Deserialize, Serialize, Debug)]
 struct AddOrderDesc {
     /// Order description
     order: String,

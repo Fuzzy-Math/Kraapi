@@ -16,7 +16,7 @@ use super::{
     MethodType, SystemStatus, UpdateInput
 };
 
-/// Input builder for the Get Server Time endpoint
+/// Input builder for the Get Server Time endpoint | See [KOServerTime]
 pub struct KIServerTime();
 
 impl KIServerTime {
@@ -49,7 +49,7 @@ impl Input for KIServerTime {
     }
 }
 
-/// Input builder for the Get System Status endpoint
+/// Input builder for the Get System Status endpoint | See [KOSystemStatus]
 pub struct KISystemStatus();
 
 impl KISystemStatus {
@@ -81,7 +81,7 @@ impl Input for KISystemStatus {
     }
 }
 
-/// Input builder for the Get Asset Info endpoint
+/// Input builder for the Get Asset Info endpoint | See [KOAssetInfo]
 pub struct KIAssetInfo {
     pub params: IndexMap<String, String>,
 }
@@ -145,7 +145,7 @@ impl UpdateInput for KIAssetInfo {}
 
 impl InputList for KIAssetInfo {}
 
-/// Input builder for the Get Tradable Asset Pairs endpoint
+/// Input builder for the Get Tradable Asset Pairs endpoint | See [KOAssetPairInfo]
 pub struct KIAssetPairs {
     pub params: IndexMap<String, String>,
 }
@@ -213,7 +213,7 @@ impl InputListItem for KIAssetPairs {
 
 impl InputList for KIAssetPairs {}
 
-/// Input builder for the Get Ticker Information endpoint
+/// Input builder for the Get Ticker Information endpoint | See [KOTicker]
 pub struct KITicker {
     pub params: IndexMap<String, String>,
 }
@@ -279,7 +279,8 @@ impl UpdateInput for KITicker {}
 
 impl InputList for KITicker {}
 
-/// Input builder for the Get OHLC Data endpoint
+/// Input builder for the Get OHLC Data endpoint | See [KOOHLC]
+// FIXME: Need an output structure for the OHLC endpoint
 pub struct KIOHLC {
     pub params: IndexMap<String, String>,
 }
@@ -331,6 +332,7 @@ impl MutateInput for KIOHLC {
 impl UpdateInput for KIOHLC {}
 
 /// Input builder for the Get Order Book endpoint
+// FIXME: Need an output structure for the order book endpoint
 pub struct KIOrderBook {
     pub params: IndexMap<String, String>,
 }
@@ -378,6 +380,7 @@ impl MutateInput for KIOrderBook {
 impl UpdateInput for KIOrderBook {}
 
 /// Input builder for the Get Recent Trades endpoint
+// FIXME: Need an output structure for get recent trades endpoint
 pub struct KIRecentTrades {
     pub params: IndexMap<String, String>,
 }
@@ -425,6 +428,7 @@ impl MutateInput for KIRecentTrades {
 impl UpdateInput for KIRecentTrades {}
 
 /// Input builder for the Get Recent Spread Data endpoint
+// FIXME: Don't think the currrent output structs will work for spread data
 pub struct KISpreadData {
     pub params: IndexMap<String, String>,
 }
@@ -471,7 +475,7 @@ impl MutateInput for KISpreadData {
 
 impl UpdateInput for KISpreadData {}
 
-/// Data returned from the Get Server Time endpoint
+/// Data returned from the Get Server Time endpoint | See [KIServerTime]
 #[derive(Deserialize, Serialize, Debug)]
 pub struct KOServerTime {
     /// as unix timestamp
@@ -480,7 +484,7 @@ pub struct KOServerTime {
     pub rfc1123: String,
 }
 
-/// Data returned from the Get System Status endpoint
+/// Data returned from the Get System Status endpoint | See [KISystemStatus]
 #[derive(Deserialize, Serialize, Debug)]
 pub struct KOSystemStatus {
     /// Current system status or trading mode
@@ -489,7 +493,7 @@ pub struct KOSystemStatus {
     pub timestamp: String,
 }
 
-/// A currency asset
+/// Asset info data. See [KOAssetInfo]
 #[derive(Deserialize, Serialize, Debug)]
 pub struct KOAsset {
     /// alternate name
@@ -502,9 +506,10 @@ pub struct KOAsset {
     pub display_decimals: u32,
 }
 
+/// Data returned from the Get Asset Info endpoint | See [KIAssetInfo]
 pub type KOAssetInfo = HashMap<String, KOAsset>;
 
-/// Tradable asset pairs
+/// Asset pair info data | See [KOAssetPairInfo]
 #[derive(Deserialize, Serialize, Debug)]
 pub struct KOAssetPair {
     /// asset class of base component
@@ -545,9 +550,10 @@ pub struct KOAssetPair {
     pub wsname: Option<String>,
 }
 
+/// Data returned from the Get Tradable Asset Pairs endpoint | See [KIAssetPairs]
 pub type KOAssetPairInfo = HashMap<String, KOAssetPair>;
 
-/// Ticker info
+/// Ticker info data | See [KOTicker]
 #[derive(Deserialize, Serialize, Debug)]
 pub struct KOTick {
     /// ask array(<price>, <whole lot volume>, <lot volume>)
@@ -570,9 +576,10 @@ pub struct KOTick {
     pub o: String,
 }
 
+/// Data returned from the Get Ticker Information endpoint | See [KITicker]
 pub type KOTicker = HashMap<String, KOTick>;
 
-/// Open High Low Close data
+/// Data returned from the Get OHLC Data endpoint | See [KIOHLC]
 pub type KOOHLC = HashMap<String, serde_json::Value>;
 
 #[derive(Deserialize, Serialize, Debug)]

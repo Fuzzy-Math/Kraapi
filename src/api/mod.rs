@@ -64,6 +64,21 @@ impl fmt::Display for MethodType {
     }
 }
 
+/// System status returned from the Get System Status endpoint
+#[derive(Deserialize, Serialize, Debug)]
+pub enum SystemStatus {
+    /// Operational, full trading available
+    Online,
+    /// Existing orders are cancelable, but new orders cannot be created
+    CancelOnly,
+    /// Existing orders are cancelable, and only new post limit orders can be submitted
+    PostOnly,
+    /// Existing orders are cancelable, and only new limit orders can be submitted
+    LimitOnly,
+    /// System is offline for maintenance
+    Offline,
+}
+
 // Used for the AssetPairs endpoint
 pub enum AssetPairInfo {
     Info,
@@ -463,3 +478,5 @@ pub(crate) fn format_params<T, U>(params: &Option<&IndexMap<T, U>>) -> Option<St
         None => None
     }
 }
+
+pub(crate) trait Output {}

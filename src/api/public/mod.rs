@@ -1,3 +1,9 @@
+//! Module for interacting with Kraken's public API endpoints
+//! # Note
+//! Each type prefixed with "KI" is a KrakenInput builder which will build requests for the given
+//! endpoint.
+//! Each type postfixed with "KO" is the output object that has been returned from Kraken's servers
+//! and has been parsed into the given structure
 use serde::{Serialize, Deserialize};
 use std::collections::HashMap;
 use indexmap::map::IndexMap;
@@ -7,12 +13,14 @@ use super::{
     EndpointInfo, Input, KAsset, 
     KAssetPair, KrakenInput, 
     IntoInputList, MutateInput, OHLCInterval, 
-    MethodType, UpdateInput
+    MethodType, SystemStatus, UpdateInput
 };
 
+/// Input builder for the Get Server Time endpoint
 pub struct KIServerTime();
 
 impl KIServerTime {
+    /// Here is more details
     pub fn build() -> KrakenInput {
         let time = KIServerTime();
         time.finish()
@@ -41,6 +49,7 @@ impl Input for KIServerTime {
     }
 }
 
+/// Input builder for the Get System Status endpoint
 pub struct KISystemStatus();
 
 impl KISystemStatus {
@@ -72,6 +81,7 @@ impl Input for KISystemStatus {
     }
 }
 
+/// Input builder for the Get Asset Info endpoint
 pub struct KIAssetInfo {
     pub params: IndexMap<String, String>,
 }
@@ -135,6 +145,7 @@ impl UpdateInput for KIAssetInfo {}
 
 impl InputList for KIAssetInfo {}
 
+/// Input builder for the Get Tradable Asset Pairs endpoint
 pub struct KIAssetPairs {
     pub params: IndexMap<String, String>,
 }
@@ -202,6 +213,7 @@ impl InputListItem for KIAssetPairs {
 
 impl InputList for KIAssetPairs {}
 
+/// Input builder for the Get Ticker Information endpoint
 pub struct KITicker {
     pub params: IndexMap<String, String>,
 }
@@ -267,6 +279,7 @@ impl UpdateInput for KITicker {}
 
 impl InputList for KITicker {}
 
+/// Input builder for the Get OHLC Data endpoint
 pub struct KIOHLC {
     pub params: IndexMap<String, String>,
 }
@@ -317,6 +330,7 @@ impl MutateInput for KIOHLC {
 
 impl UpdateInput for KIOHLC {}
 
+/// Input builder for the Get Order Book endpoint
 pub struct KIOrderBook {
     pub params: IndexMap<String, String>,
 }
@@ -363,6 +377,7 @@ impl MutateInput for KIOrderBook {
 
 impl UpdateInput for KIOrderBook {}
 
+/// Input builder for the Get Recent Trades endpoint
 pub struct KIRecentTrades {
     pub params: IndexMap<String, String>,
 }
@@ -409,6 +424,7 @@ impl MutateInput for KIRecentTrades {
 
 impl UpdateInput for KIRecentTrades {}
 
+/// Input builder for the Get Recent Spread Data endpoint
 pub struct KISpreadData {
     pub params: IndexMap<String, String>,
 }
@@ -455,6 +471,7 @@ impl MutateInput for KISpreadData {
 
 impl UpdateInput for KISpreadData {}
 
+/// Data returned from the Get Server Time endpoint
 #[derive(Deserialize, Serialize, Debug)]
 pub struct KOServerTime {
     /// as unix timestamp
@@ -463,10 +480,13 @@ pub struct KOServerTime {
     pub rfc1123: String,
 }
 
+/// Data returned from the Get System Status endpoint
 #[derive(Deserialize, Serialize, Debug)]
 pub struct KOSystemStatus {
-    status: String,
-    timestamp: String,
+    /// Current system status or trading mode
+    pub status: SystemStatus,
+    /// Server time
+    pub timestamp: String,
 }
 
 /// A currency asset

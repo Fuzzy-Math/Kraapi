@@ -577,10 +577,31 @@ pub struct KOTick {
 }
 
 /// Data returned from the Get Ticker Information endpoint | See [KITicker]
-pub type KOTicker = HashMap<String, KOTick>;
+#[derive(Deserialize, Serialize, Debug)]
+pub struct KOTicker {
+    #[serde(flatten)]
+    pair: HashMap<String, KOTick>
+}
+
+#[derive(Deserialize, Serialize, Debug)]
+pub struct KOHLCData {
+    pub timestamp: i64, 
+    pub open: String, 
+    pub high: String, 
+    pub low: String, 
+    pub close: String, 
+    pub vwap: String, 
+    pub volume: String, 
+    pub count: i64
+}
 
 /// Data returned from the Get OHLC Data endpoint | See [KIOHLC]
-pub type KOOHLC = HashMap<String, serde_json::Value>;
+#[derive(Deserialize, Serialize, Debug)]
+pub struct KOOHLC {
+    #[serde(flatten)]
+    pair: HashMap<String, Vec<KOHLCData>>,
+    last: i64,
+}
 
 #[derive(Deserialize, Serialize, Debug)]
 pub struct KODepthPairTuple(String, String, i64);

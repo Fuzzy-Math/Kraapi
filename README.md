@@ -26,7 +26,8 @@ Asynchronous HTTP client for the Kraken cryptocurrency exchange
 use krakenapi::api::AssetPairInfo;
 use krakenapi::public::KIAssetPairs;
 let some_application_logic = true;
-let input = KIAssetPairs::build();
+// mut to allow reassignment based on application logic
+let mut input = KIAssetPairs::build();
 
 if some_application_logic {
     input = input.info(AssetPairInfo::Leverage);
@@ -34,7 +35,8 @@ if some_application_logic {
     input = input.info(AssetPairInfo::Margin);
 }
 
-input = input.finish();
+// Now of type KrakenInput so we have to rebind the variable
+let input = input.finish();
 ```
 # Examples 
 See <https://www.kraken.com/features/api#example-api-code-php-lib> for more info on these

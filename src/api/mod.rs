@@ -1,3 +1,4 @@
+//! Module encapsulating the private and public API endpoints of the Kraken exchange
 use std::fmt;
 use indexmap::map::IndexMap;
 use std::fmt::{Debug,Display};
@@ -6,20 +7,32 @@ use serde::{Deserialize, Serialize};
 pub mod public;
 pub mod private;
 
+/// Generic return type from Kraken - An array of possible errors along with the data payload
 #[derive(Deserialize, Serialize, Debug)]
 pub struct KrakenResult<T> {
+    /// Vector of zero or more errors returned from Kraken
     pub error: Vec<String>,
+    /// Generic payload type. T will be some type prefixed with KO
     pub result: Option<T>,
 }
 
 // TODO: Query AssetInfo endpoint and write script to fill out the
 // enum and trait impl
+/// Assets accepted on the Kraken Exchange
+/// # FIXME 
+/// Basic currencies used for testing. Open pull request to add more currencies <https://github.com/Fuzzy-Math/KrakenAPI-Rust>
 pub enum KAsset {
+    /// Australian Dollar
     AUD,
+    /// Canadian Dollar
     CAD,
+    /// Euro
     EUR,
+    /// United States Dollar
     USD,
+    /// Bitcoin
     XBT,
+    /// Ripple
     XRP,
 }
 
@@ -42,6 +55,12 @@ impl Debug for KAsset {
     }
 }
 
+/// Tradeable asset pair
+/// # FIXME
+/// Kraken only accepts certain asset pairs as listed from the asset pair endpoint.
+/// This data probably should be parsed into a lookup table to ensure only support pairs are
+/// accepted.
+/// Open a pull request at <https://github.com/Fuzzy-Math/KrakenAPI-Rust>
 pub struct KAssetPair(pub KAsset, pub KAsset);
 
 impl fmt::Display for KAssetPair {
@@ -64,7 +83,7 @@ impl fmt::Display for MethodType {
     }
 }
 
-/// System status returned from the Get System Status endpoint
+/// System status 
 #[derive(Deserialize, Serialize, Debug)]
 pub enum SystemStatus {
     /// Operational, full trading available
@@ -79,7 +98,7 @@ pub enum SystemStatus {
     Offline,
 }
 
-// Used for the AssetPairs endpoint
+/// Asset pair info to retreive | See [public::KIAssetPairs]
 pub enum AssetPairInfo {
     Info,
     Leverage,
@@ -98,16 +117,25 @@ impl fmt::Display for AssetPairInfo {
     }
 }
 
-// Used for the OHLC endpoint
+/// OHLC time frame interval in minutes | See [public::KIOHLC]
 pub enum OHLCInterval {
+    /// 1 minute
     One,
+    /// 5 minutes
     Five,
+    /// 15 minutes
     Fifteen,
+    /// 30 minutes
     Thirty,
+    /// 1 hour
     Sixty,
+    /// 4 hours
     TwoForty,
+    /// 1 day (24 hours)
     FourteenForty,
+    /// 1 week (7 days)
     TenEighty,
+    /// ~2 weeks (15 days)
     TwentyoneSixty,
 }
 
@@ -127,6 +155,7 @@ impl fmt::Display for OHLCInterval {
     }
 }
 
+/// See [private::KIClosedOrders]
 pub enum OrderCloseTime {
     Open,
     Close,
@@ -143,11 +172,17 @@ impl fmt::Display for OrderCloseTime {
     }
 }
 
+/// Type of trade to query history for | See [private::KITradeHistory]
 pub enum TradeHistoryType {
+    /// All types
     All,
+    /// Any position (open or closed)
     PosAny,
+    /// Closed positions
     PosClosed,
+    /// Trades closing all or part of a position
     PosClosing,
+    /// Non-positional trades
     PosNone,
 }
 
@@ -163,6 +198,7 @@ impl fmt::Display for TradeHistoryType {
     }
 }
 
+/// Ledger type to retrieve | See [private::KILedgerInfo]
 pub enum LedgerType {
     All,
     Deposit,
@@ -183,6 +219,7 @@ impl fmt::Display for LedgerType {
     }
 }
 
+/// Order trade type | See [private::KIAddOrder]
 pub enum TradeType {
     Buy,
     Sell,
@@ -298,10 +335,15 @@ impl fmt::Display for OrderType {
     }
 }
 
+/// Add order flags | See [private::KIAddOrder]
 pub enum OrderFlags {
+    /// Prefer fee in base currency
     BaseCurrency,
+    /// Prefer fee in quote currency
     QuoteCurrency,
+    /// No market price protection
     NoMarketPriceProtection,
+    /// Post only order (when ordertype is limit)
     PostOnly,
 }
 
@@ -330,6 +372,11 @@ impl EndpointInfo {
     } 
 }
 
+/// Fully constructed input data to be passed to a KrakenClient
+/// # Note
+/// KrakenInput can't be constructed directly. An instance is created by calling finish() or
+/// finish_clone() on an input builder type (types prefixed with "KI"). See the [Input] trait for
+/// KrakenInput builder types
 pub struct KrakenInput {
     info: EndpointInfo,
     params: Option<IndexMap<String, String>>
@@ -348,6 +395,8 @@ impl KrakenInput {
     }
 }
 
+/// Trait used by input builder types to construct a KrakenInput. All input builder types implement
+/// this trait
 pub trait Input {
     fn finish(self) -> KrakenInput;
     fn finish_clone(self) -> (KrakenInput, Self);

@@ -1,3 +1,4 @@
+//! Asynchronous HTTP client implementation sending instances of [super::api::KrakenInput] to the Kraken servers
 use hyper::{Body, Client, Request};
 use hyper::body;
 use hyper::client::HttpConnector;

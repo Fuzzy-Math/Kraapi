@@ -331,8 +331,7 @@ impl MutateInput for KIOHLC {
 
 impl UpdateInput for KIOHLC {}
 
-/// Input builder for the Get Order Book endpoint
-// FIXME: Need an output structure for the order book endpoint
+/// Input builder for the Get Order Book endpoint | See [KOOrderBook]
 pub struct KIOrderBook {
     pub params: IndexMap<String, String>,
 }
@@ -379,8 +378,7 @@ impl MutateInput for KIOrderBook {
 
 impl UpdateInput for KIOrderBook {}
 
-/// Input builder for the Get Recent Trades endpoint
-// FIXME: Need an output structure for get recent trades endpoint
+/// Input builder for the Get Recent Trades endpoint | See [KORecentTrades]
 pub struct KIRecentTrades {
     pub params: IndexMap<String, String>,
 }
@@ -427,8 +425,7 @@ impl MutateInput for KIRecentTrades {
 
 impl UpdateInput for KIRecentTrades {}
 
-/// Input builder for the Get Recent Spread Data endpoint
-// FIXME: Don't think the currrent output structs will work for spread data
+/// Input builder for the Get Recent Spread Data endpoint | See [KOSpreadData]
 pub struct KISpreadData {
     pub params: IndexMap<String, String>,
 }
@@ -507,7 +504,12 @@ pub struct KOAsset {
 }
 
 /// Data returned from the Get Asset Info endpoint | See [KIAssetInfo]
-pub type KOAssetInfo = HashMap<String, KOAsset>;
+#[derive(Deserialize, Serialize, Debug)]
+pub struct KOAssetInfo {
+    /// Map with the asset as the key and the asset's data as the value
+    #[serde(flatten)]
+    pub asset: HashMap<String, KOAsset>,
+}
 
 /// Asset pair info data | See [KOAssetPairInfo]
 #[derive(Deserialize, Serialize, Debug)]
@@ -551,7 +553,12 @@ pub struct KOAssetPair {
 }
 
 /// Data returned from the Get Tradable Asset Pairs endpoint | See [KIAssetPairs]
-pub type KOAssetPairInfo = HashMap<String, KOAssetPair>;
+#[derive(Deserialize, Serialize, Debug)]
+pub struct KOAssetPairInfo {
+    /// Map with the asset pair as the key and the pair's data as the value
+    #[serde(flatten)]
+    pub pair: HashMap<String, KOAssetPair>
+}
 
 /// Ticker info data | See [KOTicker]
 #[derive(Deserialize, Serialize, Debug)]
@@ -579,10 +586,12 @@ pub struct KOTick {
 /// Data returned from the Get Ticker Information endpoint | See [KITicker]
 #[derive(Deserialize, Serialize, Debug)]
 pub struct KOTicker {
+    /// Map with the asset pair as the key and the pair's ticker data as the value
     #[serde(flatten)]
-    pair: HashMap<String, KOTick>
+    pub pair: HashMap<String, KOTick>
 }
 
+/// OHLC info data | See [KOOHLC]
 #[derive(Deserialize, Serialize, Debug)]
 pub struct KOHLCData {
     pub timestamp: i64, 
@@ -598,19 +607,74 @@ pub struct KOHLCData {
 /// Data returned from the Get OHLC Data endpoint | See [KIOHLC]
 #[derive(Deserialize, Serialize, Debug)]
 pub struct KOOHLC {
+    /// Map with the asset pair as the key and the pair's OHLC data as the value
     #[serde(flatten)]
-    pair: HashMap<String, Vec<KOHLCData>>,
-    last: i64,
+    pub pair: HashMap<String, Vec<KOHLCData>>,
+    /// ID to be used as "since" input to subsequent OHLC requests
+    pub last: i64,
 }
 
+/// Order book data | See [KOOrderBook]
 #[derive(Deserialize, Serialize, Debug)]
-pub struct KODepthPairTuple(String, String, i64);
-
-#[derive(Deserialize, Serialize, Debug)]
-pub struct KODepthPair {
-    pub asks: Vec<KODepthPairTuple>,
-    pub bids: Vec<KODepthPairTuple>,
+pub struct KOOrderBookData {
+    pub price: String,
+    pub volume: String,
+    pub timestamp: i64,
 }
 
-pub type Depth = HashMap<String, KODepthPair>;
+/// Order book data | See [KOOrderBook]
+#[derive(Deserialize, Serialize, Debug)]
+pub struct KOOrderDepthPair {
+    /// Ask side array of [KOOrderBookData]
+    pub asks: Vec<KOOrderBookData>,
+    /// Bid side array of [KOOrderBookData]
+    pub bids: Vec<KOOrderBookData>,
+}
+
+/// Data returned from the Get Order Book endpoint | See [KIOrderBook]
+#[derive(Deserialize, Serialize, Debug)]
+pub struct KOOrderBook {
+    /// Map with the asset pair as the key and the pair's order book depth data as the value
+    #[serde(flatten)]
+    pair: HashMap<String, KOOrderDepthPair>
+}
+
+/// Recent trade info data | See [KORecentTrades]
+#[derive(Deserialize, Serialize, Debug)]
+pub struct KOTradeInfo {
+    pub price: String,
+    pub volume: String,
+    pub time: f64,
+    pub tradetype: String,
+    pub ordertype: String,
+    pub misc: String,
+}
+
+/// Data returned from the Get Recent Trades endpoint | See [KIRecentTrades]
+#[derive(Deserialize, Serialize, Debug)]
+pub struct KORecentTrades {
+    /// Map with the asset pair as the key and the pair's Recent Trade data as the value
+    #[serde(flatten)]
+    pub pair: HashMap<String, Vec<KOTradeInfo>>,
+    /// ID to be used as "since" input to subsequent Trade Data requests
+    pub last: String,
+}
+
+/// Spread info | See [KOSpreadData]
+#[derive(Deserialize, Serialize, Debug)]
+pub struct KOSpreadInfo {
+    pub time: i64,
+    pub bid: String,
+    pub ask: String,
+}
+
+/// Data returned from the Get Recent Spread Data endpoint | See [KISpreadData]
+#[derive(Deserialize, Serialize, Debug)]
+pub struct KOSpreadData {
+    /// Map with the asset pair as the key and the pair's Spread data as the value
+    #[serde(flatten)]
+    pub pair: HashMap<String, Vec<KOSpreadInfo>>,
+    /// ID to be used as "since" input to subsequent Spread Data requests
+    pub last: i64,
+}
 

@@ -80,7 +80,7 @@ impl MutateInput for KIAccountBalance {
 
 impl UpdateInput for KIAccountBalance {}
 
-/// Request builder for the Get Trade Balance endpoint
+/// Request builder for the Get Trade Balance endpoint | See [KOTradeBalance]
 pub struct KITradeBalance {
     params: IndexMap<String, String>,
 }
@@ -127,7 +127,7 @@ impl Input for KITradeBalance {
     }
 }
 
-/// Request builder for the Get Open Orders endpoint
+/// Request builder for the Get Open Orders endpoint | See [KOOpenOrders]
 pub struct KIOpenOrders {
     params: IndexMap<String, String>,
 }
@@ -184,7 +184,7 @@ impl MutateInput for KIOpenOrders {
 
 impl UpdateInput for KIOpenOrders {}
 
-/// Request builder for the Get Closed Orders endpoint
+/// Request builder for the Get Closed Orders endpoint | See [KOClosedOrders]
 pub struct KIClosedOrders {
     params: IndexMap<String, String>,
 }
@@ -263,14 +263,14 @@ impl MutateInput for KIClosedOrders {
 
 impl UpdateInput for KIClosedOrders {}
 
-/// Request builder for the Query Orders Info endpoint
-pub struct KIOrderInfo {
+/// Request builder for the Query Orders Info endpoint | See [KOOrderInfo]
+pub struct KIQueryOrders {
     params: IndexMap<String, String>,
 }
 
-impl KIOrderInfo {
+impl KIQueryOrders {
     pub fn build(txid: String) -> Self {
-        let order_info = KIOrderInfo {
+        let order_info = KIQueryOrders {
             params: IndexMap::new()
         };
         order_info.with_item(txid)
@@ -279,7 +279,7 @@ impl KIOrderInfo {
     pub fn build_with_list<T>(txids: T) -> Self
         where T: IntoIterator<Item = String>
     {
-        let order_info = KIOrderInfo {
+        let order_info = KIQueryOrders {
             params: IndexMap::new()
         };
         order_info.with_item_list(txids)
@@ -308,7 +308,7 @@ impl KIOrderInfo {
     }
 }
 
-impl Input for KIOrderInfo {
+impl Input for KIQueryOrders {
     fn finish(self) -> KrakenInput {
        KrakenInput {
            info: EndpointInfo { methodtype: MethodType::Private, endpoint: String::from("QueryOrders") },
@@ -326,27 +326,27 @@ impl Input for KIOrderInfo {
     }
 }
 
-impl MutateInput for KIOrderInfo {
+impl MutateInput for KIQueryOrders {
     fn list_mut(&mut self) -> &mut IndexMap<String, String> {
         &mut self.params
     }
 }
 
-impl UpdateInput for KIOrderInfo {}
+impl UpdateInput for KIQueryOrders {}
 
-impl IntoInputList for KIOrderInfo {
+impl IntoInputList for KIQueryOrders {
     fn list_name(&self) -> String {
         String::from("txid")
     }
 }
 
-impl InputListItem for KIOrderInfo {
+impl InputListItem for KIQueryOrders {
     type ListItem = String;
 }
 
-impl InputList for KIOrderInfo {}
+impl InputList for KIQueryOrders {}
 
-/// Request builder for the Get Trades History endpoint
+/// Request builder for the Get Trades History endpoint | See [KOTradeHistory]
 pub struct KITradeHistory {
     params: IndexMap<String, String>,
 }
@@ -421,7 +421,7 @@ impl MutateInput for KITradeHistory {
 
 impl UpdateInput for KITradeHistory {}
 
-/// Request builder for the Query Trades Info endpoint
+/// Request builder for the Query Trades Info endpoint | See [KOTradesInfo]
 pub struct KITradesInfo {
     params: IndexMap<String, String>,
 }
@@ -500,7 +500,7 @@ impl InputListItem for KITradesInfo {
 
 impl InputList for KITradesInfo {}
 
-/// Request builder for the Get Open Positions endpoint
+/// Request builder for the Get Open Positions endpoint | See [KOOpenPositions]
 pub struct KIOpenPositions {
     params: IndexMap<String, String>,
 }
@@ -584,7 +584,7 @@ impl InputListItem for KIOpenPositions {
 
 impl InputList for KIOpenPositions {}
 
-/// Request builder for the Get Ledgers Info endpoint
+/// Request builder for the Get Ledgers Info endpoint | See [KOLedgers]
 pub struct KILedgerInfo {
     params: IndexMap<String, String>,
 }
@@ -677,7 +677,7 @@ impl InputListItem for KILedgerInfo {
 
 impl InputList for KILedgerInfo {}
 
-/// Request builder for the Query Ledgers endpoint
+/// Request builder for the Query Ledgers endpoint | See [KOLedgers]
 pub struct KIQueryLedgers {
     params: IndexMap<String, String>,
 }
@@ -748,7 +748,7 @@ impl InputListItem for KIQueryLedgers {
 
 impl InputList for KIQueryLedgers {}
 
-/// Request builder for the Get Trade Volume endpoint
+/// Request builder for the Get Trade Volume endpoint | See [KOTradeVolume]
 pub struct KITradeVolume {
     params: IndexMap<String, String>,
 }
@@ -821,7 +821,7 @@ impl Input for KITradeVolume {
     }
 }
 
-/// Request builder for the Add Standard Order endpoint
+/// Request builder for the Add Standard Order endpoint | See [KOAddOrder]
 pub struct KIAddOrder {
     params: IndexMap<String, String>,
 }
@@ -994,7 +994,7 @@ impl Input for KIAddOrder {
     }
 }
 
-/// Request builder for the Cancel Open Order endpoint
+/// Request builder for the Cancel Open Order endpoint | See [KOCancelOrder]
 pub struct KICancelOrder {
     params: IndexMap<String, String>,
 }
@@ -1042,7 +1042,7 @@ impl Input for KICancelOrder {
     }
 }
 
-/// Request builder for the Cancel All Open Orders endpoint
+/// Request builder for the Cancel All Open Orders endpoint | See [KOCancelAllOrders]
 pub struct KICancelAllOrders {
     params: IndexMap<String, String>,
 }
@@ -1093,7 +1093,7 @@ impl MutateInput for KICancelAllOrders {
 
 impl UpdateInput for KICancelAllOrders {}
 
-/// Request builder for the Cancel All Orders After endpoint
+/// Request builder for the Cancel All Orders After endpoint | See [KOCancelOnTimeout]
 pub struct KICancelOnTimeout {
     params: IndexMap<String, String>,
 }
@@ -1150,6 +1150,7 @@ pub struct KOAccountBalance {
     pub balances: HashMap<String, String>
 }
 
+/// Response from the Get Trade Balance endpoint | See [KITradeBalance]
 #[derive(Deserialize, Serialize, Debug)]
 pub struct KOTradeBalance {
     /// cost basis of open positions
@@ -1172,6 +1173,7 @@ pub struct KOTradeBalance {
     pub v: String,
 }
 
+/// Order description data | See [KOOrderInfo]
 #[derive(Deserialize, Serialize, Debug)]
 pub struct KOOrderDescription {
     pub pair: String,
@@ -1187,6 +1189,7 @@ pub struct KOOrderDescription {
     pub closedesc: String,
 }
 
+/// Order status data | See [KOOrderInfo]
 #[derive(Deserialize, Serialize, Debug)]
 #[serde(rename_all = "lowercase")]
 pub enum KOOrderStatus {
@@ -1202,7 +1205,7 @@ pub enum KOOrderStatus {
     Expired,
 }
 
-/// General order info object
+/// Order info data | See [KOOpenOrders] & [KOClosedOrders] & [KOQueryOrders]
 #[derive(Deserialize, Serialize, Debug)]
 pub struct KOOrderInfo {
     /// Referral order transaction id that created this order
@@ -1254,139 +1257,189 @@ pub struct KOOrderInfo {
     pub reason: Option<String>,
 }
 
-/// Open orders
+/// Response from the Get Open Orders endpoint | See [KIOpenOrders]
 #[derive(Deserialize, Serialize, Debug)]
 pub struct KOOpenOrders {
-    pub open: HashMap<String, KOOrderInfo>,
+    pub orders: HashMap<String, KOOrderInfo>,
 }
 
-/// Closed order result
+/// Response from the Get Closed Orders endpoint | See [KIClosedOrders]
 #[derive(Deserialize, Serialize, Debug)]
 pub struct KOClosedOrders {
     pub closed: HashMap<String, KOOrderInfo>,
     pub count: u32,
 }
 
-/// Orders query results
-pub type KOQueriedOrders = HashMap<String, KOOrderInfo>;
-
+/// Response from the Query Orders Info endpoint | See [KIQueryOrders]
 #[derive(Deserialize, Serialize, Debug)]
-pub struct KOTradeInfo {
-    /// Order responsible for execution of trade
-    ordertxid: String,
-    pair: String,
-    time: f64,
-    #[serde(rename = "type")]
-    tradetype: String,
-    ordertype: String,
-    price: String,
-    cost: String,
-    fee: String,
-    vol: String,
-    margin: Option<String>,
-    misc: String,
-    posstatus: Option<String>,
-    cprice: Option<String>,
-    cfee: Option<String>,
-    cvol: Option<String>,
-    cmargin: Option<String>,
-    net: Option<String>,
-    trades: Option<String>,
+pub struct KOQueryOrders {
+    /// Map with the order's transaction ID as the key and the order info as the value
+    #[serde(flatten)]
+    pub orders: HashMap<String, KOOrderInfo>
 }
 
+/// Trade info data | See [KOTradesInfo] & [KOTradeHistory]
+#[derive(Deserialize, Serialize, Debug)]
+pub struct KOTradeData {
+    /// Order responsible for execution of trade
+    pub ordertxid: String,
+    pub pair: String,
+    pub time: f64,
+    #[serde(rename = "type")]
+    pub tradetype: String,
+    pub ordertype: String,
+    pub price: String,
+    pub cost: String,
+    pub fee: String,
+    pub vol: String,
+    pub margin: Option<String>,
+    pub misc: String,
+    pub posstatus: Option<String>,
+    pub cprice: Option<String>,
+    pub cfee: Option<String>,
+    pub cvol: Option<String>,
+    pub cmargin: Option<String>,
+    pub net: Option<String>,
+    pub trades: Option<String>,
+}
+
+/// Response from the Get Trades History endpoint | See [KITradeHistory]
 #[derive(Deserialize, Serialize, Debug)]
 pub struct KOTradeHistory {
-    pub closed: HashMap<String, KOTradeInfo>,
+    pub closed: HashMap<String, KOTradeData>,
     pub count: u32,
 }
 
-pub type KOQueriedTrades = HashMap<String, KOTradeInfo>;
+/// Response from the Query Trades Info endpoint | See [KITradesInfo]
+#[derive(Deserialize, Serialize, Debug)]
+pub struct KOTradesInfo {
+    /// Map with the trade's transaction ID as the key and the trade info as the value
+    #[serde(flatten)]
+    pub trades: HashMap<String, KOTradeData>
+}
 
+/// Open position info data | See [KOOpenPositions]
 #[derive(Deserialize, Serialize, Debug)]
 pub struct KOPositionInfo {
     /// Order responsible for execution of trade
-    ordertxid: String,
-    pair: String,
-    time: f64,
+    pub ordertxid: String,
+    pub pair: String,
+    pub time: f64,
     #[serde(rename = "type")]
-    tradetype: String,
-    ordertype: String,
-    cost: String,
-    fee: String,
-    vol: String,
-    vol_closed: String,
-    margin: Option<String>,
-    value: Option<String>,
-    net: Option<String>,
-    misc: String,
-    oflags: Option<String>,
+    pub tradetype: String,
+    pub ordertype: String,
+    pub cost: String,
+    pub fee: String,
+    pub vol: String,
+    pub vol_closed: String,
+    pub margin: Option<String>,
+    pub value: Option<String>,
+    pub net: Option<String>,
+    pub misc: String,
+    pub oflags: Option<String>,
 }
 
-pub type KOOpenPositions = HashMap<String, KOPositionInfo>;
+/// Response from the Get Open Positions endpoint | See [KIOpenPositions]
+#[derive(Deserialize, Serialize, Debug)]
+pub struct KOOpenPositions {
+    /// Map with the position's transaction ID as the key and the open position info as the value
+    #[serde(flatten)]
+    pub positions: HashMap<String, KOPositionInfo>
+}
 
+/// Ledger info data | See [KOLedgers]
 #[derive(Deserialize, Serialize, Debug)]
 pub struct KOLedgerInfo {
     /// Order responsible for execution of trade
-    refid: String,
-    time: f64,
+    pub refid: String,
+    pub time: f64,
     #[serde(rename = "type")]
-    ledgertype: String,
-    aclass: String,
-    asset: String,
-    amount: String,
-    fee: String,
-    balance: Option<String>,
+    pub ledgertype: String,
+    pub aclass: String,
+    pub asset: String,
+    pub amount: String,
+    pub fee: String,
+    pub balance: Option<String>,
 }
 
-pub type KOLedgers = HashMap<String, KOLedgerInfo>;
+/// Response from the Get Ledgers Info or Query Ledgers endpoints | See
+/// [KILedgerInfo] & [KIQueryLedgers]
+#[derive(Deserialize, Serialize, Debug)]
+pub struct KOLedgers {
+    /// Map with the ledger ID as the key and the ledger info as the value
+    #[serde(flatten)]
+    pub ledgers: HashMap<String, KOLedgerInfo>
+}
 
+/// Fee info | See [KOTradeVolume]
 #[derive(Deserialize, Serialize, Debug)]
 pub struct KOFeeInfo {
-    fee: String,
-    minfee: Option<String>,
-    maxfee: Option<String>,
-    nextfee: Option<String>,
-    nextvolume: Option<String>,
+    pub fee: String,
+    pub minfee: Option<String>,
+    pub maxfee: Option<String>,
+    pub nextfee: Option<String>,
+    pub nextvolume: Option<String>,
 }
 
+/// Maker fee info | See [KOTradeVolume]
 #[derive(Deserialize, Serialize, Debug)]
 pub struct KOMakerFeeInfo {
-    fee: String,
-    minfee: Option<String>,
-    maxfee: Option<String>,
-    nextfee: Option<String>,
-    nextvolume: Option<String>,
-    tiervolume: Option<String>,
+    pub fee: String,
+    pub minfee: Option<String>,
+    pub maxfee: Option<String>,
+    pub nextfee: Option<String>,
+    pub nextvolume: Option<String>,
+    pub tiervolume: Option<String>,
 }
 
+/// Response from the Get Trade Volume endpoint | See [KITradeVolume]
 #[derive(Deserialize, Serialize, Debug)]
 pub struct KOTradeVolume {
-    currency: String,
-    volume: String,
-    fees: Option<HashMap<String, KOFeeInfo>>,
-    fees_maker: Option<HashMap<String, KOMakerFeeInfo>>,
+    pub currency: String,
+    pub volume: String,
+    pub fees: Option<HashMap<String, KOFeeInfo>>,
+    pub fees_maker: Option<HashMap<String, KOMakerFeeInfo>>,
 }
 
+/// Response from the Cancel Open Orders endpoint | See [KICancelOrder]
 #[derive(Deserialize, Serialize, Debug)]
-pub struct KOCancelledOrders {
+pub struct KOCancelOrder {
     /// number of orders canceled
-    count: u32,
+    pub count: u32,
     /// if set, order(s) is/are pending cancellation
-    pending: u32,
+    pub pending: u32,
 }
 
+/// Response from the Cancel All Open Orders endpoint | See [KICancelAllOrders]
+#[derive(Deserialize, Serialize, Debug)]
+pub struct KOCancelAllOrders {
+    /// number of orders canceled
+    pub count: u32,
+}
+
+/// Response from the Cancel All Orders After endpoint | See [KICancelOnTimeout]
+#[derive(Deserialize, Serialize, Debug)]
+pub struct KOCancelOnTimeout {
+    /// Timestamp (RFC3339) reflecting when the request has been handled (second precision, rounded up)
+    pub currentTime: String,
+    /// Timestamp (RFC3339) reflecting the time at which all open orders will be cancelled, 
+    /// unless the timer is extended or disabled (second precision, rounded up)
+    pub triggerTime: String,
+}
+
+/// Response from the Add Standard Order endpoint | See [KIAddOrder]
 #[derive(Deserialize, Serialize, Debug)]
 pub struct KOAddOrder {
     /// Order description info
-    descr: AddOrderDesc,
+    pub descr: AddOrderDesc,
     /// Array of transaction ids for order (if order was added successfully)
-    txid: Option<Vec<String>>,
+    pub txid: Option<Vec<String>>,
 }
 
 #[derive(Deserialize, Serialize, Debug)]
 struct AddOrderDesc {
     /// Order description
-    order: String,
+    pub order: String,
     /// Conditional close order description (if order was added successfully)
-    close: Option<String>,
+    pub close: Option<String>,
 }

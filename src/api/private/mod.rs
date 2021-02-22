@@ -1421,10 +1421,12 @@ pub struct KOCancelAllOrders {
 #[derive(Deserialize, Serialize, Debug)]
 pub struct KOCancelOnTimeout {
     /// Timestamp (RFC3339) reflecting when the request has been handled (second precision, rounded up)
-    pub currentTime: String,
+    #[serde(rename = "currentTime")]
+    pub current_time: String,
     /// Timestamp (RFC3339) reflecting the time at which all open orders will be cancelled, 
     /// unless the timer is extended or disabled (second precision, rounded up)
-    pub triggerTime: String,
+    #[serde(rename = "triggerTime")]
+    pub trigger_time: String,
 }
 
 /// Response from the Add Standard Order endpoint | See [KIAddOrder]
@@ -1437,7 +1439,7 @@ pub struct KOAddOrder {
 }
 
 #[derive(Deserialize, Serialize, Debug)]
-struct AddOrderDesc {
+pub struct AddOrderDesc {
     /// Order description
     pub order: String,
     /// Conditional close order description (if order was added successfully)

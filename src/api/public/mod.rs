@@ -16,7 +16,7 @@ use super::{
     MethodType, SystemStatus, UpdateInput
 };
 
-/// Input builder for the Get Server Time endpoint | See [KOServerTime]
+/// Request builder for the Get Server Time endpoint | See [KOServerTime]
 pub struct KIServerTime();
 
 impl KIServerTime {
@@ -49,7 +49,7 @@ impl Input for KIServerTime {
     }
 }
 
-/// Input builder for the Get System Status endpoint | See [KOSystemStatus]
+/// Request builder for the Get System Status endpoint | See [KOSystemStatus]
 pub struct KISystemStatus();
 
 impl KISystemStatus {
@@ -81,7 +81,7 @@ impl Input for KISystemStatus {
     }
 }
 
-/// Input builder for the Get Asset Info endpoint | See [KOAssetInfo]
+/// Request builder for the Get Asset Info endpoint | See [KOAssetInfo]
 pub struct KIAssetInfo {
     pub params: IndexMap<String, String>,
 }
@@ -145,7 +145,7 @@ impl UpdateInput for KIAssetInfo {}
 
 impl InputList for KIAssetInfo {}
 
-/// Input builder for the Get Tradable Asset Pairs endpoint | See [KOAssetPairInfo]
+/// Request builder for the Get Tradable Asset Pairs endpoint | See [KOAssetPairInfo]
 pub struct KIAssetPairs {
     pub params: IndexMap<String, String>,
 }
@@ -213,7 +213,7 @@ impl InputListItem for KIAssetPairs {
 
 impl InputList for KIAssetPairs {}
 
-/// Input builder for the Get Ticker Information endpoint | See [KOTicker]
+/// Request builder for the Get Ticker Information endpoint | See [KOTicker]
 pub struct KITicker {
     pub params: IndexMap<String, String>,
 }
@@ -279,8 +279,7 @@ impl UpdateInput for KITicker {}
 
 impl InputList for KITicker {}
 
-/// Input builder for the Get OHLC Data endpoint | See [KOOHLC]
-// FIXME: Need an output structure for the OHLC endpoint
+/// Request builder for the Get OHLC Data endpoint | See [KOOHLC]
 pub struct KIOHLC {
     pub params: IndexMap<String, String>,
 }
@@ -331,7 +330,7 @@ impl MutateInput for KIOHLC {
 
 impl UpdateInput for KIOHLC {}
 
-/// Input builder for the Get Order Book endpoint | See [KOOrderBook]
+/// Request builder for the Get Order Book endpoint | See [KOOrderBook]
 pub struct KIOrderBook {
     pub params: IndexMap<String, String>,
 }
@@ -378,7 +377,7 @@ impl MutateInput for KIOrderBook {
 
 impl UpdateInput for KIOrderBook {}
 
-/// Input builder for the Get Recent Trades endpoint | See [KORecentTrades]
+/// Request builder for the Get Recent Trades endpoint | See [KORecentTrades]
 pub struct KIRecentTrades {
     pub params: IndexMap<String, String>,
 }
@@ -425,7 +424,7 @@ impl MutateInput for KIRecentTrades {
 
 impl UpdateInput for KIRecentTrades {}
 
-/// Input builder for the Get Recent Spread Data endpoint | See [KOSpreadData]
+/// Request builder for the Get Recent Spread Data endpoint | See [KOSpreadData]
 pub struct KISpreadData {
     pub params: IndexMap<String, String>,
 }
@@ -472,7 +471,7 @@ impl MutateInput for KISpreadData {
 
 impl UpdateInput for KISpreadData {}
 
-/// Data returned from the Get Server Time endpoint | See [KIServerTime]
+/// Response from the Get Server Time endpoint | See [KIServerTime]
 #[derive(Deserialize, Serialize, Debug)]
 pub struct KOServerTime {
     /// as unix timestamp
@@ -481,7 +480,7 @@ pub struct KOServerTime {
     pub rfc1123: String,
 }
 
-/// Data returned from the Get System Status endpoint | See [KISystemStatus]
+/// Response from the Get System Status endpoint | See [KISystemStatus]
 #[derive(Deserialize, Serialize, Debug)]
 pub struct KOSystemStatus {
     /// Current system status or trading mode
@@ -503,7 +502,7 @@ pub struct KOAsset {
     pub display_decimals: u32,
 }
 
-/// Data returned from the Get Asset Info endpoint | See [KIAssetInfo]
+/// Response from the Get Asset Info endpoint | See [KIAssetInfo]
 #[derive(Deserialize, Serialize, Debug)]
 pub struct KOAssetInfo {
     /// Map with the asset as the key and the asset's data as the value
@@ -552,7 +551,7 @@ pub struct KOAssetPair {
     pub wsname: Option<String>,
 }
 
-/// Data returned from the Get Tradable Asset Pairs endpoint | See [KIAssetPairs]
+/// Response from the Get Tradable Asset Pairs endpoint | See [KIAssetPairs]
 #[derive(Deserialize, Serialize, Debug)]
 pub struct KOAssetPairInfo {
     /// Map with the asset pair as the key and the pair's data as the value
@@ -583,7 +582,7 @@ pub struct KOTick {
     pub o: String,
 }
 
-/// Data returned from the Get Ticker Information endpoint | See [KITicker]
+/// Response from the Get Ticker Information endpoint | See [KITicker]
 #[derive(Deserialize, Serialize, Debug)]
 pub struct KOTicker {
     /// Map with the asset pair as the key and the pair's ticker data as the value
@@ -604,7 +603,7 @@ pub struct KOHLCData {
     pub count: i64
 }
 
-/// Data returned from the Get OHLC Data endpoint | See [KIOHLC]
+/// Response from the Get OHLC Data endpoint | See [KIOHLC]
 #[derive(Deserialize, Serialize, Debug)]
 pub struct KOOHLC {
     /// Map with the asset pair as the key and the pair's OHLC data as the value
@@ -631,7 +630,7 @@ pub struct KOOrderDepthPair {
     pub bids: Vec<KOOrderBookData>,
 }
 
-/// Data returned from the Get Order Book endpoint | See [KIOrderBook]
+/// Response from the Get Order Book endpoint | See [KIOrderBook]
 #[derive(Deserialize, Serialize, Debug)]
 pub struct KOOrderBook {
     /// Map with the asset pair as the key and the pair's order book depth data as the value
@@ -650,7 +649,7 @@ pub struct KOTradeInfo {
     pub misc: String,
 }
 
-/// Data returned from the Get Recent Trades endpoint | See [KIRecentTrades]
+/// Response from the Get Recent Trades endpoint | See [KIRecentTrades]
 #[derive(Deserialize, Serialize, Debug)]
 pub struct KORecentTrades {
     /// Map with the asset pair as the key and the pair's Recent Trade data as the value
@@ -668,7 +667,7 @@ pub struct KOSpreadInfo {
     pub ask: String,
 }
 
-/// Data returned from the Get Recent Spread Data endpoint | See [KISpreadData]
+/// Response from the Get Recent Spread Data endpoint | See [KISpreadData]
 #[derive(Deserialize, Serialize, Debug)]
 pub struct KOSpreadData {
     /// Map with the asset pair as the key and the pair's Spread data as the value

@@ -29,7 +29,7 @@ use super::{
     UpdateInput
 };
 
-/// Input builder for the Get Account Balance endpoint | See [KOAccountBalance]
+/// Request builder for the Get Account Balance endpoint | See [KOAccountBalance]
 pub struct KIAccountBalance {
     params: IndexMap<String, String>,
 }
@@ -80,7 +80,7 @@ impl MutateInput for KIAccountBalance {
 
 impl UpdateInput for KIAccountBalance {}
 
-/// Input builder for the Get Trade Balance endpoint
+/// Request builder for the Get Trade Balance endpoint
 pub struct KITradeBalance {
     params: IndexMap<String, String>,
 }
@@ -127,7 +127,7 @@ impl Input for KITradeBalance {
     }
 }
 
-/// Input builder for the Get Open Orders endpoint
+/// Request builder for the Get Open Orders endpoint
 pub struct KIOpenOrders {
     params: IndexMap<String, String>,
 }
@@ -184,7 +184,7 @@ impl MutateInput for KIOpenOrders {
 
 impl UpdateInput for KIOpenOrders {}
 
-/// Input builder for the Get Closed Orders endpoint
+/// Request builder for the Get Closed Orders endpoint
 pub struct KIClosedOrders {
     params: IndexMap<String, String>,
 }
@@ -263,7 +263,7 @@ impl MutateInput for KIClosedOrders {
 
 impl UpdateInput for KIClosedOrders {}
 
-/// Input builder for the Query Orders Info endpoint
+/// Request builder for the Query Orders Info endpoint
 pub struct KIOrderInfo {
     params: IndexMap<String, String>,
 }
@@ -346,7 +346,7 @@ impl InputListItem for KIOrderInfo {
 
 impl InputList for KIOrderInfo {}
 
-/// Input builder for the Get Trades History endpoint
+/// Request builder for the Get Trades History endpoint
 pub struct KITradeHistory {
     params: IndexMap<String, String>,
 }
@@ -421,7 +421,7 @@ impl MutateInput for KITradeHistory {
 
 impl UpdateInput for KITradeHistory {}
 
-/// Input builder for the Query Trades Info endpoint
+/// Request builder for the Query Trades Info endpoint
 pub struct KITradesInfo {
     params: IndexMap<String, String>,
 }
@@ -500,7 +500,7 @@ impl InputListItem for KITradesInfo {
 
 impl InputList for KITradesInfo {}
 
-/// Input builder for the Get Open Positions endpoint
+/// Request builder for the Get Open Positions endpoint
 pub struct KIOpenPositions {
     params: IndexMap<String, String>,
 }
@@ -584,7 +584,7 @@ impl InputListItem for KIOpenPositions {
 
 impl InputList for KIOpenPositions {}
 
-/// Input builder for the Get Ledgers Info endpoint
+/// Request builder for the Get Ledgers Info endpoint
 pub struct KILedgerInfo {
     params: IndexMap<String, String>,
 }
@@ -677,7 +677,7 @@ impl InputListItem for KILedgerInfo {
 
 impl InputList for KILedgerInfo {}
 
-/// Input builder for the Query Ledgers endpoint
+/// Request builder for the Query Ledgers endpoint
 pub struct KIQueryLedgers {
     params: IndexMap<String, String>,
 }
@@ -748,7 +748,7 @@ impl InputListItem for KIQueryLedgers {
 
 impl InputList for KIQueryLedgers {}
 
-/// Input builder for the Get Trade Volume endpoint
+/// Request builder for the Get Trade Volume endpoint
 pub struct KITradeVolume {
     params: IndexMap<String, String>,
 }
@@ -821,7 +821,7 @@ impl Input for KITradeVolume {
     }
 }
 
-/// Input builder for the Add Standard Order endpoint
+/// Request builder for the Add Standard Order endpoint
 pub struct KIAddOrder {
     params: IndexMap<String, String>,
 }
@@ -994,7 +994,7 @@ impl Input for KIAddOrder {
     }
 }
 
-/// Input builder for the Cancel Open Order endpoint
+/// Request builder for the Cancel Open Order endpoint
 pub struct KICancelOrder {
     params: IndexMap<String, String>,
 }
@@ -1042,7 +1042,7 @@ impl Input for KICancelOrder {
     }
 }
 
-/// Input builder for the Cancel All Open Orders endpoint
+/// Request builder for the Cancel All Open Orders endpoint
 pub struct KICancelAllOrders {
     params: IndexMap<String, String>,
 }
@@ -1093,7 +1093,7 @@ impl MutateInput for KICancelAllOrders {
 
 impl UpdateInput for KICancelAllOrders {}
 
-/// Input builder for the Cancel All Orders After endpoint
+/// Request builder for the Cancel All Orders After endpoint
 pub struct KICancelOnTimeout {
     params: IndexMap<String, String>,
 }

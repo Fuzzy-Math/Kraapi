@@ -70,7 +70,7 @@ mod tests {
         params.insert("nonce".to_string(), api_nonce.clone());
         params.insert("asset".to_string(), "xbt".to_string());
 
-        let signature = auth.sign(&api_path, &api_nonce, &api::private::format_params(&params));
+        let signature = auth.sign(&api_path, &api_nonce, &api::format_params(&params));
 
         assert_eq!(signature, String::from("RdQzoXRC83TPmbERpFj0XFVArq0Hfadm0eLolmXTuN2R24hzIqtAnF/f7vSfW1tGt7xQOn8bjm+Ht+X0KrMwlA=="));
     }

@@ -29,7 +29,7 @@ use super::{
     UpdateInput
 };
 
-/// Input builder for the Get Account Balance endpoint
+/// Input builder for the Get Account Balance endpoint | See [KOAccountBalance]
 pub struct KIAccountBalance {
     params: IndexMap<String, String>,
 }
@@ -1141,7 +1141,14 @@ impl Input for KICancelOnTimeout {
     }
 }
 
-pub type KOAccountBalance = HashMap<String, String>;
+
+/// Response from the Get Account Balance endpoint | See [KIAccountBalance]
+#[derive(Deserialize, Serialize, Debug)]
+pub struct KOAccountBalance {
+    /// Map with the asset as the key and the asset's current balance as the value
+    #[serde(flatten)]
+    pub balances: HashMap<String, String>
+}
 
 #[derive(Deserialize, Serialize, Debug)]
 pub struct KOTradeBalance {

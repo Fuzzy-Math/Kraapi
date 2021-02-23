@@ -85,6 +85,7 @@ impl fmt::Display for MethodType {
 
 /// System status 
 #[derive(Deserialize, Serialize, Debug)]
+#[serde(rename_all = "lowercase")]
 pub enum SystemStatus {
     /// Operational, full trading available
     Online,

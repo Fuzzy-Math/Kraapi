@@ -1,5 +1,6 @@
 use krakenapi::api::*;
-use krakenapi::public::*;
+use krakenapi::public::ticker::{ KITicker, KOTicker };
+use krakenapi::public::ohlc::{ KIOHLC, KOOHLC };
 use krakenapi::client::KrakenClient;
 
 #[tokio::main]

@@ -1,5 +1,7 @@
 use krakenapi::api::*;
-use krakenapi::public::*;
+use krakenapi::public::order_book::{ KIOrderBook, KOOrderBook };
+use krakenapi::public::recent_trades::{ KIRecentTrades, KORecentTrades };
+use krakenapi::public::spread_data::{ KISpreadData, KOSpreadData };
 use krakenapi::client::KrakenClient;
 
 #[tokio::main]

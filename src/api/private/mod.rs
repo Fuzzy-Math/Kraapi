@@ -74,7 +74,7 @@ pub mod cancel_all_orders;
 /// Cancel all orders after ... endpoint
 pub mod cancel_on_timeout;
 
-/// Order description data 
+/// Order description data | See [KOOrderInfo]
 #[derive(Deserialize, Serialize, Debug)]
 pub struct KOOrderDescription {
     pub pair: String,
@@ -90,7 +90,7 @@ pub struct KOOrderDescription {
     pub closedesc: String,
 }
 
-/// Order status data 
+/// Order status data | See [KOOrderInfo] 
 #[derive(Deserialize, Serialize, Debug)]
 #[serde(rename_all = "lowercase")]
 pub enum KOOrderStatus {
@@ -106,7 +106,8 @@ pub enum KOOrderStatus {
     Expired,
 }
 
-/// Order info data | See [open_orders::KOOpenOrders] & [closed_orders::KOClosedOrders] & [query_orders::KOQueryOrders]
+use self::{open_orders::KOOpenOrders,closed_orders::KOClosedOrders,query_orders::KOQueryOrders};
+/// Order info data | See [KOOpenOrders] & [KOClosedOrders] & [KOQueryOrders]
 #[derive(Deserialize, Serialize, Debug)]
 pub struct KOOrderInfo {
     /// Referral order transaction id that created this order
@@ -158,7 +159,8 @@ pub struct KOOrderInfo {
     pub reason: Option<String>,
 }
 
-/// Trade info data | See [query_trades::KOTradesInfo] & [trade_history::KOTradeHistory]
+use self::{trade_history::KOTradeHistory, query_trades::KOTradesInfo};
+/// Trade info data | See [KOTradesInfo] & [KOTradeHistory]
 #[derive(Deserialize, Serialize, Debug)]
 pub struct KOTradeData {
     /// Order responsible for execution of trade
@@ -183,7 +185,7 @@ pub struct KOTradeData {
     pub trades: Option<String>,
 }
 
-/// Ledger info data 
+/// Ledger info data | See [KOLedgers]
 #[derive(Deserialize, Serialize, Debug)]
 pub struct KOLedgerInfo {
     /// Order responsible for execution of trade
@@ -198,6 +200,7 @@ pub struct KOLedgerInfo {
     pub balance: Option<String>,
 }
 
+use self::{query_ledgers::KIQueryLedgers,ledger_info::KILedgerInfo};
 /// Response from the Get Ledgers Info or Query Ledgers endpoints | See
 /// [KILedgerInfo] & [KIQueryLedgers]
 #[derive(Deserialize, Serialize, Debug)]

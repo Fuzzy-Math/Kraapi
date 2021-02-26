@@ -83,7 +83,8 @@ impl fmt::Display for MethodType {
     }
 }
 
-/// System status 
+use self::public::system_status::KISystemStatus;
+/// System status | See [KISystemStatus]
 #[derive(Deserialize, Serialize, Debug)]
 #[serde(rename_all = "lowercase")]
 pub enum SystemStatus {
@@ -99,7 +100,8 @@ pub enum SystemStatus {
     Offline,
 }
 
-/// Asset pair info to retreive | See [public::KIAssetPairs]
+use self::public::asset_pairs::KIAssetPairs;
+/// Asset pair info to retreive | See [KIAssetPairs]
 pub enum AssetPairInfo {
     Info,
     Leverage,
@@ -118,7 +120,8 @@ impl fmt::Display for AssetPairInfo {
     }
 }
 
-/// OHLC time frame interval in minutes | See [public::KIOHLC]
+use self::public::ohlc::KIOHLC;
+/// OHLC time frame interval in minutes | See [KIOHLC]
 pub enum OHLCInterval {
     /// 1 minute
     One,
@@ -156,7 +159,8 @@ impl fmt::Display for OHLCInterval {
     }
 }
 
-/// See [private::KIClosedOrders]
+use self::private::closed_orders::KIClosedOrders;
+/// See [KIClosedOrders]
 pub enum OrderCloseTime {
     Open,
     Close,
@@ -173,7 +177,8 @@ impl fmt::Display for OrderCloseTime {
     }
 }
 
-/// Type of trade to query history for | See [private::KITradeHistory]
+use self::private::trade_history::KITradeHistory;
+/// Type of trade to query history for | See [KITradeHistory]
 pub enum TradeHistoryType {
     /// All types
     All,
@@ -199,7 +204,8 @@ impl fmt::Display for TradeHistoryType {
     }
 }
 
-/// Ledger type to retrieve | See [private::KILedgerInfo]
+use self::private::ledger_info::KILedgerInfo;
+/// Ledger type to retrieve | See [KILedgerInfo]
 pub enum LedgerType {
     All,
     Deposit,
@@ -220,7 +226,8 @@ impl fmt::Display for LedgerType {
     }
 }
 
-/// Order trade type | See [private::KIAddOrder]
+use self::private::add_order::KIAddOrder;
+/// Order trade type | See [KIAddOrder]
 pub enum TradeType {
     Buy,
     Sell,
@@ -235,7 +242,7 @@ impl fmt::Display for TradeType {
     }
 }
 
-/// Order Type
+/// Order Type | See [KIAddOrder]
 ///
 /// Prices can be preceded by +, -, or # to signify the price as a relative amount 
 /// (with the exception of trailing stops, which are always relative). + adds the amount 
@@ -336,7 +343,7 @@ impl fmt::Display for OrderType {
     }
 }
 
-/// Add order flags | See [private::KIAddOrder]
+/// Add order flags | See [KIAddOrder]
 pub enum OrderFlags {
     /// Prefer fee in base currency
     BaseCurrency,

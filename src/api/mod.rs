@@ -83,6 +83,7 @@ impl fmt::Display for MethodType {
     }
 }
 
+#[allow(unused_imports)]
 use self::public::system_status::KISystemStatus;
 /// System status | See [KISystemStatus]
 #[derive(Deserialize, Serialize, Debug)]
@@ -100,6 +101,7 @@ pub enum SystemStatus {
     Offline,
 }
 
+#[allow(unused_imports)]
 use self::public::asset_pairs::KIAssetPairs;
 /// Asset pair info to retreive | See [KIAssetPairs]
 pub enum AssetPairInfo {
@@ -120,6 +122,7 @@ impl fmt::Display for AssetPairInfo {
     }
 }
 
+#[allow(unused_imports)]
 use self::public::ohlc::KIOHLC;
 /// OHLC time frame interval in minutes | See [KIOHLC]
 pub enum OHLCInterval {
@@ -159,6 +162,7 @@ impl fmt::Display for OHLCInterval {
     }
 }
 
+#[allow(unused_imports)]
 use self::private::closed_orders::KIClosedOrders;
 /// See [KIClosedOrders]
 pub enum OrderCloseTime {
@@ -177,6 +181,7 @@ impl fmt::Display for OrderCloseTime {
     }
 }
 
+#[allow(unused_imports)]
 use self::private::trade_history::KITradeHistory;
 /// Type of trade to query history for | See [KITradeHistory]
 pub enum TradeHistoryType {
@@ -204,6 +209,7 @@ impl fmt::Display for TradeHistoryType {
     }
 }
 
+#[allow(unused_imports)]
 use self::private::ledger_info::KILedgerInfo;
 /// Ledger type to retrieve | See [KILedgerInfo]
 pub enum LedgerType {
@@ -226,6 +232,7 @@ impl fmt::Display for LedgerType {
     }
 }
 
+#[allow(unused_imports)]
 use self::private::add_order::KIAddOrder;
 /// Order trade type | See [KIAddOrder]
 pub enum TradeType {

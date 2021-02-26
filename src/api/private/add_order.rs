@@ -1,23 +1,17 @@
 use serde::{Deserialize, Serialize};
-use std::collections::HashMap;
 use indexmap::map::IndexMap;
 
 use crate::auth::KrakenAuth;
 // Structs/Enums
 use super::{
-    EndpointInfo, KAsset,
-    KAssetPair, KrakenInput,
-    LedgerType, MethodType,
-    OrderCloseTime, OrderType,
-    OrderFlags, TradeHistoryType, 
+    EndpointInfo, KAssetPair, KrakenInput,
+    MethodType, OrderType, OrderFlags, 
     TradeType
 };
 
 // Traits
 use super::{
-    InputList, InputListItem, Input, 
-    IntoInputList, MutateInput, 
-    UpdateInput
+    Input, MutateInput, UpdateInput
 };
 
 /// Request builder for the Add Standard Order endpoint 

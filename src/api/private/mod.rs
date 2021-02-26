@@ -9,9 +9,7 @@
 
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
-use indexmap::map::IndexMap;
 
-use super::super::auth::KrakenAuth;
 // Structs/Enums
 use super::{
     EndpointInfo, KAsset,
@@ -106,6 +104,7 @@ pub enum KOOrderStatus {
     Expired,
 }
 
+#[allow(unused_imports)]
 use self::{open_orders::KOOpenOrders,closed_orders::KOClosedOrders,query_orders::KOQueryOrders};
 /// Order info data | See [KOOpenOrders] & [KOClosedOrders] & [KOQueryOrders]
 #[derive(Deserialize, Serialize, Debug)]
@@ -159,6 +158,7 @@ pub struct KOOrderInfo {
     pub reason: Option<String>,
 }
 
+#[allow(unused_imports)]
 use self::{trade_history::KOTradeHistory, query_trades::KOTradesInfo};
 /// Trade info data | See [KOTradesInfo] & [KOTradeHistory]
 #[derive(Deserialize, Serialize, Debug)]
@@ -200,6 +200,7 @@ pub struct KOLedgerInfo {
     pub balance: Option<String>,
 }
 
+#[allow(unused_imports)]
 use self::{query_ledgers::KIQueryLedgers,ledger_info::KILedgerInfo};
 /// Response from the Get Ledgers Info or Query Ledgers endpoints | See
 /// [KILedgerInfo] & [KIQueryLedgers]

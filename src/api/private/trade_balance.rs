@@ -1,23 +1,16 @@
 use serde::{Deserialize, Serialize};
-use std::collections::HashMap;
 use indexmap::map::IndexMap;
 
 use crate::auth::KrakenAuth;
 // Structs/Enums
 use super::{
-    EndpointInfo, KAsset,
-    KAssetPair, KrakenInput,
-    LedgerType, MethodType,
-    OrderCloseTime, OrderType,
-    OrderFlags, TradeHistoryType, 
-    TradeType
+    EndpointInfo, KAsset, KrakenInput,
+    MethodType,
 };
 
 // Traits
 use super::{
-    InputList, InputListItem, Input, 
-    IntoInputList, MutateInput, 
-    UpdateInput
+    Input, MutateInput, UpdateInput
 };
 
 /// Request builder for the Get Trade Balance endpoint 

@@ -1,16 +1,11 @@
-use serde::{Deserialize, Serialize};
-use std::collections::HashMap;
 use indexmap::map::IndexMap;
 
 use crate::auth::KrakenAuth;
 // Structs/Enums
 use super::{
     EndpointInfo, KAsset,
-    KAssetPair, KrakenInput,
+    KrakenInput,
     LedgerType, MethodType,
-    OrderCloseTime, OrderType,
-    OrderFlags, TradeHistoryType, 
-    TradeType
 };
 
 // Traits

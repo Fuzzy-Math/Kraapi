@@ -5,12 +5,8 @@ use indexmap::map::IndexMap;
 use crate::auth::KrakenAuth;
 // Structs/Enums
 use super::{
-    EndpointInfo, KAsset,
-    KAssetPair, KrakenInput,
-    LedgerType, MethodType,
-    OrderCloseTime, OrderType,
-    OrderFlags, TradeHistoryType, 
-    TradeType
+    EndpointInfo, KAssetPair, KrakenInput,
+    MethodType,
 };
 
 // Traits

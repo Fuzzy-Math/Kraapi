@@ -1,15 +1,13 @@
-use serde::{Serialize, Deserialize};
-use std::collections::HashMap;
 use indexmap::map::IndexMap;
+use serde::{Deserialize, Serialize};
+use std::collections::HashMap;
 
 use super::{
-    InputList, InputListItem, EndpointInfo, 
-    Input, KAssetPair, KrakenInput, 
-    IntoInputList, MutateInput, MethodType, 
-    UpdateInput
+    EndpointInfo, Input, InputList, InputListItem, IntoInputList, KAssetPair, KrakenInput,
+    MethodType, MutateInput, UpdateInput,
 };
 
-/// Request builder for the Get Ticker Information endpoint 
+/// Request builder for the Get Ticker Information endpoint
 pub struct KITicker {
     pub params: IndexMap<String, String>,
 }
@@ -17,41 +15,52 @@ pub struct KITicker {
 impl KITicker {
     pub fn build(pair: KAssetPair) -> Self {
         let ticker = KITicker {
-            params: IndexMap::new()
+            params: IndexMap::new(),
         };
         ticker.with_item(pair)
     }
 
-    pub fn build_with_list<T>(pairs: T) -> Self 
-        where T: IntoIterator<Item = KAssetPair>,
+    pub fn build_with_list<T>(pairs: T) -> Self
+    where
+        T: IntoIterator<Item = KAssetPair>,
     {
         let ticker = KITicker {
-            params: IndexMap::new()
+            params: IndexMap::new(),
         };
         ticker.with_item_list(pairs)
     }
 
     pub fn update_pair_list<T>(self, pairs: T) -> Self
-        where T: IntoIterator<Item = KAssetPair>
+    where
+        T: IntoIterator<Item = KAssetPair>,
     {
-        self.update_input("pair", String::from("")).with_item_list(pairs)
+        self.update_input("pair", String::from(""))
+            .with_item_list(pairs)
     }
 }
 
 impl Input for KITicker {
     fn finish(self) -> KrakenInput {
-       KrakenInput {
-           info: EndpointInfo { methodtype: MethodType::Public, endpoint: String::from("Ticker") },
-           params: Some(self.params)
-       }
+        KrakenInput {
+            info: EndpointInfo {
+                methodtype: MethodType::Public,
+                endpoint: String::from("Ticker"),
+            },
+            params: Some(self.params),
+        }
     }
 
     fn finish_clone(self) -> (KrakenInput, Self) {
-       (KrakenInput {
-           info: EndpointInfo { methodtype: MethodType::Public, endpoint: String::from("Ticker") },
-           params: Some(self.params.clone())
-       },
-       self)
+        (
+            KrakenInput {
+                info: EndpointInfo {
+                    methodtype: MethodType::Public,
+                    endpoint: String::from("Ticker"),
+                },
+                params: Some(self.params.clone()),
+            },
+            self,
+        )
     }
 }
 
@@ -75,7 +84,7 @@ impl UpdateInput for KITicker {}
 
 impl InputList for KITicker {}
 
-/// Ticker info data 
+/// Ticker info data
 #[derive(Deserialize, Serialize, Debug)]
 pub struct KOTick {
     /// ask array(<price>, <whole lot volume>, <lot volume>)
@@ -98,11 +107,10 @@ pub struct KOTick {
     pub o: String,
 }
 
-/// Response from the Get Ticker Information endpoint 
+/// Response from the Get Ticker Information endpoint
 #[derive(Deserialize, Serialize, Debug)]
 pub struct KOTicker {
     /// Map with the asset pair as the key and the pair's ticker data as the value
     #[serde(flatten)]
-    pub pair: HashMap<String, KOTick>
+    pub pair: HashMap<String, KOTick>,
 }
-

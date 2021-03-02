@@ -1,15 +1,12 @@
 use krakenapi::api::*;
-use krakenapi::public::order_book::{ KIOrderBook, KOOrderBook };
-use krakenapi::public::recent_trades::{ KIRecentTrades, KORecentTrades };
-use krakenapi::public::spread_data::{ KISpreadData, KOSpreadData };
 use krakenapi::client::KrakenClient;
+use krakenapi::public::order_book::{KIOrderBook, KOOrderBook};
+use krakenapi::public::recent_trades::{KIRecentTrades, KORecentTrades};
+use krakenapi::public::spread_data::{KISpreadData, KOSpreadData};
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
-    let client = KrakenClient::new(
-        "",
-        ""
-    );
+    let client = KrakenClient::new("", "");
 
     let order_book = KIOrderBook::build(KAssetPair(KAsset::XBT, KAsset::USD)).finish();
 
@@ -31,4 +28,3 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     Ok(())
 }
-

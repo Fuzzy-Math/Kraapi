@@ -1,19 +1,14 @@
-use serde::{Deserialize, Serialize};
 use indexmap::map::IndexMap;
+use serde::{Deserialize, Serialize};
 
 use crate::auth::KrakenAuth;
 // Structs/Enums
-use super::{
-    EndpointInfo, KAsset, KrakenInput,
-    MethodType,
-};
+use super::{EndpointInfo, KAsset, KrakenInput, MethodType};
 
 // Traits
-use super::{
-    Input, MutateInput, UpdateInput
-};
+use super::{Input, MutateInput, UpdateInput};
 
-/// Request builder for the Get Trade Balance endpoint 
+/// Request builder for the Get Trade Balance endpoint
 pub struct KITradeBalance {
     params: IndexMap<String, String>,
 }
@@ -21,7 +16,7 @@ pub struct KITradeBalance {
 impl KITradeBalance {
     pub fn build() -> KITradeBalance {
         KITradeBalance {
-            params: IndexMap::new()
+            params: IndexMap::new(),
         }
     }
 
@@ -45,22 +40,30 @@ impl UpdateInput for KITradeBalance {}
 impl Input for KITradeBalance {
     fn finish(self) -> KrakenInput {
         KrakenInput {
-           info: EndpointInfo { methodtype: MethodType::Private, endpoint: String::from("TradeBalance") },
-           params: Some(self.with_nonce().params)
-       }
+            info: EndpointInfo {
+                methodtype: MethodType::Private,
+                endpoint: String::from("TradeBalance"),
+            },
+            params: Some(self.with_nonce().params),
+        }
     }
 
     fn finish_clone(self) -> (KrakenInput, Self) {
-       let newself = self.with_nonce();
-       (KrakenInput {
-           info: EndpointInfo { methodtype: MethodType::Private, endpoint: String::from("TradeBalance") },
-           params: Some(newself.params.clone())
-       },
-       newself)
+        let newself = self.with_nonce();
+        (
+            KrakenInput {
+                info: EndpointInfo {
+                    methodtype: MethodType::Private,
+                    endpoint: String::from("TradeBalance"),
+                },
+                params: Some(newself.params.clone()),
+            },
+            newself,
+        )
     }
 }
 
-/// Response from the Get Trade Balance endpoint 
+/// Response from the Get Trade Balance endpoint
 #[derive(Deserialize, Serialize, Debug)]
 pub struct KOTradeBalance {
     /// cost basis of open positions
@@ -82,4 +85,3 @@ pub struct KOTradeBalance {
     /// current floating valuation of open positions
     pub v: String,
 }
-

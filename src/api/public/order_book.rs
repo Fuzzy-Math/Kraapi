@@ -1,14 +1,10 @@
-use serde::{Serialize, Deserialize};
-use std::collections::HashMap;
 use indexmap::map::IndexMap;
+use serde::{Deserialize, Serialize};
+use std::collections::HashMap;
 
-use super::{
-    EndpointInfo, Input, KAssetPair, 
-    KrakenInput, MutateInput, MethodType, 
-    UpdateInput
-};
+use super::{EndpointInfo, Input, KAssetPair, KrakenInput, MethodType, MutateInput, UpdateInput};
 
-/// Request builder for the Get Order Book endpoint 
+/// Request builder for the Get Order Book endpoint
 pub struct KIOrderBook {
     pub params: IndexMap<String, String>,
 }
@@ -16,7 +12,7 @@ pub struct KIOrderBook {
 impl KIOrderBook {
     pub fn build(pair: KAssetPair) -> Self {
         let order_book = KIOrderBook {
-            params: IndexMap::new()
+            params: IndexMap::new(),
         };
         order_book.update_pair(pair)
     }
@@ -32,18 +28,26 @@ impl KIOrderBook {
 
 impl Input for KIOrderBook {
     fn finish(self) -> KrakenInput {
-       KrakenInput {
-           info: EndpointInfo { methodtype: MethodType::Public, endpoint: String::from("Depth") },
-           params: Some(self.params)
-       }
+        KrakenInput {
+            info: EndpointInfo {
+                methodtype: MethodType::Public,
+                endpoint: String::from("Depth"),
+            },
+            params: Some(self.params),
+        }
     }
 
     fn finish_clone(self) -> (KrakenInput, Self) {
-       (KrakenInput {
-           info: EndpointInfo { methodtype: MethodType::Public, endpoint: String::from("Depth") },
-           params: Some(self.params.clone())
-       },
-       self)
+        (
+            KrakenInput {
+                info: EndpointInfo {
+                    methodtype: MethodType::Public,
+                    endpoint: String::from("Depth"),
+                },
+                params: Some(self.params.clone()),
+            },
+            self,
+        )
     }
 }
 
@@ -55,7 +59,7 @@ impl MutateInput for KIOrderBook {
 
 impl UpdateInput for KIOrderBook {}
 
-/// Order book data 
+/// Order book data
 #[derive(Deserialize, Serialize, Debug)]
 pub struct KOOrderBookData {
     pub price: String,
@@ -63,7 +67,7 @@ pub struct KOOrderBookData {
     pub timestamp: i64,
 }
 
-/// Order book data 
+/// Order book data
 #[derive(Deserialize, Serialize, Debug)]
 pub struct KOOrderDepthPair {
     /// Ask side array of [KOOrderBookData]
@@ -72,11 +76,10 @@ pub struct KOOrderDepthPair {
     pub bids: Vec<KOOrderBookData>,
 }
 
-/// Response from the Get Order Book endpoint 
+/// Response from the Get Order Book endpoint
 #[derive(Deserialize, Serialize, Debug)]
 pub struct KOOrderBook {
     /// Map with the asset pair as the key and the pair's order book depth data as the value
     #[serde(flatten)]
-    pub pair: HashMap<String, KOOrderDepthPair>
+    pub pair: HashMap<String, KOOrderDepthPair>,
 }
-

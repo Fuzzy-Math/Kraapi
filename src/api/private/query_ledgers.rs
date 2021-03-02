@@ -2,21 +2,15 @@ use indexmap::map::IndexMap;
 
 use crate::auth::KrakenAuth;
 // Structs/Enums
-use super::{
-    EndpointInfo, KrakenInput, MethodType,
-};
+use super::{EndpointInfo, KrakenInput, MethodType};
 
 // Traits
-use super::{
-    InputList, InputListItem, Input, 
-    IntoInputList, MutateInput, 
-    UpdateInput
-};
+use super::{Input, InputList, InputListItem, IntoInputList, MutateInput, UpdateInput};
 
 pub use super::KOLedgerInfo;
 pub use super::KOLedgers;
 
-/// Request builder for the Query Ledgers endpoint 
+/// Request builder for the Query Ledgers endpoint
 pub struct KIQueryLedgers {
     params: IndexMap<String, String>,
 }
@@ -24,24 +18,27 @@ pub struct KIQueryLedgers {
 impl KIQueryLedgers {
     pub fn build(ledgerid: String) -> Self {
         let ledgers = KIQueryLedgers {
-            params: IndexMap::new()
+            params: IndexMap::new(),
         };
         ledgers.with_item(ledgerid)
     }
 
     pub fn build_with_list<T>(ledgerids: T) -> Self
-        where T: IntoIterator<Item = String>
+    where
+        T: IntoIterator<Item = String>,
     {
         let ledgers = KIQueryLedgers {
-            params: IndexMap::new()
+            params: IndexMap::new(),
         };
         ledgers.with_item_list(ledgerids)
     }
 
     pub fn update_transaction_list<T>(self, ledgerids: T) -> Self
-        where T: IntoIterator<Item = String>
+    where
+        T: IntoIterator<Item = String>,
     {
-        self.update_input("id", String::from("")).with_item_list(ledgerids)
+        self.update_input("id", String::from(""))
+            .with_item_list(ledgerids)
     }
 
     fn with_nonce(self) -> Self {
@@ -51,19 +48,27 @@ impl KIQueryLedgers {
 
 impl Input for KIQueryLedgers {
     fn finish(self) -> KrakenInput {
-       KrakenInput {
-           info: EndpointInfo { methodtype: MethodType::Private, endpoint: String::from("QueryLedgers") },
-           params: Some(self.with_nonce().params)
-       }
+        KrakenInput {
+            info: EndpointInfo {
+                methodtype: MethodType::Private,
+                endpoint: String::from("QueryLedgers"),
+            },
+            params: Some(self.with_nonce().params),
+        }
     }
 
     fn finish_clone(self) -> (KrakenInput, Self) {
-       let newself = self.with_nonce();
-       (KrakenInput {
-           info: EndpointInfo { methodtype: MethodType::Private, endpoint: String::from("QueryLedgers") },
-           params: Some(newself.params.clone())
-       },
-       newself)
+        let newself = self.with_nonce();
+        (
+            KrakenInput {
+                info: EndpointInfo {
+                    methodtype: MethodType::Private,
+                    endpoint: String::from("QueryLedgers"),
+                },
+                params: Some(newself.params.clone()),
+            },
+            newself,
+        )
     }
 }
 
@@ -86,5 +91,3 @@ impl InputListItem for KIQueryLedgers {
 }
 
 impl InputList for KIQueryLedgers {}
-
-

@@ -10,7 +10,7 @@
 //! - Promotes re-use of structures and avoids unecessary allocations or redundant HTTP clients
 //!
 //! # General Notes - TLDR
-//! 
+//!
 //! - Every input type is prefixed with KI. Every output type is prefixed with KO
 //! - Every input type is a builder type for KrakenInput. All required paramters(per Kraken) are
 //!   parameters for that type's constructor. Optional parameters are exposed using methods.
@@ -38,10 +38,10 @@
 //! // Now of type KrakenInput so we have to rebind the variable
 //! let input = input.finish();
 //! ```
-//! # Examples 
+//! # Examples
 //! See <https://www.kraken.com/features/api#example-api-code-php-lib> for more info on these
 //! examples
-//! 
+//!
 //! ## Public Endpoint - Ticker
 //! ```
 //! use krakenapi::client::KrakenClient;
@@ -70,7 +70,7 @@
 //!
 //! # async fn main() -> hyper::Result<()> {
 //! let client = KrakenClient::new(
-//!     "<Your-API-Key>", 
+//!     "<Your-API-Key>",
 //!     "<Your-API-Secret>"
 //!     );
 //!
@@ -91,10 +91,9 @@
 //! # }
 //! ```
 
-mod auth;
 pub mod api;
+mod auth;
 pub mod client;
 
 pub use api::private;
 pub use api::public;
-

@@ -1,20 +1,14 @@
-use serde::{Deserialize, Serialize};
 use indexmap::map::IndexMap;
+use serde::{Deserialize, Serialize};
 
 use crate::auth::KrakenAuth;
 // Structs/Enums
-use super::{
-    EndpointInfo, 
-    KrakenInput,
-    MethodType,
-};
+use super::{EndpointInfo, KrakenInput, MethodType};
 
 // Traits
-use super::{
-    Input, MutateInput, UpdateInput
-};
+use super::{Input, MutateInput, UpdateInput};
 
-/// Request builder for the Cancel All Orders After endpoint 
+/// Request builder for the Cancel All Orders After endpoint
 pub struct KICancelOnTimeout {
     params: IndexMap<String, String>,
 }
@@ -22,7 +16,7 @@ pub struct KICancelOnTimeout {
 impl KICancelOnTimeout {
     pub fn build(timeout: u32) -> KICancelOnTimeout {
         let cancelorder = KICancelOnTimeout {
-            params: IndexMap::new()
+            params: IndexMap::new(),
         };
         cancelorder.on_timeout(timeout)
     }
@@ -47,30 +41,37 @@ impl UpdateInput for KICancelOnTimeout {}
 impl Input for KICancelOnTimeout {
     fn finish(self) -> KrakenInput {
         KrakenInput {
-           info: EndpointInfo { methodtype: MethodType::Private, endpoint: String::from("CancelAllOrdersAfter") },
-           params: Some(self.with_nonce().params)
-       }
+            info: EndpointInfo {
+                methodtype: MethodType::Private,
+                endpoint: String::from("CancelAllOrdersAfter"),
+            },
+            params: Some(self.with_nonce().params),
+        }
     }
 
     fn finish_clone(self) -> (KrakenInput, Self) {
-       let newself = self.with_nonce();
-       (KrakenInput {
-           info: EndpointInfo { methodtype: MethodType::Private, endpoint: String::from("CancelAllOrdersAfter") },
-           params: Some(newself.params.clone())
-       },
-       newself)
+        let newself = self.with_nonce();
+        (
+            KrakenInput {
+                info: EndpointInfo {
+                    methodtype: MethodType::Private,
+                    endpoint: String::from("CancelAllOrdersAfter"),
+                },
+                params: Some(newself.params.clone()),
+            },
+            newself,
+        )
     }
 }
 
-/// Response from the Cancel All Orders After endpoint 
+/// Response from the Cancel All Orders After endpoint
 #[derive(Deserialize, Serialize, Debug)]
 pub struct KOCancelOnTimeout {
     /// Timestamp (RFC3339) reflecting when the request has been handled (second precision, rounded up)
     #[serde(rename = "currentTime")]
     pub current_time: String,
-    /// Timestamp (RFC3339) reflecting the time at which all open orders will be cancelled, 
+    /// Timestamp (RFC3339) reflecting the time at which all open orders will be cancelled,
     /// unless the timer is extended or disabled (second precision, rounded up)
     #[serde(rename = "triggerTime")]
     pub trigger_time: String,
 }
-

@@ -1,11 +1,8 @@
-use serde::{Serialize, Deserialize};
+use serde::{Deserialize, Serialize};
 
-use super::{
-    EndpointInfo, Input, KrakenInput, 
-    MethodType
-};
+use super::{EndpointInfo, Input, KrakenInput, MethodType};
 
-/// Request builder for the Get Server Time endpoint 
+/// Request builder for the Get Server Time endpoint
 pub struct KIServerTime();
 
 impl KIServerTime {
@@ -23,22 +20,30 @@ impl KIServerTime {
 
 impl Input for KIServerTime {
     fn finish(self) -> KrakenInput {
-       KrakenInput {
-           info: EndpointInfo { methodtype: MethodType::Public, endpoint: String::from("Time") },
-           params: None 
-       }
+        KrakenInput {
+            info: EndpointInfo {
+                methodtype: MethodType::Public,
+                endpoint: String::from("Time"),
+            },
+            params: None,
+        }
     }
 
     fn finish_clone(self) -> (KrakenInput, Self) {
-        (KrakenInput {
-           info: EndpointInfo { methodtype: MethodType::Public, endpoint: String::from("Time") },
-           params: None 
-        },
-        self)
+        (
+            KrakenInput {
+                info: EndpointInfo {
+                    methodtype: MethodType::Public,
+                    endpoint: String::from("Time"),
+                },
+                params: None,
+            },
+            self,
+        )
     }
 }
 
-/// Response from the Get Server Time endpoint 
+/// Response from the Get Server Time endpoint
 #[derive(Deserialize, Serialize, Debug)]
 pub struct KOServerTime {
     /// as unix timestamp
@@ -46,4 +51,3 @@ pub struct KOServerTime {
     /// as RFC 1123 time format
     pub rfc1123: String,
 }
-

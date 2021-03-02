@@ -12,20 +12,12 @@ use std::collections::HashMap;
 
 // Structs/Enums
 use super::{
-    EndpointInfo, KAsset,
-    KAssetPair, KrakenInput,
-    LedgerType, MethodType,
-    OrderCloseTime, OrderType,
-    OrderFlags, TradeHistoryType, 
-    TradeType
+    EndpointInfo, KAsset, KAssetPair, KrakenInput, LedgerType, MethodType, OrderCloseTime,
+    OrderFlags, OrderType, TradeHistoryType, TradeType,
 };
 
 // Traits
-use super::{
-    InputList, InputListItem, Input, 
-    IntoInputList, MutateInput, 
-    UpdateInput
-};
+use super::{Input, InputList, InputListItem, IntoInputList, MutateInput, UpdateInput};
 
 /// Get account balance endpoint
 pub mod account_balance;
@@ -88,7 +80,7 @@ pub struct KOOrderDescription {
     pub closedesc: String,
 }
 
-/// Order status data | See [KOOrderInfo] 
+/// Order status data | See [KOOrderInfo]
 #[derive(Deserialize, Serialize, Debug)]
 #[serde(rename_all = "lowercase")]
 pub enum KOOrderStatus {
@@ -105,7 +97,7 @@ pub enum KOOrderStatus {
 }
 
 #[allow(unused_imports)]
-use self::{open_orders::KOOpenOrders,closed_orders::KOClosedOrders,query_orders::KOQueryOrders};
+use self::{closed_orders::KOClosedOrders, open_orders::KOOpenOrders, query_orders::KOQueryOrders};
 /// Order info data | See [KOOpenOrders] & [KOClosedOrders] & [KOQueryOrders]
 #[derive(Deserialize, Serialize, Debug)]
 pub struct KOOrderInfo {
@@ -159,7 +151,7 @@ pub struct KOOrderInfo {
 }
 
 #[allow(unused_imports)]
-use self::{trade_history::KOTradeHistory, query_trades::KOTradesInfo};
+use self::{query_trades::KOTradesInfo, trade_history::KOTradeHistory};
 /// Trade info data | See [KOTradesInfo] & [KOTradeHistory]
 #[derive(Deserialize, Serialize, Debug)]
 pub struct KOTradeData {
@@ -201,13 +193,12 @@ pub struct KOLedgerInfo {
 }
 
 #[allow(unused_imports)]
-use self::{query_ledgers::KIQueryLedgers,ledger_info::KILedgerInfo};
+use self::{ledger_info::KILedgerInfo, query_ledgers::KIQueryLedgers};
 /// Response from the Get Ledgers Info or Query Ledgers endpoints | See
 /// [KILedgerInfo] & [KIQueryLedgers]
 #[derive(Deserialize, Serialize, Debug)]
 pub struct KOLedgers {
     /// Map with the ledger ID as the key and the ledger info as the value
     #[serde(flatten)]
-    pub ledgers: HashMap<String, KOLedgerInfo>
+    pub ledgers: HashMap<String, KOLedgerInfo>,
 }
-

@@ -1,14 +1,13 @@
-use serde::{Serialize, Deserialize};
-use std::collections::HashMap;
 use indexmap::map::IndexMap;
+use serde::{Deserialize, Serialize};
+use std::collections::HashMap;
 
 use super::{
-    EndpointInfo, Input, KAssetPair, 
-    KrakenInput, MutateInput, OHLCInterval, 
-    MethodType, UpdateInput
+    EndpointInfo, Input, KAssetPair, KrakenInput, MethodType, MutateInput, OHLCInterval,
+    UpdateInput,
 };
 
-/// Request builder for the Get OHLC Data endpoint 
+/// Request builder for the Get OHLC Data endpoint
 pub struct KIOHLC {
     pub params: IndexMap<String, String>,
 }
@@ -16,7 +15,7 @@ pub struct KIOHLC {
 impl KIOHLC {
     pub fn build(pair: KAssetPair) -> Self {
         let ohlc = KIOHLC {
-            params: IndexMap::new()
+            params: IndexMap::new(),
         };
         ohlc.update_pair(pair)
     }
@@ -25,7 +24,7 @@ impl KIOHLC {
         self.update_input("pair", pair.to_string())
     }
 
-    pub fn with_interval (self, interval: OHLCInterval) -> Self {
+    pub fn with_interval(self, interval: OHLCInterval) -> Self {
         self.update_input("interval", interval.to_string())
     }
 
@@ -36,18 +35,26 @@ impl KIOHLC {
 
 impl Input for KIOHLC {
     fn finish(self) -> KrakenInput {
-       KrakenInput {
-           info: EndpointInfo { methodtype: MethodType::Public, endpoint: String::from("OHLC") },
-           params: Some(self.params)
-       }
+        KrakenInput {
+            info: EndpointInfo {
+                methodtype: MethodType::Public,
+                endpoint: String::from("OHLC"),
+            },
+            params: Some(self.params),
+        }
     }
 
     fn finish_clone(self) -> (KrakenInput, Self) {
-       (KrakenInput {
-           info: EndpointInfo { methodtype: MethodType::Public, endpoint: String::from("OHLC") },
-           params: Some(self.params.clone())
-       },
-       self)
+        (
+            KrakenInput {
+                info: EndpointInfo {
+                    methodtype: MethodType::Public,
+                    endpoint: String::from("OHLC"),
+                },
+                params: Some(self.params.clone()),
+            },
+            self,
+        )
     }
 }
 
@@ -59,20 +66,20 @@ impl MutateInput for KIOHLC {
 
 impl UpdateInput for KIOHLC {}
 
-/// OHLC info data 
+/// OHLC info data
 #[derive(Deserialize, Serialize, Debug)]
 pub struct KOHLCData {
-    pub timestamp: i64, 
-    pub open: String, 
-    pub high: String, 
-    pub low: String, 
-    pub close: String, 
-    pub vwap: String, 
-    pub volume: String, 
-    pub count: i64
+    pub timestamp: i64,
+    pub open: String,
+    pub high: String,
+    pub low: String,
+    pub close: String,
+    pub vwap: String,
+    pub volume: String,
+    pub count: i64,
 }
 
-/// Response from the Get OHLC Data endpoint 
+/// Response from the Get OHLC Data endpoint
 #[derive(Deserialize, Serialize, Debug)]
 pub struct KOOHLC {
     /// Map with the asset pair as the key and the pair's OHLC data as the value
@@ -81,4 +88,3 @@ pub struct KOOHLC {
     /// ID to be used as "since" input to subsequent OHLC requests
     pub last: i64,
 }
-

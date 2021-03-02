@@ -1,22 +1,15 @@
+use indexmap::map::IndexMap;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
-use indexmap::map::IndexMap;
 
 use crate::auth::KrakenAuth;
 // Structs/Enums
-use super::{
-    EndpointInfo, KAssetPair, KrakenInput,
-    MethodType,
-};
+use super::{EndpointInfo, KAssetPair, KrakenInput, MethodType};
 
 // Traits
-use super::{
-    InputList, InputListItem, Input, 
-    IntoInputList, MutateInput, 
-    UpdateInput
-};
+use super::{Input, InputList, InputListItem, IntoInputList, MutateInput, UpdateInput};
 
-/// Request builder for the Get Trade Volume endpoint 
+/// Request builder for the Get Trade Volume endpoint
 pub struct KITradeVolume {
     params: IndexMap<String, String>,
 }
@@ -24,7 +17,7 @@ pub struct KITradeVolume {
 impl KITradeVolume {
     pub fn build() -> Self {
         KITradeVolume {
-            params: IndexMap::new()
+            params: IndexMap::new(),
         }
     }
 
@@ -37,7 +30,8 @@ impl KITradeVolume {
     }
 
     pub fn with_pair_list<T>(self, pairs: T) -> Self
-        where T: IntoIterator<Item = KAssetPair>
+    where
+        T: IntoIterator<Item = KAssetPair>,
     {
         self.with_item_list(pairs)
     }
@@ -73,23 +67,31 @@ impl InputList for KITradeVolume {}
 
 impl Input for KITradeVolume {
     fn finish(self) -> KrakenInput {
-       KrakenInput {
-           info: EndpointInfo { methodtype: MethodType::Private, endpoint: String::from("TradeVolume") },
-           params: Some(self.with_nonce().params)
-       }
+        KrakenInput {
+            info: EndpointInfo {
+                methodtype: MethodType::Private,
+                endpoint: String::from("TradeVolume"),
+            },
+            params: Some(self.with_nonce().params),
+        }
     }
 
     fn finish_clone(self) -> (KrakenInput, Self) {
-       let newself = self.with_nonce();
-       (KrakenInput {
-           info: EndpointInfo { methodtype: MethodType::Private, endpoint: String::from("TradeVolume") },
-           params: Some(newself.params.clone())
-       },
-       newself)
+        let newself = self.with_nonce();
+        (
+            KrakenInput {
+                info: EndpointInfo {
+                    methodtype: MethodType::Private,
+                    endpoint: String::from("TradeVolume"),
+                },
+                params: Some(newself.params.clone()),
+            },
+            newself,
+        )
     }
 }
 
-/// Fee info 
+/// Fee info
 #[derive(Deserialize, Serialize, Debug)]
 pub struct KOFeeInfo {
     pub fee: String,
@@ -99,7 +101,7 @@ pub struct KOFeeInfo {
     pub nextvolume: Option<String>,
 }
 
-/// Maker fee info 
+/// Maker fee info
 #[derive(Deserialize, Serialize, Debug)]
 pub struct KOMakerFeeInfo {
     pub fee: String,
@@ -110,7 +112,7 @@ pub struct KOMakerFeeInfo {
     pub tiervolume: Option<String>,
 }
 
-/// Response from the Get Trade Volume endpoint 
+/// Response from the Get Trade Volume endpoint
 #[derive(Deserialize, Serialize, Debug)]
 pub struct KOTradeVolume {
     pub currency: String,
@@ -118,4 +120,3 @@ pub struct KOTradeVolume {
     pub fees: Option<HashMap<String, KOFeeInfo>>,
     pub fees_maker: Option<HashMap<String, KOMakerFeeInfo>>,
 }
-

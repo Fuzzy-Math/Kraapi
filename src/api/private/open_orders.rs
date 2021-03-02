@@ -1,23 +1,19 @@
+use indexmap::map::IndexMap;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
-use indexmap::map::IndexMap;
 
 use crate::auth::KrakenAuth;
 // Structs/Enums
-use super::{
-    EndpointInfo, KrakenInput, MethodType,
-};
+use super::{EndpointInfo, KrakenInput, MethodType};
 
 // Traits
-use super::{
-    Input, MutateInput, UpdateInput
-};
+use super::{Input, MutateInput, UpdateInput};
 
 pub use super::KOOrderDescription;
-pub use super::KOOrderStatus;
 pub use super::KOOrderInfo;
+pub use super::KOOrderStatus;
 
-/// Request builder for the Get Open Orders endpoint 
+/// Request builder for the Get Open Orders endpoint
 pub struct KIOpenOrders {
     params: IndexMap<String, String>,
 }
@@ -25,7 +21,7 @@ pub struct KIOpenOrders {
 impl KIOpenOrders {
     pub fn build() -> Self {
         KIOpenOrders {
-            params: IndexMap::new()
+            params: IndexMap::new(),
         }
     }
 
@@ -39,7 +35,7 @@ impl KIOpenOrders {
         }
     }
 
-    pub fn with_userref (self, userref: u32) -> Self {
+    pub fn with_userref(self, userref: u32) -> Self {
         self.update_input("userref", userref.to_string())
     }
 
@@ -50,19 +46,27 @@ impl KIOpenOrders {
 
 impl Input for KIOpenOrders {
     fn finish(self) -> KrakenInput {
-       KrakenInput {
-           info: EndpointInfo { methodtype: MethodType::Private, endpoint: String::from("OpenOrders") },
-           params: Some(self.with_nonce().params)
-       }
+        KrakenInput {
+            info: EndpointInfo {
+                methodtype: MethodType::Private,
+                endpoint: String::from("OpenOrders"),
+            },
+            params: Some(self.with_nonce().params),
+        }
     }
 
     fn finish_clone(self) -> (KrakenInput, Self) {
-       let newself = self.with_nonce();
-       (KrakenInput {
-           info: EndpointInfo { methodtype: MethodType::Private, endpoint: String::from("OpenOrders") },
-           params: Some(newself.params.clone())
-       },
-       newself)
+        let newself = self.with_nonce();
+        (
+            KrakenInput {
+                info: EndpointInfo {
+                    methodtype: MethodType::Private,
+                    endpoint: String::from("OpenOrders"),
+                },
+                params: Some(newself.params.clone()),
+            },
+            newself,
+        )
     }
 }
 
@@ -74,10 +78,8 @@ impl MutateInput for KIOpenOrders {
 
 impl UpdateInput for KIOpenOrders {}
 
-/// Response from the Get Open Orders endpoint 
+/// Response from the Get Open Orders endpoint
 #[derive(Deserialize, Serialize, Debug)]
 pub struct KOOpenOrders {
     pub orders: HashMap<String, KOOrderInfo>,
 }
-
-

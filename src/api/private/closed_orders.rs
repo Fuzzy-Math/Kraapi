@@ -1,24 +1,19 @@
+use indexmap::map::IndexMap;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
-use indexmap::map::IndexMap;
 
 use crate::auth::KrakenAuth;
 // Structs/Enums
-use super::{
-    EndpointInfo, KrakenInput, MethodType,
-    OrderCloseTime, 
-};
+use super::{EndpointInfo, KrakenInput, MethodType, OrderCloseTime};
 
 // Traits
-use super::{
-    Input, MutateInput, UpdateInput
-};
+use super::{Input, MutateInput, UpdateInput};
 
 pub use super::KOOrderDescription;
-pub use super::KOOrderStatus;
 pub use super::KOOrderInfo;
+pub use super::KOOrderStatus;
 
-/// Request builder for the Get Closed Orders endpoint 
+/// Request builder for the Get Closed Orders endpoint
 pub struct KIClosedOrders {
     params: IndexMap<String, String>,
 }
@@ -26,7 +21,7 @@ pub struct KIClosedOrders {
 impl KIClosedOrders {
     pub fn build() -> Self {
         KIClosedOrders {
-            params: IndexMap::new()
+            params: IndexMap::new(),
         }
     }
 
@@ -38,23 +33,23 @@ impl KIClosedOrders {
         }
     }
 
-    pub fn with_userref (self, userref: u32) -> Self {
+    pub fn with_userref(self, userref: u32) -> Self {
         self.update_input("userref", userref.to_string())
     }
 
-    pub fn from_timestamp(self, timestamp: u64) -> Self {
+    pub fn starting_timestamp(self, timestamp: u64) -> Self {
         self.update_input("start", timestamp.to_string())
     }
 
-    pub fn to_timestamp(self, timestamp: u64) -> Self {
+    pub fn ending_timestamp(self, timestamp: u64) -> Self {
         self.update_input("end", timestamp.to_string())
     }
 
-    pub fn from_txid(self, txid: String) -> Self {
+    pub fn starting_txid(self, txid: String) -> Self {
         self.update_input("start", txid)
     }
 
-    pub fn to_txid(self, txid: String) -> Self {
+    pub fn ending_txid(self, txid: String) -> Self {
         self.update_input("end", txid)
     }
 
@@ -73,19 +68,27 @@ impl KIClosedOrders {
 
 impl Input for KIClosedOrders {
     fn finish(self) -> KrakenInput {
-       KrakenInput {
-           info: EndpointInfo { methodtype: MethodType::Private, endpoint: String::from("ClosedOrders") },
-           params: Some(self.with_nonce().params)
-       }
+        KrakenInput {
+            info: EndpointInfo {
+                methodtype: MethodType::Private,
+                endpoint: String::from("ClosedOrders"),
+            },
+            params: Some(self.with_nonce().params),
+        }
     }
 
     fn finish_clone(self) -> (KrakenInput, Self) {
-       let newself = self.with_nonce();
-       (KrakenInput {
-           info: EndpointInfo { methodtype: MethodType::Private, endpoint: String::from("ClosedOrders") },
-           params: Some(newself.params.clone())
-       },
-       newself)
+        let newself = self.with_nonce();
+        (
+            KrakenInput {
+                info: EndpointInfo {
+                    methodtype: MethodType::Private,
+                    endpoint: String::from("ClosedOrders"),
+                },
+                params: Some(newself.params.clone()),
+            },
+            newself,
+        )
     }
 }
 
@@ -97,10 +100,9 @@ impl MutateInput for KIClosedOrders {
 
 impl UpdateInput for KIClosedOrders {}
 
-/// Response from the Get Closed Orders endpoint 
+/// Response from the Get Closed Orders endpoint
 #[derive(Deserialize, Serialize, Debug)]
 pub struct KOClosedOrders {
     pub closed: HashMap<String, KOOrderInfo>,
     pub count: u32,
 }
-

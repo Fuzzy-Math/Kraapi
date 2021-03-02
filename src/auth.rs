@@ -1,8 +1,7 @@
-use base64;
 use crypto::digest::Digest;
 use crypto::hmac::Hmac;
 use crypto::mac::Mac;
-use crypto::sha2::{Sha256,Sha512};
+use crypto::sha2::{Sha256, Sha512};
 use std::time::SystemTime;
 
 pub struct KrakenAuth {
@@ -14,7 +13,7 @@ impl KrakenAuth {
     pub fn new(key: &str, secret: &str) -> Self {
         KrakenAuth {
             api_key: key.to_string(),
-            api_secret: secret.to_string()
+            api_secret: secret.to_string(),
         }
     }
 
@@ -40,7 +39,6 @@ impl KrakenAuth {
         let mut sha256 = Sha256::new();
         let mut hmac = Hmac::new(Sha512::new(), &api_secret);
         let mut sha_res: [u8; 32] = [0; 32];
-        
 
         sha256.input(nonce.as_bytes());
         sha256.input(params.as_bytes());
@@ -56,9 +54,9 @@ impl KrakenAuth {
 #[cfg(test)]
 mod tests {
 
-    use indexmap::map::IndexMap;
     use super::*;
     use crate::api;
+    use indexmap::map::IndexMap;
 
     #[test]
     fn test_auth() {

@@ -1,13 +1,10 @@
 use krakenapi::api::*;
-use krakenapi::private::*;
 use krakenapi::client::KrakenClient;
+use krakenapi::private::*;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
-    let client = KrakenClient::new(
-        "<Your-API-Key>",
-        "<Your-API-Secret>"
-    );
+    let client = KrakenClient::new("<Your-API-Key>", "<Your-API-Secret>");
 
     let account_balance = KIAccountBalance::build();
 

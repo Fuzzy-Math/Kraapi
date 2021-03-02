@@ -1,36 +1,35 @@
-use serde::{Deserialize, Serialize};
 use indexmap::map::IndexMap;
+use serde::{Deserialize, Serialize};
 
 use crate::auth::KrakenAuth;
 // Structs/Enums
-use super::{
-    EndpointInfo, KAssetPair, KrakenInput,
-    MethodType, OrderType, OrderFlags, 
-    TradeType
-};
+use super::{EndpointInfo, KAssetPair, KrakenInput, MethodType, OrderFlags, OrderType, TradeType};
 
 // Traits
-use super::{
-    Input, MutateInput, UpdateInput
-};
+use super::{Input, MutateInput, UpdateInput};
 
-/// Request builder for the Add Standard Order endpoint 
+/// Request builder for the Add Standard Order endpoint
 pub struct KIAddOrder {
     params: IndexMap<String, String>,
 }
 
 impl KIAddOrder {
-    pub fn build(pair: KAssetPair, tradetype: TradeType, ordertype: OrderType, volume: f64) -> Self {
+    pub fn build(
+        pair: KAssetPair,
+        tradetype: TradeType,
+        ordertype: OrderType,
+        volume: f64,
+    ) -> Self {
         let new = KIAddOrder {
-            params: IndexMap::new()
+            params: IndexMap::new(),
         };
 
         new.with_pair(pair)
-           .with_transaction_type(tradetype)
-           .with_order_type_ref(&ordertype)
-           .with_price1(&ordertype)
-           .with_price2(&ordertype)
-           .with_volume(volume)
+            .with_transaction_type(tradetype)
+            .with_order_type_ref(&ordertype)
+            .with_price1(&ordertype)
+            .with_price2(&ordertype)
+            .with_volume(volume)
     }
 
     pub fn with_pair(self, pair: KAssetPair) -> Self {
@@ -51,15 +50,15 @@ impl KIAddOrder {
 
     fn with_price1(self, ordertype: &OrderType) -> Self {
         match ordertype.get_price1() {
-            Some(price) => {self.update_input("price", price)},
-            None => self
+            Some(price) => self.update_input("price", price),
+            None => self,
         }
     }
 
     fn with_price2(self, ordertype: &OrderType) -> Self {
         match ordertype.get_price2() {
-            Some(price) => {self.update_input("price2", price)},
-            None => self
+            Some(price) => self.update_input("price2", price),
+            None => self,
         }
     }
 
@@ -72,21 +71,22 @@ impl KIAddOrder {
     }
 
     pub fn with_order_flags<T>(mut self, flags: T) -> Self
-        where T: IntoIterator<Item = OrderFlags>
+    where
+        T: IntoIterator<Item = OrderFlags>,
     {
         let listname = String::from("oflags");
         match self.params.contains_key(&listname) {
             true => {
                 flags.into_iter().for_each(|flag| self.format_flag(flag));
                 self
-            },
+            }
             false => {
                 let mut iter = flags.into_iter();
                 match iter.next() {
                     Some(val) => {
                         self.params.insert(listname, val.to_string());
                         self.with_order_flags(iter)
-                    },
+                    }
                     None => self,
                 }
             }
@@ -117,25 +117,21 @@ impl KIAddOrder {
         self.update_input("validate", validate.to_string())
     }
 
-    pub fn with_closing_order(self, ordertype: OrderType) -> Self{
+    pub fn with_closing_order(self, ordertype: OrderType) -> Self {
         let price1 = ordertype.get_price1();
         let price2 = ordertype.get_price2();
         match (price1, price2) {
-            (Some(price1), Some(price2)) => {
-                self.update_input("close%5Bordertype%5D", ordertype.to_string())
-                    .update_input("close%5Bprice%5D", price1)
-                    .update_input("close%5Bprice2%5D", price2)
-            },
-            (Some(price1), None) => {
-                self.update_input("close%5Bordertype%5D", ordertype.to_string())
-                    .update_input("close%5Bprice%5D", price1)
-            },
+            (Some(price1), Some(price2)) => self
+                .update_input("close%5Bordertype%5D", ordertype.to_string())
+                .update_input("close%5Bprice%5D", price1)
+                .update_input("close%5Bprice2%5D", price2),
+            (Some(price1), None) => self
+                .update_input("close%5Bordertype%5D", ordertype.to_string())
+                .update_input("close%5Bprice%5D", price1),
             (None, Some(_)) => {
                 unreachable!()
-            },
-            (None, None) => {
-                self
-            },
+            }
+            (None, None) => self,
         }
     }
 
@@ -143,8 +139,7 @@ impl KIAddOrder {
         self.update_input("nonce", KrakenAuth::nonce())
     }
 
-    fn format_flag(&mut self, flag: OrderFlags) 
-    {
+    fn format_flag(&mut self, flag: OrderFlags) {
         let listname = String::from("oflags");
         match self.params.get_mut(&listname) {
             Some(list) => {
@@ -154,10 +149,10 @@ impl KIAddOrder {
                 }
 
                 *list = format!("{},{}", list, flag.to_string());
-            },
+            }
             None => {
                 self.list_mut().insert(listname, flag.to_string());
-            },
+            }
         }
     }
 }
@@ -171,23 +166,31 @@ impl UpdateInput for KIAddOrder {}
 
 impl Input for KIAddOrder {
     fn finish(self) -> KrakenInput {
-       KrakenInput {
-           info: EndpointInfo { methodtype: MethodType::Private, endpoint: String::from("AddOrder") },
-           params: Some(self.with_nonce().params)
-       }
+        KrakenInput {
+            info: EndpointInfo {
+                methodtype: MethodType::Private,
+                endpoint: String::from("AddOrder"),
+            },
+            params: Some(self.with_nonce().params),
+        }
     }
 
     fn finish_clone(self) -> (KrakenInput, Self) {
-       let newself = self.with_nonce();
-       (KrakenInput {
-           info: EndpointInfo { methodtype: MethodType::Private, endpoint: String::from("AddOrder") },
-           params: Some(newself.params.clone())
-       },
-       newself)
+        let newself = self.with_nonce();
+        (
+            KrakenInput {
+                info: EndpointInfo {
+                    methodtype: MethodType::Private,
+                    endpoint: String::from("AddOrder"),
+                },
+                params: Some(newself.params.clone()),
+            },
+            newself,
+        )
     }
 }
 
-/// Response from the Add Standard Order endpoint 
+/// Response from the Add Standard Order endpoint
 #[derive(Deserialize, Serialize, Debug)]
 pub struct KOAddOrder {
     /// Order description info
@@ -203,4 +206,3 @@ pub struct AddOrderDesc {
     /// Conditional close order description (if order was added successfully)
     pub close: Option<String>,
 }
-

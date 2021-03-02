@@ -6,11 +6,8 @@
 //! and has been parsed into the given structure
 
 use super::{
-    AssetPairInfo, InputList, InputListItem,
-    EndpointInfo, Input, KAsset, 
-    KAssetPair, KrakenInput, 
-    IntoInputList, MutateInput, OHLCInterval, 
-    MethodType, SystemStatus, UpdateInput
+    AssetPairInfo, EndpointInfo, Input, InputList, InputListItem, IntoInputList, KAsset,
+    KAssetPair, KrakenInput, MethodType, MutateInput, OHLCInterval, SystemStatus, UpdateInput,
 };
 
 /// Get server time endpoint
@@ -39,4 +36,3 @@ pub mod recent_trades;
 
 /// Get recent spread data endpoint
 pub mod spread_data;
-

@@ -1,11 +1,8 @@
-use serde::{Serialize, Deserialize};
+use serde::{Deserialize, Serialize};
 
-use super::{
-    EndpointInfo, Input, KrakenInput, 
-    MethodType, SystemStatus
-};
+use super::{EndpointInfo, Input, KrakenInput, MethodType, SystemStatus};
 
-/// Request builder for the Get System Status endpoint 
+/// Request builder for the Get System Status endpoint
 pub struct KISystemStatus();
 
 impl KISystemStatus {
@@ -22,22 +19,30 @@ impl KISystemStatus {
 
 impl Input for KISystemStatus {
     fn finish(self) -> KrakenInput {
-       KrakenInput {
-           info: EndpointInfo { methodtype: MethodType::Public, endpoint: String::from("SystemStatus") },
-           params: None
-       }
+        KrakenInput {
+            info: EndpointInfo {
+                methodtype: MethodType::Public,
+                endpoint: String::from("SystemStatus"),
+            },
+            params: None,
+        }
     }
 
     fn finish_clone(self) -> (KrakenInput, Self) {
-       (KrakenInput {
-           info: EndpointInfo { methodtype: MethodType::Public, endpoint: String::from("SystemStatus") },
-           params: None
-       },
-       self)
+        (
+            KrakenInput {
+                info: EndpointInfo {
+                    methodtype: MethodType::Public,
+                    endpoint: String::from("SystemStatus"),
+                },
+                params: None,
+            },
+            self,
+        )
     }
 }
 
-/// Response from the Get System Status endpoint 
+/// Response from the Get System Status endpoint
 #[derive(Deserialize, Serialize, Debug)]
 pub struct KOSystemStatus {
     /// Current system status or trading mode
@@ -45,4 +50,3 @@ pub struct KOSystemStatus {
     /// Server time
     pub timestamp: String,
 }
-

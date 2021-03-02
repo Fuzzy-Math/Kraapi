@@ -1,19 +1,14 @@
-use serde::{Deserialize, Serialize};
 use indexmap::map::IndexMap;
+use serde::{Deserialize, Serialize};
 
 use crate::auth::KrakenAuth;
 // Structs/Enums
-use super::{
-    EndpointInfo, KrakenInput, MethodType,
-};
+use super::{EndpointInfo, KrakenInput, MethodType};
 
 // Traits
-use super::{
-    Input, MutateInput,
-    UpdateInput
-};
+use super::{Input, MutateInput, UpdateInput};
 
-/// Request builder for the Cancel Open Order endpoint 
+/// Request builder for the Cancel Open Order endpoint
 pub struct KICancelOrder {
     params: IndexMap<String, String>,
 }
@@ -21,7 +16,7 @@ pub struct KICancelOrder {
 impl KICancelOrder {
     pub fn build(txid: String) -> KICancelOrder {
         let cancelorder = KICancelOrder {
-            params: IndexMap::new()
+            params: IndexMap::new(),
         };
         cancelorder.with_txid(txid)
     }
@@ -46,22 +41,30 @@ impl UpdateInput for KICancelOrder {}
 impl Input for KICancelOrder {
     fn finish(self) -> KrakenInput {
         KrakenInput {
-           info: EndpointInfo { methodtype: MethodType::Private, endpoint: String::from("CancelOrder") },
-           params: Some(self.with_nonce().params)
-       }
+            info: EndpointInfo {
+                methodtype: MethodType::Private,
+                endpoint: String::from("CancelOrder"),
+            },
+            params: Some(self.with_nonce().params),
+        }
     }
 
     fn finish_clone(self) -> (KrakenInput, Self) {
-       let newself = self.with_nonce();
-       (KrakenInput {
-           info: EndpointInfo { methodtype: MethodType::Private, endpoint: String::from("CancelOrder") },
-           params: Some(newself.params.clone())
-       },
-       newself)
+        let newself = self.with_nonce();
+        (
+            KrakenInput {
+                info: EndpointInfo {
+                    methodtype: MethodType::Private,
+                    endpoint: String::from("CancelOrder"),
+                },
+                params: Some(newself.params.clone()),
+            },
+            newself,
+        )
     }
 }
 
-/// Response from the Cancel Open Orders endpoint 
+/// Response from the Cancel Open Orders endpoint
 #[derive(Deserialize, Serialize, Debug)]
 pub struct KOCancelOrder {
     /// number of orders canceled
@@ -69,4 +72,3 @@ pub struct KOCancelOrder {
     /// if set, order(s) is/are pending cancellation
     pub pending: u32,
 }
-

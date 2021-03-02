@@ -2,23 +2,15 @@ use indexmap::map::IndexMap;
 
 use crate::auth::KrakenAuth;
 // Structs/Enums
-use super::{
-    EndpointInfo, KAsset,
-    KrakenInput,
-    LedgerType, MethodType,
-};
+use super::{EndpointInfo, KAsset, KrakenInput, LedgerType, MethodType};
 
 // Traits
-use super::{
-    InputList, InputListItem, Input, 
-    IntoInputList, MutateInput, 
-    UpdateInput
-};
+use super::{Input, InputList, InputListItem, IntoInputList, MutateInput, UpdateInput};
 
 pub use super::KOLedgerInfo;
 pub use super::KOLedgers;
 
-/// Request builder for the Get Ledgers Info endpoint 
+/// Request builder for the Get Ledgers Info endpoint
 pub struct KILedgerInfo {
     params: IndexMap<String, String>,
 }
@@ -26,7 +18,7 @@ pub struct KILedgerInfo {
 impl KILedgerInfo {
     pub fn build() -> Self {
         KILedgerInfo {
-            params: IndexMap::new()
+            params: IndexMap::new(),
         }
     }
 
@@ -39,7 +31,8 @@ impl KILedgerInfo {
     }
 
     pub fn with_asset_list<T>(self, assets: T) -> Self
-        where T: IntoIterator<Item = KAsset>
+    where
+        T: IntoIterator<Item = KAsset>,
     {
         self.with_item_list(assets)
     }
@@ -48,19 +41,19 @@ impl KILedgerInfo {
         self.update_input("type", ledgertype.to_string())
     }
 
-    pub fn from_timestamp(self, timestamp: u64) -> Self {
+    pub fn starting_timestamp(self, timestamp: u64) -> Self {
         self.update_input("start", timestamp.to_string())
     }
 
-    pub fn to_timestamp(self, timestamp: u64) -> Self {
+    pub fn ending_timestamp(self, timestamp: u64) -> Self {
         self.update_input("end", timestamp.to_string())
     }
 
-    pub fn from_txid(self, txid: String) -> Self {
+    pub fn starting_txid(self, txid: String) -> Self {
         self.update_input("start", txid)
     }
 
-    pub fn to_txid(self, txid: String) -> Self {
+    pub fn ending_txid(self, txid: String) -> Self {
         self.update_input("end", txid)
     }
 
@@ -75,19 +68,27 @@ impl KILedgerInfo {
 
 impl Input for KILedgerInfo {
     fn finish(self) -> KrakenInput {
-       KrakenInput {
-           info: EndpointInfo { methodtype: MethodType::Private, endpoint: String::from("Ledgers") },
-           params: Some(self.with_nonce().params)
-       }
+        KrakenInput {
+            info: EndpointInfo {
+                methodtype: MethodType::Private,
+                endpoint: String::from("Ledgers"),
+            },
+            params: Some(self.with_nonce().params),
+        }
     }
 
     fn finish_clone(self) -> (KrakenInput, Self) {
-       let newself = self.with_nonce();
-       (KrakenInput {
-           info: EndpointInfo { methodtype: MethodType::Private, endpoint: String::from("Ledgers") },
-           params: Some(newself.params.clone())
-       },
-       newself)
+        let newself = self.with_nonce();
+        (
+            KrakenInput {
+                info: EndpointInfo {
+                    methodtype: MethodType::Private,
+                    endpoint: String::from("Ledgers"),
+                },
+                params: Some(newself.params.clone()),
+            },
+            newself,
+        )
     }
 }
 
@@ -110,5 +111,3 @@ impl InputListItem for KILedgerInfo {
 }
 
 impl InputList for KILedgerInfo {}
-
-

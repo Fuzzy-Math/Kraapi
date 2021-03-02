@@ -1,20 +1,17 @@
 use krakenapi::api::*;
-use krakenapi::public::ticker::{ KITicker, KOTicker };
-use krakenapi::public::ohlc::{ KIOHLC, KOOHLC };
 use krakenapi::client::KrakenClient;
+use krakenapi::public::ohlc::{KIOHLC, KOOHLC};
+use krakenapi::public::ticker::{KITicker, KOTicker};
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
-    let client = KrakenClient::new(
-        "",
-        ""
-    );
+    let client = KrakenClient::new("", "");
 
-    let ticker = KITicker::build_with_list(vec!(
-            KAssetPair(KAsset::XBT, KAsset::USD), 
-            KAssetPair(KAsset::XBT, KAsset::CAD)
-            ))
-        .finish();
+    let ticker = KITicker::build_with_list(vec![
+        KAssetPair(KAsset::XBT, KAsset::USD),
+        KAssetPair(KAsset::XBT, KAsset::CAD),
+    ])
+    .finish();
 
     // Both of these do the same thing
     let res = client.request::<KOTicker>(&ticker).await?;

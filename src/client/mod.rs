@@ -1,14 +1,14 @@
 //! Asynchronous HTTP client implementation sending instances of [super::api::KrakenInput] to the Kraken servers
-use hyper::{Body, Client, Request};
 use hyper::body;
 use hyper::client::HttpConnector;
 use hyper::header::{CONTENT_TYPE, USER_AGENT};
+use hyper::{Body, Client, Request};
 use hyper_tls::HttpsConnector;
 use serde::de::DeserializeOwned;
 
 use super::auth::KrakenAuth;
-use crate::api::{KrakenInput, KrakenResult, MethodType};
 use crate::api;
+use crate::api::{KrakenInput, KrakenResult, MethodType};
 
 type HttpClient = Box<hyper::Client<HttpsConnector<HttpConnector>, hyper::Body>>;
 
@@ -26,10 +26,12 @@ impl KrakenClient {
             url: String::from("https://api.kraken.com"),
             version: String::from("0"),
             auth: KrakenAuth::new(&key, &secret),
-            client: Box::new(Client::builder()
-                .pool_idle_timeout(None)
-                .http1_title_case_headers(true)
-                .build::<_, hyper::Body>(https))
+            client: Box::new(
+                Client::builder()
+                    .pool_idle_timeout(None)
+                    .http1_title_case_headers(true)
+                    .build::<_, hyper::Body>(https),
+            ),
         }
     }
 
@@ -57,14 +59,21 @@ impl KrakenClient {
         &self.auth
     }
 
-    pub async fn request<'a, T>(&self, input: &KrakenInput) -> 
-        Result<KrakenResult<T>, Box<dyn std::error::Error>> 
-        where KrakenResult<T>: DeserializeOwned
+    pub async fn request<'a, T>(
+        &self,
+        input: &KrakenInput,
+    ) -> Result<KrakenResult<T>, Box<dyn std::error::Error>>
+    where
+        KrakenResult<T>: DeserializeOwned,
     {
         match input.get_info().get_type() {
             MethodType::Public => {
-                let endpoint = format!("/{}/{}/{}", self.get_version(), 
-                    input.get_info().get_type().to_string(), input.get_info().get_endpoint());
+                let endpoint = format!(
+                    "/{}/{}/{}",
+                    self.get_version(),
+                    input.get_info().get_type().to_string(),
+                    input.get_info().get_endpoint()
+                );
                 let formatted_params = api::format_params(&input.get_params());
                 let full_url = match formatted_params {
                     Some(params) => format!("{}{}?{}", self.get_url(), endpoint, &params),
@@ -76,23 +85,39 @@ impl KrakenClient {
                     .uri(full_url)
                     .body(Body::empty())
                     .expect("Failed to form a correct http request");
-                
-                request.headers_mut().insert(USER_AGENT, "krakenapi/0.1 (Kraken Rust Client)".parse().unwrap());
-                request.headers_mut().insert(CONTENT_TYPE, "application/x-www-form-urlencoded".parse().unwrap());
 
-                Ok(serde_json::from_slice(&body::to_bytes(self.client.request(request).await?).await?)?)
-            },
+                request.headers_mut().insert(
+                    USER_AGENT,
+                    "krakenapi/0.1 (Kraken Rust Client)".parse().unwrap(),
+                );
+                request.headers_mut().insert(
+                    CONTENT_TYPE,
+                    "application/x-www-form-urlencoded".parse().unwrap(),
+                );
+
+                Ok(serde_json::from_slice(
+                    &body::to_bytes(self.client.request(request).await?).await?,
+                )?)
+            }
             MethodType::Private => {
-                let endpoint = format!("/{}/{}/{}", self.get_version(), 
-                    input.get_info().get_type().to_string(), input.get_info().get_endpoint());
+                let endpoint = format!(
+                    "/{}/{}/{}",
+                    self.get_version(),
+                    input.get_info().get_type().to_string(),
+                    input.get_info().get_endpoint()
+                );
                 let params = input.get_params();
                 let formatted_params = api::format_params(&params).unwrap();
                 // FIXME: Clean up the details behind get_params(), format_params() and KrakenInput
                 // It seems to work but the references are fragile
-                let signature = self.get_auth().sign(&endpoint,
-                    &params.expect("Add nonce when building private methods")
-                    .get("nonce").expect("Add nonce when building private methods"), 
-                    &formatted_params);
+                let signature = self.get_auth().sign(
+                    &endpoint,
+                    &params
+                        .expect("Add nonce when building private methods")
+                        .get("nonce")
+                        .expect("Add nonce when building private methods"),
+                    &formatted_params,
+                );
                 let full_url = format!("{}{}", self.get_url(), endpoint);
 
                 let mut request = Request::builder()
@@ -101,13 +126,25 @@ impl KrakenClient {
                     .body(Body::from(formatted_params))
                     .expect("Failed to form a correct http request");
 
-                request.headers_mut().insert(USER_AGENT, "krakenapi/0.1 (Kraken Rust Client)".parse().unwrap());
-                request.headers_mut().insert(CONTENT_TYPE, "application/x-www-form-urlencoded".parse().unwrap());
-                request.headers_mut().insert("API-Key", self.get_auth().get_key().parse().unwrap());
-                request.headers_mut().insert("API-Sign", signature.parse().unwrap());
+                request.headers_mut().insert(
+                    USER_AGENT,
+                    "krakenapi/0.1 (Kraken Rust Client)".parse().unwrap(),
+                );
+                request.headers_mut().insert(
+                    CONTENT_TYPE,
+                    "application/x-www-form-urlencoded".parse().unwrap(),
+                );
+                request
+                    .headers_mut()
+                    .insert("API-Key", self.get_auth().get_key().parse().unwrap());
+                request
+                    .headers_mut()
+                    .insert("API-Sign", signature.parse().unwrap());
 
-                Ok(serde_json::from_slice(&body::to_bytes(self.client.request(request).await?).await?)?)
-            },
+                Ok(serde_json::from_slice(
+                    &body::to_bytes(self.client.request(request).await?).await?,
+                )?)
+            }
         }
     }
 }
@@ -121,7 +158,13 @@ mod tests {
 
         assert_eq!(client.url, "https://api.kraken.com");
         assert_eq!(client.version, "0");
-        assert_eq!((client.auth.get_key().to_owned(), client.auth.get_secret().to_owned()), (String::from("key"), String::from("secret")));
+        assert_eq!(
+            (
+                client.auth.get_key().to_owned(),
+                client.auth.get_secret().to_owned()
+            ),
+            (String::from("key"), String::from("secret"))
+        );
 
         client.url("https://new.url.com");
         client.version("2");
@@ -129,6 +172,12 @@ mod tests {
 
         assert_eq!(client.url, "https://new.url.com");
         assert_eq!(client.version, "2");
-        assert_eq!((client.auth.get_key().to_owned(), client.auth.get_secret().to_owned()), (String::from("newkey"), String::from("newsecret")));
+        assert_eq!(
+            (
+                client.auth.get_key().to_owned(),
+                client.auth.get_secret().to_owned()
+            ),
+            (String::from("newkey"), String::from("newsecret"))
+        );
     }
 }

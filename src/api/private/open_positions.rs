@@ -1,21 +1,15 @@
+use indexmap::map::IndexMap;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
-use indexmap::map::IndexMap;
 
 use crate::auth::KrakenAuth;
 // Structs/Enums
-use super::{
-    EndpointInfo, KrakenInput, MethodType,
-};
+use super::{EndpointInfo, KrakenInput, MethodType};
 
 // Traits
-use super::{
-    InputList, InputListItem, Input, 
-    IntoInputList, MutateInput, 
-    UpdateInput
-};
+use super::{Input, InputList, InputListItem, IntoInputList, MutateInput, UpdateInput};
 
-/// Request builder for the Get Open Positions endpoint 
+/// Request builder for the Get Open Positions endpoint
 pub struct KIOpenPositions {
     params: IndexMap<String, String>,
 }
@@ -23,24 +17,27 @@ pub struct KIOpenPositions {
 impl KIOpenPositions {
     pub fn build(txid: String) -> Self {
         let open_positions = KIOpenPositions {
-            params: IndexMap::new()
+            params: IndexMap::new(),
         };
         open_positions.with_item(txid)
     }
 
     pub fn build_with_list<T>(txids: T) -> Self
-        where T: IntoIterator<Item = String>
+    where
+        T: IntoIterator<Item = String>,
     {
         let open_positions = KIOpenPositions {
-            params: IndexMap::new()
+            params: IndexMap::new(),
         };
         open_positions.with_item_list(txids)
     }
 
     pub fn update_transaction_list<T>(self, txids: T) -> Self
-        where T: IntoIterator<Item = String>
+    where
+        T: IntoIterator<Item = String>,
     {
-        self.update_input("txid", String::from("")).with_item_list(txids)
+        self.update_input("txid", String::from(""))
+            .with_item_list(txids)
     }
 
     pub fn do_cals(self, docalcs: bool) -> Self {
@@ -63,19 +60,27 @@ impl KIOpenPositions {
 
 impl Input for KIOpenPositions {
     fn finish(self) -> KrakenInput {
-       KrakenInput {
-           info: EndpointInfo { methodtype: MethodType::Private, endpoint: String::from("OpenPositions") },
-           params: Some(self.with_nonce().params)
-       }
+        KrakenInput {
+            info: EndpointInfo {
+                methodtype: MethodType::Private,
+                endpoint: String::from("OpenPositions"),
+            },
+            params: Some(self.with_nonce().params),
+        }
     }
 
     fn finish_clone(self) -> (KrakenInput, Self) {
-       let newself = self.with_nonce();
-       (KrakenInput {
-           info: EndpointInfo { methodtype: MethodType::Private, endpoint: String::from("OpenPositions") },
-           params: Some(newself.params.clone())
-       },
-       newself)
+        let newself = self.with_nonce();
+        (
+            KrakenInput {
+                info: EndpointInfo {
+                    methodtype: MethodType::Private,
+                    endpoint: String::from("OpenPositions"),
+                },
+                params: Some(newself.params.clone()),
+            },
+            newself,
+        )
     }
 }
 
@@ -99,7 +104,7 @@ impl InputListItem for KIOpenPositions {
 
 impl InputList for KIOpenPositions {}
 
-/// Open position info data 
+/// Open position info data
 #[derive(Deserialize, Serialize, Debug)]
 pub struct KOPositionInfo {
     /// Order responsible for execution of trade
@@ -120,11 +125,10 @@ pub struct KOPositionInfo {
     pub oflags: Option<String>,
 }
 
-/// Response from the Get Open Positions endpoint 
+/// Response from the Get Open Positions endpoint
 #[derive(Deserialize, Serialize, Debug)]
 pub struct KOOpenPositions {
     /// Map with the position's transaction ID as the key and the open position info as the value
     #[serde(flatten)]
-    pub positions: HashMap<String, KOPositionInfo>
+    pub positions: HashMap<String, KOPositionInfo>,
 }
-

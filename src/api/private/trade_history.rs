@@ -1,22 +1,17 @@
+use indexmap::map::IndexMap;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
-use indexmap::map::IndexMap;
 
 use crate::auth::KrakenAuth;
 // Structs/Enums
-use super::{
-    EndpointInfo, KrakenInput, MethodType,
-    TradeHistoryType, 
-};
+use super::{EndpointInfo, KrakenInput, MethodType, TradeHistoryType};
 
 // Traits
-use super::{
-    Input, MutateInput, UpdateInput
-};
+use super::{Input, MutateInput, UpdateInput};
 
 pub use super::KOTradeData;
 
-/// Request builder for the Get Trades History endpoint 
+/// Request builder for the Get Trades History endpoint
 pub struct KITradeHistory {
     params: IndexMap<String, String>,
 }
@@ -24,7 +19,7 @@ pub struct KITradeHistory {
 impl KITradeHistory {
     pub fn build() -> Self {
         KITradeHistory {
-            params: IndexMap::new()
+            params: IndexMap::new(),
         }
     }
 
@@ -40,19 +35,19 @@ impl KITradeHistory {
         }
     }
 
-    pub fn from_timestamp(self, timestamp: u64) -> Self {
+    pub fn starting_timestamp(self, timestamp: u64) -> Self {
         self.update_input("start", timestamp.to_string())
     }
 
-    pub fn to_timestamp(self, timestamp: u64) -> Self {
+    pub fn ending_timestamp(self, timestamp: u64) -> Self {
         self.update_input("end", timestamp.to_string())
     }
 
-    pub fn from_txid(self, txid: String) -> Self {
+    pub fn starting_txid(self, txid: String) -> Self {
         self.update_input("start", txid)
     }
 
-    pub fn to_txid(self, txid: String) -> Self {
+    pub fn ending_txid(self, txid: String) -> Self {
         self.update_input("end", txid)
     }
 
@@ -67,19 +62,27 @@ impl KITradeHistory {
 
 impl Input for KITradeHistory {
     fn finish(self) -> KrakenInput {
-       KrakenInput {
-           info: EndpointInfo { methodtype: MethodType::Private, endpoint: String::from("TradesHistory") },
-           params: Some(self.with_nonce().params)
-       }
+        KrakenInput {
+            info: EndpointInfo {
+                methodtype: MethodType::Private,
+                endpoint: String::from("TradesHistory"),
+            },
+            params: Some(self.with_nonce().params),
+        }
     }
 
     fn finish_clone(self) -> (KrakenInput, Self) {
-       let newself = self.with_nonce();
-       (KrakenInput {
-           info: EndpointInfo { methodtype: MethodType::Private, endpoint: String::from("TradesHistory") },
-           params: Some(newself.params.clone())
-       },
-       newself)
+        let newself = self.with_nonce();
+        (
+            KrakenInput {
+                info: EndpointInfo {
+                    methodtype: MethodType::Private,
+                    endpoint: String::from("TradesHistory"),
+                },
+                params: Some(newself.params.clone()),
+            },
+            newself,
+        )
     }
 }
 
@@ -91,10 +94,9 @@ impl MutateInput for KITradeHistory {
 
 impl UpdateInput for KITradeHistory {}
 
-/// Response from the Get Trades History endpoint 
+/// Response from the Get Trades History endpoint
 #[derive(Deserialize, Serialize, Debug)]
 pub struct KOTradeHistory {
     pub closed: HashMap<String, KOTradeData>,
     pub count: u32,
 }
-

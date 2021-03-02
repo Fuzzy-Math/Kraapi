@@ -1,15 +1,13 @@
-use serde::{Serialize, Deserialize};
-use std::collections::HashMap;
 use indexmap::map::IndexMap;
+use serde::{Deserialize, Serialize};
+use std::collections::HashMap;
 
 use super::{
-    InputList, InputListItem, EndpointInfo, 
-    Input, KAsset, KrakenInput, 
-    IntoInputList, MutateInput, MethodType, 
-    UpdateInput
+    EndpointInfo, Input, InputList, InputListItem, IntoInputList, KAsset, KrakenInput, MethodType,
+    MutateInput, UpdateInput,
 };
 
-/// Request builder for the Get Asset Info endpoint 
+/// Request builder for the Get Asset Info endpoint
 pub struct KIAssetInfo {
     pub params: IndexMap<String, String>,
 }
@@ -17,7 +15,7 @@ pub struct KIAssetInfo {
 impl KIAssetInfo {
     pub fn build() -> Self {
         KIAssetInfo {
-            params: IndexMap::new()
+            params: IndexMap::new(),
         }
     }
 
@@ -30,7 +28,8 @@ impl KIAssetInfo {
     }
 
     pub fn with_asset_list<T>(self, assets: T) -> Self
-        where T: IntoIterator<Item = KAsset>
+    where
+        T: IntoIterator<Item = KAsset>,
     {
         self.with_item_list(assets)
     }
@@ -38,18 +37,26 @@ impl KIAssetInfo {
 
 impl Input for KIAssetInfo {
     fn finish(self) -> KrakenInput {
-       KrakenInput {
-           info: EndpointInfo { methodtype: MethodType::Public, endpoint: String::from("Assets") },
-           params: Some(self.params)
-       }
+        KrakenInput {
+            info: EndpointInfo {
+                methodtype: MethodType::Public,
+                endpoint: String::from("Assets"),
+            },
+            params: Some(self.params),
+        }
     }
 
     fn finish_clone(self) -> (KrakenInput, Self) {
-       (KrakenInput {
-           info: EndpointInfo { methodtype: MethodType::Public, endpoint: String::from("Assets") },
-           params: Some(self.params.clone())
-       },
-       self)
+        (
+            KrakenInput {
+                info: EndpointInfo {
+                    methodtype: MethodType::Public,
+                    endpoint: String::from("Assets"),
+                },
+                params: Some(self.params.clone()),
+            },
+            self,
+        )
     }
 }
 
@@ -86,11 +93,10 @@ pub struct KOAsset {
     pub display_decimals: u32,
 }
 
-/// Response from the Get Asset Info endpoint 
+/// Response from the Get Asset Info endpoint
 #[derive(Deserialize, Serialize, Debug)]
 pub struct KOAssetInfo {
     /// Map with the asset as the key and the asset's data as the value
     #[serde(flatten)]
     pub asset: HashMap<String, KOAsset>,
 }
-

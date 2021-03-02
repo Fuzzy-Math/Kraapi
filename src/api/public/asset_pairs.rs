@@ -1,15 +1,13 @@
-use serde::{Serialize, Deserialize};
-use std::collections::HashMap;
 use indexmap::map::IndexMap;
+use serde::{Deserialize, Serialize};
+use std::collections::HashMap;
 
 use super::{
-    AssetPairInfo, InputList, InputListItem,
-    EndpointInfo, Input, KAssetPair, 
-    KrakenInput, IntoInputList, MutateInput, 
-    MethodType, UpdateInput
+    AssetPairInfo, EndpointInfo, Input, InputList, InputListItem, IntoInputList, KAssetPair,
+    KrakenInput, MethodType, MutateInput, UpdateInput,
 };
 
-/// Request builder for the Get Tradable Asset Pairs endpoint 
+/// Request builder for the Get Tradable Asset Pairs endpoint
 pub struct KIAssetPairs {
     pub params: IndexMap<String, String>,
 }
@@ -17,7 +15,7 @@ pub struct KIAssetPairs {
 impl KIAssetPairs {
     pub fn build() -> Self {
         KIAssetPairs {
-            params: IndexMap::new()
+            params: IndexMap::new(),
         }
     }
 
@@ -30,30 +28,39 @@ impl KIAssetPairs {
     }
 
     pub fn with_asset_pair_list<T>(self, pairs: T) -> Self
-        where T: IntoIterator<Item = KAssetPair>
+    where
+        T: IntoIterator<Item = KAssetPair>,
     {
         self.with_item_list(pairs)
     }
 
-    pub fn info (self, info: AssetPairInfo) -> Self {
+    pub fn info(self, info: AssetPairInfo) -> Self {
         self.update_input("info", info.to_string())
     }
 }
 
 impl Input for KIAssetPairs {
     fn finish(self) -> KrakenInput {
-       KrakenInput {
-           info: EndpointInfo { methodtype: MethodType::Public, endpoint: String::from("AssetPairs") },
-           params: Some(self.params)
-       }
+        KrakenInput {
+            info: EndpointInfo {
+                methodtype: MethodType::Public,
+                endpoint: String::from("AssetPairs"),
+            },
+            params: Some(self.params),
+        }
     }
 
     fn finish_clone(self) -> (KrakenInput, Self) {
-       (KrakenInput {
-           info: EndpointInfo { methodtype: MethodType::Public, endpoint: String::from("AssetPairs") },
-           params: Some(self.params.clone())
-       },
-       self)
+        (
+            KrakenInput {
+                info: EndpointInfo {
+                    methodtype: MethodType::Public,
+                    endpoint: String::from("AssetPairs"),
+                },
+                params: Some(self.params.clone()),
+            },
+            self,
+        )
     }
 }
 
@@ -77,7 +84,7 @@ impl InputListItem for KIAssetPairs {
 
 impl InputList for KIAssetPairs {}
 
-/// Asset pair info data 
+/// Asset pair info data
 #[derive(Deserialize, Serialize, Debug)]
 pub struct KOAssetPair {
     /// asset class of base component
@@ -118,11 +125,10 @@ pub struct KOAssetPair {
     pub wsname: Option<String>,
 }
 
-/// Response from the Get Tradable Asset Pairs endpoint 
+/// Response from the Get Tradable Asset Pairs endpoint
 #[derive(Deserialize, Serialize, Debug)]
 pub struct KOAssetPairInfo {
     /// Map with the asset pair as the key and the pair's data as the value
     #[serde(flatten)]
-    pub pair: HashMap<String, KOAssetPair>
+    pub pair: HashMap<String, KOAssetPair>,
 }
-

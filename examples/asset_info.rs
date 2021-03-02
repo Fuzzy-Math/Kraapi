@@ -1,18 +1,15 @@
-use krakenapi::public::*;
+use krakenapi::api::Input;
 use krakenapi::api::*;
 use krakenapi::client::KrakenClient;
-use krakenapi::api::Input;
+use krakenapi::public::*;
 use serde_json::Value;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
-    let client = KrakenClient::new(
-        "<Your-API-Key>",
-        "<Your-API-Secret>"
-    );
+    let client = KrakenClient::new("<Your-API-Key>", "<Your-API-Secret>");
 
     let asset_info = KIAssetInfo::build()
-        .with_asset_list(vec!(KAsset::XBT, KAsset::USD))
+        .with_asset_list(vec![KAsset::XBT, KAsset::USD])
         .finish();
     let res = client.request::<KOAssetInfo>(&asset_info).await?;
 
@@ -26,7 +23,6 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let res = client.request::<KOAssetPairInfo>(&asset_pairs).await?;
 
     println!("body: {:?}", res);
-    
+
     Ok(())
 }
-

@@ -1,4 +1,4 @@
-//! Asynchronous HTTP client implementation sending instances of [super::api::KrakenInput] to the Kraken servers
+//! Asynchronous HTTP client implementation sending instances of [KrakenInput] to the Kraken servers
 use hyper::body;
 use hyper::client::HttpConnector;
 use hyper::header::{CONTENT_TYPE, USER_AGENT};
@@ -12,6 +12,7 @@ use crate::api::{KrakenInput, KrakenResult, MethodType};
 
 type HttpClient = Box<hyper::Client<HttpsConnector<HttpConnector>, hyper::Body>>;
 
+/// Asynchronous HTTP client implementation sending instances of [KrakenInput] to the Kraken servers
 pub struct KrakenClient {
     url: String,
     version: String,
@@ -20,6 +21,17 @@ pub struct KrakenClient {
 }
 
 impl KrakenClient {
+    /// Construct a new KrakenClient instance
+    ///
+    /// [KrakenInput] instances will be passed into the client and the fully parsed data will be
+    /// returned
+    ///
+    /// ## Note 
+    ///
+    /// If only calling public endpoints, passing empty string literals for key and secret is
+    /// acceptable. However, trying to call a private endpoint with empty credentials will panic.
+    /// If needing to call both public and private endpoints, a single authenticated client will
+    /// suffice but unique clients can be used as well
     pub fn new(key: &str, secret: &str) -> Self {
         let https = HttpsConnector::new();
         KrakenClient {
@@ -35,30 +47,47 @@ impl KrakenClient {
         }
     }
 
+    /// Set the base url where requests will be sent. Not currently useful as Kraken only has one
+    /// REST API
+    ///
+    /// Defaults to `https://api.kraken.com`
     pub fn url(&mut self, url: &str) {
         self.url = url.to_string();
     }
 
+    /// Set the API version number as defined by Kraken
+    ///
+    /// Defaults to `0`
     pub fn version(&mut self, version: &str) {
         self.version = version.to_string();
     }
 
+    /// Assign new credentials for this KrakenClient
     pub fn auth(&mut self, key: &str, secret: &str) {
         self.auth = KrakenAuth::new(&key, &secret);
     }
 
+    /// Returns the current base url that this client will send requests to
     pub fn get_url(&self) -> &String {
         &self.url
     }
 
+    /// Returns the current API version that this client is using
     pub fn get_version(&self) -> &String {
         &self.version
     }
 
-    pub fn get_auth(&self) -> &KrakenAuth {
+    fn get_auth(&self) -> &KrakenAuth {
         &self.auth
     }
 
+    /// Make a request to the desired API endpoint by passing a fully constructed [KrakenInput]
+    ///
+    /// ## Note
+    ///
+    /// The types of the input and the output must match otherwise the parsing will fail
+    ///
+    /// For instance: if `input` is constructed from a KITicker instance, then `T` must be KOTicker
     pub async fn request<'a, T>(
         &self,
         input: &KrakenInput,

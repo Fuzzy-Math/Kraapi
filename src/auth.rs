@@ -1,8 +1,8 @@
-use crypto::digest::Digest;
-use crypto::hmac::Hmac;
-use crypto::mac::Mac;
-use crypto::sha2::{Sha256, Sha512};
+use hmac::{Hmac, Mac, NewMac};
+use sha2::{Sha256, Sha512, Digest};
 use std::time::SystemTime;
+
+type HmacSha512 = Hmac<Sha512>;
 
 pub struct KrakenAuth {
     api_key: String,
@@ -36,18 +36,19 @@ impl KrakenAuth {
 
     pub fn sign(&self, path: &str, nonce: &str, params: &str) -> String {
         let api_secret = base64::decode(&self.api_secret).unwrap();
+        // Use base64 decoded API key as the HMAC key with Sha512 as the hashing function
+        let mut hmac = HmacSha512::new_varkey(&api_secret).expect("Invalid API secret length");
         let mut sha256 = Sha256::new();
-        let mut hmac = Hmac::new(Sha512::new(), &api_secret);
-        let mut sha_res: [u8; 32] = [0; 32];
 
-        sha256.input(nonce.as_bytes());
-        sha256.input(params.as_bytes());
-        sha256.result(&mut sha_res);
+        // SHA256(nonce + POST data)
+        sha256.update(nonce.as_bytes());
+        sha256.update(params.as_bytes());
+        let sha_res = sha256.finalize();
 
-        hmac.input(path.as_bytes());
-        hmac.input(&sha_res);
+        hmac.update(path.as_bytes());
+        hmac.update(&sha_res);
 
-        base64::encode(hmac.result().code())
+        base64::encode(hmac.finalize().into_bytes())
     }
 }
 
@@ -67,8 +68,9 @@ mod tests {
         let mut params = IndexMap::new();
         params.insert("nonce".to_string(), api_nonce.clone());
         params.insert("asset".to_string(), "xbt".to_string());
+        let params = api::format_params(&Some(&params)).unwrap();
 
-        let signature = auth.sign(&api_path, &api_nonce, &api::format_params(&params));
+        let signature = auth.sign(&api_path, &api_nonce, &params);
 
         assert_eq!(signature, String::from("RdQzoXRC83TPmbERpFj0XFVArq0Hfadm0eLolmXTuN2R24hzIqtAnF/f7vSfW1tGt7xQOn8bjm+Ht+X0KrMwlA=="));
     }

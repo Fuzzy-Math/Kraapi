@@ -4,28 +4,28 @@ use std::time::SystemTime;
 
 type HmacSha512 = Hmac<Sha512>;
 
-pub struct KrakenAuth {
+pub(crate) struct KrakenAuth {
     api_key: String,
     api_secret: String,
 }
 
 impl KrakenAuth {
-    pub fn new(key: &str, secret: &str) -> Self {
+    pub(crate) fn new(key: &str, secret: &str) -> Self {
         KrakenAuth {
             api_key: key.to_string(),
             api_secret: secret.to_string(),
         }
     }
 
-    pub fn get_key(&self) -> &String {
+    pub(crate) fn get_key(&self) -> &String {
         &self.api_key
     }
 
-    pub fn get_secret(&self) -> &String {
+    pub(crate) fn get_secret(&self) -> &String {
         &self.api_secret
     }
 
-    pub fn nonce() -> String {
+    pub(crate) fn nonce() -> String {
         let duration = SystemTime::now()
             .duration_since(SystemTime::UNIX_EPOCH)
             .unwrap();
@@ -34,7 +34,7 @@ impl KrakenAuth {
         (nonce as u64).to_string()
     }
 
-    pub fn sign(&self, path: &str, nonce: &str, params: &str) -> String {
+    pub(crate) fn sign(&self, path: &str, nonce: &str, params: &str) -> String {
         let api_secret = base64::decode(&self.api_secret).unwrap();
         // Use base64 decoded API key as the HMAC key with Sha512 as the hashing function
         let mut hmac = HmacSha512::new_varkey(&api_secret).expect("Invalid API secret length");

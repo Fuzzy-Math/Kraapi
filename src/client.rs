@@ -7,8 +7,9 @@ use hyper_tls::HttpsConnector;
 use serde::de::DeserializeOwned;
 
 use super::auth::KrakenAuth;
+use super::error::{self, KrakenError};
 use crate::api;
-use crate::api::{KrakenInput, KrakenResult, MethodType};
+use crate::api::{KResult, KrakenInput, KrakenResult, MethodType};
 
 type HttpClient = Box<hyper::Client<HttpsConnector<HttpConnector>, hyper::Body>>;
 
@@ -26,7 +27,7 @@ impl KrakenClient {
     /// [KrakenInput] instances will be passed into the client and the fully parsed data will be
     /// returned
     ///
-    /// ## Note 
+    /// ## Note
     ///
     /// If only calling public endpoints, passing empty string literals for key and secret is
     /// acceptable. However, trying to call a private endpoint with empty credentials will panic.
@@ -88,12 +89,9 @@ impl KrakenClient {
     /// The types of the input and the output must match otherwise the parsing will fail
     ///
     /// For instance: if `input` is constructed from a KITicker instance, then `T` must be KOTicker
-    pub async fn request<'a, T>(
-        &self,
-        input: &KrakenInput,
-    ) -> Result<KrakenResult<T>, Box<dyn std::error::Error>>
+    pub async fn request<'a, T>(&self, input: &KrakenInput) -> KrakenResult<T>
     where
-        KrakenResult<T>: DeserializeOwned,
+        T: DeserializeOwned,
     {
         match input.info().method() {
             MethodType::Public => {
@@ -124,10 +122,36 @@ impl KrakenClient {
                     "application/x-www-form-urlencoded".parse().unwrap(),
                 );
 
-                Ok(serde_json::from_slice(
-                    &body::to_bytes(self.client.request(request).await?).await?,
-                )?)
+                /*
+                let parsed: KResult<T> = serde_json::from_slice(
+                    &body::to_bytes(
+                        self.client.request(request).await?
+                    ).await?,
+                )?;
+                */
+
+                let res = match self.client.request(request).await {
+                    Ok(res) => Ok(res),
+                    Err(err) => Err(Vec::<KrakenError>::from(KrakenError::from(err))),
+                }?;
+
+                let bytes = match body::to_bytes(res).await {
+                    Ok(bytes) => Ok(bytes),
+                    Err(err) => Err(Vec::<KrakenError>::from(KrakenError::from(err))),
+                }?;
+
+                let parsed: KResult<T> = match serde_json::from_slice(&bytes) {
+                    Ok(parsed) => Ok(parsed),
+                    Err(err) => Err(Vec::<KrakenError>::from(KrakenError::from(err))),
+                }?;
+
+                let api_errors = parsed.error;
+                match api_errors.len() {
+                    0 => Ok(parsed.result.unwrap()),
+                    _ => Err(error::generate_errors(api_errors)),
+                }
             }
+
             MethodType::Private => {
                 let endpoint = format!(
                     "/{}/{}/{}",
@@ -170,9 +194,34 @@ impl KrakenClient {
                     .headers_mut()
                     .insert("API-Sign", signature.parse().unwrap());
 
-                Ok(serde_json::from_slice(
-                    &body::to_bytes(self.client.request(request).await?).await?,
-                )?)
+                /*
+                let parsed: KResult<T> = serde_json::from_slice(
+                    &body::to_bytes(
+                        self.client.request(request).await?
+                    ).await?,
+                )?;
+                */
+
+                let res = match self.client.request(request).await {
+                    Ok(res) => Ok(res),
+                    Err(err) => Err(Vec::<KrakenError>::from(KrakenError::from(err))),
+                }?;
+
+                let bytes = match body::to_bytes(res).await {
+                    Ok(bytes) => Ok(bytes),
+                    Err(err) => Err(Vec::<KrakenError>::from(KrakenError::from(err))),
+                }?;
+
+                let parsed: KResult<T> = match serde_json::from_slice(&bytes) {
+                    Ok(parsed) => Ok(parsed),
+                    Err(err) => Err(Vec::<KrakenError>::from(KrakenError::from(err))),
+                }?;
+
+                let api_errors = parsed.error;
+                match api_errors.len() {
+                    0 => Ok(parsed.result.unwrap()),
+                    _ => Err(error::generate_errors(api_errors)),
+                }
             }
         }
     }

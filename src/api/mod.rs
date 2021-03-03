@@ -4,16 +4,20 @@ use serde::{Deserialize, Serialize};
 use std::fmt;
 use std::fmt::{Debug, Display};
 
+use super::error::KrakenError;
+
 pub mod private;
 pub mod public;
 
-/// Generic return type from Kraken - An array of possible errors along with the data payload
+/// Result alias. Either contains the output struct of type `T` or a vector of `KrakenError`s
+pub type KrakenResult<T> = Result<T, Vec<KrakenError>>;
+
 #[derive(Deserialize, Serialize, Debug)]
-pub struct KrakenResult<T> {
-    /// Vector of zero or more errors returned from Kraken
-    pub error: Vec<String>,
+pub(crate) struct KResult<T> {
     /// Generic payload type. T will be some type prefixed with KO
     pub result: Option<T>,
+    /// Vector of zero or more errors returned from Kraken
+    pub error: Vec<String>,
 }
 
 // TODO: Query AssetInfo endpoint and write script to fill out the

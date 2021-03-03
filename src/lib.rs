@@ -94,6 +94,7 @@
 pub mod api;
 mod auth;
 pub mod client;
+pub mod error;
 
 pub use api::private;
 pub use api::public;

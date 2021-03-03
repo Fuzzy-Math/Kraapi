@@ -1,5 +1,5 @@
 use hmac::{Hmac, Mac, NewMac};
-use sha2::{Sha256, Sha512, Digest};
+use sha2::{Digest, Sha256, Sha512};
 use std::time::SystemTime;
 
 type HmacSha512 = Hmac<Sha512>;

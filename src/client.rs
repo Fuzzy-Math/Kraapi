@@ -51,33 +51,33 @@ impl KrakenClient {
     /// REST API
     ///
     /// Defaults to `https://api.kraken.com`
-    pub fn url(&mut self, url: &str) {
+    pub fn set_url(&mut self, url: &str) {
         self.url = url.to_string();
     }
 
     /// Set the API version number as defined by Kraken
     ///
     /// Defaults to `0`
-    pub fn version(&mut self, version: &str) {
+    pub fn set_version(&mut self, version: &str) {
         self.version = version.to_string();
     }
 
     /// Assign new credentials for this KrakenClient
-    pub fn auth(&mut self, key: &str, secret: &str) {
+    pub fn set_auth(&mut self, key: &str, secret: &str) {
         self.auth = KrakenAuth::new(&key, &secret);
     }
 
     /// Returns the current base url that this client will send requests to
-    pub fn get_url(&self) -> &String {
+    pub fn url(&self) -> &String {
         &self.url
     }
 
     /// Returns the current API version that this client is using
-    pub fn get_version(&self) -> &String {
+    pub fn version(&self) -> &String {
         &self.version
     }
 
-    fn get_auth(&self) -> &KrakenAuth {
+    fn auth(&self) -> &KrakenAuth {
         &self.auth
     }
 
@@ -95,18 +95,18 @@ impl KrakenClient {
     where
         KrakenResult<T>: DeserializeOwned,
     {
-        match input.get_info().get_type() {
+        match input.info().method() {
             MethodType::Public => {
                 let endpoint = format!(
                     "/{}/{}/{}",
-                    self.get_version(),
-                    input.get_info().get_type().to_string(),
-                    input.get_info().get_endpoint()
+                    self.version(),
+                    input.info().method().to_string(),
+                    input.info().endpoint()
                 );
-                let formatted_params = api::format_params(&input.get_params());
+                let formatted_params = api::format_params(&input.params());
                 let full_url = match formatted_params {
-                    Some(params) => format!("{}{}?{}", self.get_url(), endpoint, &params),
-                    None => format!("{}{}", self.get_url(), endpoint),
+                    Some(params) => format!("{}{}?{}", self.url(), endpoint, &params),
+                    None => format!("{}{}", self.url(), endpoint),
                 };
 
                 let mut request = Request::builder()
@@ -131,15 +131,15 @@ impl KrakenClient {
             MethodType::Private => {
                 let endpoint = format!(
                     "/{}/{}/{}",
-                    self.get_version(),
-                    input.get_info().get_type().to_string(),
-                    input.get_info().get_endpoint()
+                    self.version(),
+                    input.info().method().to_string(),
+                    input.info().endpoint()
                 );
-                let params = input.get_params();
+                let params = input.params();
                 let formatted_params = api::format_params(&params).unwrap();
                 // FIXME: Clean up the details behind get_params(), format_params() and KrakenInput
                 // It seems to work but the references are fragile
-                let signature = self.get_auth().sign(
+                let signature = self.auth().sign(
                     &endpoint,
                     &params
                         .expect("Add nonce when building private methods")
@@ -147,7 +147,7 @@ impl KrakenClient {
                         .expect("Add nonce when building private methods"),
                     &formatted_params,
                 );
-                let full_url = format!("{}{}", self.get_url(), endpoint);
+                let full_url = format!("{}{}", self.url(), endpoint);
 
                 let mut request = Request::builder()
                     .method("POST")
@@ -165,7 +165,7 @@ impl KrakenClient {
                 );
                 request
                     .headers_mut()
-                    .insert("API-Key", self.get_auth().get_key().parse().unwrap());
+                    .insert("API-Key", self.auth().key().parse().unwrap());
                 request
                     .headers_mut()
                     .insert("API-Sign", signature.parse().unwrap());
@@ -189,22 +189,22 @@ mod tests {
         assert_eq!(client.version, "0");
         assert_eq!(
             (
-                client.auth.get_key().to_owned(),
-                client.auth.get_secret().to_owned()
+                client.auth.key().to_owned(),
+                client.auth.secret().to_owned()
             ),
             (String::from("key"), String::from("secret"))
         );
 
-        client.url("https://new.url.com");
-        client.version("2");
-        client.auth("newkey", "newsecret");
+        client.set_url("https://new.url.com");
+        client.set_version("2");
+        client.set_auth("newkey", "newsecret");
 
         assert_eq!(client.url, "https://new.url.com");
         assert_eq!(client.version, "2");
         assert_eq!(
             (
-                client.auth.get_key().to_owned(),
-                client.auth.get_secret().to_owned()
+                client.auth.key().to_owned(),
+                client.auth.secret().to_owned()
             ),
             (String::from("newkey"), String::from("newsecret"))
         );

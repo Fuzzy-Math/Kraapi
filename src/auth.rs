@@ -17,11 +17,11 @@ impl KrakenAuth {
         }
     }
 
-    pub(crate) fn get_key(&self) -> &String {
+    pub(crate) fn key(&self) -> &String {
         &self.api_key
     }
 
-    pub(crate) fn get_secret(&self) -> &String {
+    pub(crate) fn secret(&self) -> &String {
         &self.api_secret
     }
 

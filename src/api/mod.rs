@@ -321,14 +321,14 @@ impl OrderType {
         }
     }
 
-    pub(crate) fn get_price1(&self) -> Option<String> {
+    pub(crate) fn price1(&self) -> Option<String> {
         match self.percent_encode() {
             (Some(price), _) => Some(price),
             (None, _) => None,
         }
     }
 
-    pub(crate) fn get_price2(&self) -> Option<String> {
+    pub(crate) fn price2(&self) -> Option<String> {
         match self.percent_encode() {
             (_, Some(price)) => Some(price),
             (_, None) => None,
@@ -379,10 +379,10 @@ pub(crate) struct EndpointInfo {
 }
 
 impl EndpointInfo {
-    pub(crate) fn get_type(&self) -> &MethodType {
+    pub(crate) fn method(&self) -> &MethodType {
         &self.methodtype
     }
-    pub(crate) fn get_endpoint(&self) -> &String {
+    pub(crate) fn endpoint(&self) -> &String {
         &self.endpoint
     }
 }
@@ -398,11 +398,11 @@ pub struct KrakenInput {
 }
 
 impl KrakenInput {
-    pub(crate) fn get_info(&self) -> &EndpointInfo {
+    pub(crate) fn info(&self) -> &EndpointInfo {
         &self.info
     }
 
-    pub(crate) fn get_params(&self) -> Option<&IndexMap<String, String>> {
+    pub(crate) fn params(&self) -> Option<&IndexMap<String, String>> {
         match &self.params {
             Some(params) => Some(&params),
             None => None,

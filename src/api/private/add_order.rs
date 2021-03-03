@@ -49,14 +49,14 @@ impl KIAddOrder {
     }
 
     fn with_price1(self, ordertype: &OrderType) -> Self {
-        match ordertype.get_price1() {
+        match ordertype.price1() {
             Some(price) => self.update_input("price", price),
             None => self,
         }
     }
 
     fn with_price2(self, ordertype: &OrderType) -> Self {
-        match ordertype.get_price2() {
+        match ordertype.price2() {
             Some(price) => self.update_input("price2", price),
             None => self,
         }
@@ -118,8 +118,8 @@ impl KIAddOrder {
     }
 
     pub fn with_closing_order(self, ordertype: OrderType) -> Self {
-        let price1 = ordertype.get_price1();
-        let price2 = ordertype.get_price2();
+        let price1 = ordertype.price1();
+        let price2 = ordertype.price2();
         match (price1, price2) {
             (Some(price1), Some(price2)) => self
                 .update_input("close%5Bordertype%5D", ordertype.to_string())

@@ -2,7 +2,9 @@ use indexmap::map::IndexMap;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
-use super::{EndpointInfo, Input, KAssetPair, KrakenInput, MethodType, MutateInput, UpdateInput};
+use super::{
+    EndpointInfo, Input, KAssetPair, KrakenInput, MethodType, MutateInput, Output, UpdateInput,
+};
 
 /// Request builder for the Get Order Book endpoint
 pub struct KIOrderBook {
@@ -83,3 +85,5 @@ pub struct KOOrderBook {
     #[serde(flatten)]
     pub pair: HashMap<String, KOOrderDepthPair>,
 }
+
+impl Output for KOOrderBook {}

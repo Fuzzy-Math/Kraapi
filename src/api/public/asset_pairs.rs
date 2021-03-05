@@ -4,7 +4,7 @@ use std::collections::HashMap;
 
 use super::{
     AssetPairInfo, EndpointInfo, Input, InputList, InputListItem, IntoInputList, KAssetPair,
-    KrakenInput, MethodType, MutateInput, UpdateInput,
+    KrakenInput, MethodType, MutateInput, Output, UpdateInput,
 };
 
 /// Request builder for the Get Tradable Asset Pairs endpoint
@@ -132,3 +132,5 @@ pub struct KOAssetPairInfo {
     #[serde(flatten)]
     pub pair: HashMap<String, KOAssetPair>,
 }
+
+impl Output for KOAssetPairInfo {}

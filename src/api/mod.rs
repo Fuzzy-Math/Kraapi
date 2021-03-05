@@ -402,7 +402,7 @@ impl KrakenInput {
     }
 }
 
-/// Trait used by input builder types to construct a [KrakenInput]. All input builder 
+/// Trait used by input builder types to construct a [KrakenInput]. All input builder
 /// types implement this trait
 pub trait Input {
     fn finish(self) -> KrakenInput;
@@ -410,7 +410,7 @@ pub trait Input {
 }
 
 /// Marker trait for output types that are returned from Kraken. Ensures that
-/// [KrakenClient][super::client::KrakenClient]'s [request][super::client::KrakenClient::request] 
+/// [KrakenClient][super::client::KrakenClient]'s [request][super::client::KrakenClient::request]
 /// method expects the correct output types
 pub trait Output {}
 
@@ -544,4 +544,3 @@ where
         None => None,
     }
 }
-

@@ -6,7 +6,7 @@ use crate::auth::KrakenAuth;
 use super::{EndpointInfo, KAsset, KrakenInput, MethodType};
 
 // Traits
-use super::{Input, MutateInput, UpdateInput};
+use super::{Input, MutateInput, Output, UpdateInput};
 
 /// Request builder for the Get Trade Balance endpoint
 pub struct KITradeBalance {
@@ -85,3 +85,5 @@ pub struct KOTradeBalance {
     /// current floating valuation of open positions
     pub v: String,
 }
+
+impl Output for KOTradeBalance {}

@@ -9,7 +9,7 @@ use serde::de::DeserializeOwned;
 use super::auth::KrakenAuth;
 use super::error::{self, KrakenError};
 use crate::api;
-use crate::api::{KResult, KrakenInput, KrakenResult, MethodType};
+use crate::api::{KResult, KrakenInput, KrakenResult, MethodType, Output};
 
 type HttpClient = Box<hyper::Client<HttpsConnector<HttpConnector>, hyper::Body>>;
 
@@ -91,7 +91,7 @@ impl KrakenClient {
     /// For instance: if `input` is constructed from a KITicker instance, then `T` must be KOTicker
     pub async fn request<'a, T>(&self, input: &KrakenInput) -> KrakenResult<T>
     where
-        T: DeserializeOwned,
+        T: Output + DeserializeOwned,
     {
         match input.info().method() {
             MethodType::Public => {

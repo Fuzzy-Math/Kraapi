@@ -1,6 +1,6 @@
 use serde::{Deserialize, Serialize};
 
-use super::{EndpointInfo, Input, KrakenInput, MethodType};
+use super::{EndpointInfo, Input, KrakenInput, MethodType, Output};
 
 /// Request builder for the Get Server Time endpoint
 pub struct KIServerTime();
@@ -51,3 +51,5 @@ pub struct KOServerTime {
     /// as RFC 1123 time format
     pub rfc1123: String,
 }
+
+impl Output for KOServerTime {}

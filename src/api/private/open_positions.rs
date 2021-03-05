@@ -7,7 +7,7 @@ use crate::auth::KrakenAuth;
 use super::{EndpointInfo, KrakenInput, MethodType};
 
 // Traits
-use super::{Input, InputList, InputListItem, IntoInputList, MutateInput, UpdateInput};
+use super::{Input, InputList, InputListItem, IntoInputList, MutateInput, Output, UpdateInput};
 
 /// Request builder for the Get Open Positions endpoint
 pub struct KIOpenPositions {
@@ -132,3 +132,5 @@ pub struct KOOpenPositions {
     #[serde(flatten)]
     pub positions: HashMap<String, KOPositionInfo>,
 }
+
+impl Output for KOOpenPositions {}

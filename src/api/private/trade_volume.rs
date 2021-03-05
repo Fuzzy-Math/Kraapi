@@ -7,7 +7,7 @@ use crate::auth::KrakenAuth;
 use super::{EndpointInfo, KAssetPair, KrakenInput, MethodType};
 
 // Traits
-use super::{Input, InputList, InputListItem, IntoInputList, MutateInput, UpdateInput};
+use super::{Input, InputList, InputListItem, IntoInputList, MutateInput, Output, UpdateInput};
 
 /// Request builder for the Get Trade Volume endpoint
 pub struct KITradeVolume {
@@ -120,3 +120,5 @@ pub struct KOTradeVolume {
     pub fees: Option<HashMap<String, KOFeeInfo>>,
     pub fees_maker: Option<HashMap<String, KOMakerFeeInfo>>,
 }
+
+impl Output for KOTradeVolume {}

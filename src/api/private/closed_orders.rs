@@ -7,7 +7,7 @@ use crate::auth::KrakenAuth;
 use super::{EndpointInfo, KrakenInput, MethodType, OrderCloseTime};
 
 // Traits
-use super::{Input, MutateInput, UpdateInput};
+use super::{Input, MutateInput, Output, UpdateInput};
 
 pub use super::KOOrderDescription;
 pub use super::KOOrderInfo;
@@ -106,3 +106,5 @@ pub struct KOClosedOrders {
     pub closed: HashMap<String, KOOrderInfo>,
     pub count: u32,
 }
+
+impl Output for KOClosedOrders {}

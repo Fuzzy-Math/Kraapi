@@ -7,7 +7,8 @@
 
 use super::{
     AssetPairInfo, EndpointInfo, Input, InputList, InputListItem, IntoInputList, KAsset,
-    KAssetPair, KrakenInput, MethodType, MutateInput, OHLCInterval, SystemStatus, UpdateInput,
+    KAssetPair, KrakenInput, MethodType, MutateInput, OHLCInterval, Output, SystemStatus,
+    UpdateInput,
 };
 
 /// Get server time endpoint

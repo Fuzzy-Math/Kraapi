@@ -7,7 +7,7 @@ use crate::auth::KrakenAuth;
 use super::{EndpointInfo, KrakenInput, MethodType};
 
 // Traits
-use super::{Input, MutateInput, UpdateInput};
+use super::{Input, MutateInput, Output, UpdateInput};
 
 /// Request builder for the Get Account Balance endpoint
 pub struct KIAccountBalance {
@@ -75,3 +75,5 @@ pub struct KOAccountBalance {
     #[serde(flatten)]
     pub balances: HashMap<String, String>,
 }
+
+impl Output for KOAccountBalance {}

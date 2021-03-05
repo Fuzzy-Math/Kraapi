@@ -4,7 +4,7 @@ use std::collections::HashMap;
 
 use super::{
     EndpointInfo, Input, InputList, InputListItem, IntoInputList, KAssetPair, KrakenInput,
-    MethodType, MutateInput, UpdateInput,
+    MethodType, MutateInput, Output, UpdateInput,
 };
 
 /// Request builder for the Get Ticker Information endpoint
@@ -114,3 +114,5 @@ pub struct KOTicker {
     #[serde(flatten)]
     pub pair: HashMap<String, KOTick>,
 }
+
+impl Output for KOTicker {}

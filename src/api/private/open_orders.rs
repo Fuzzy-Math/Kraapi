@@ -7,7 +7,7 @@ use crate::auth::KrakenAuth;
 use super::{EndpointInfo, KrakenInput, MethodType};
 
 // Traits
-use super::{Input, MutateInput, UpdateInput};
+use super::{Input, MutateInput, Output, UpdateInput};
 
 pub use super::KOOrderDescription;
 pub use super::KOOrderInfo;
@@ -83,3 +83,5 @@ impl UpdateInput for KIOpenOrders {}
 pub struct KOOpenOrders {
     pub orders: HashMap<String, KOOrderInfo>,
 }
+
+impl Output for KOOpenOrders {}

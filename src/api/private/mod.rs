@@ -5,7 +5,7 @@
 //! Each type postfixed with "KO" is the output object that has been returned from Kraken's servers
 //! and has been parsed into the given structure.
 //! A valid api key and api secret will have to be used when creating a
-//! [KrakenClient][super::super::client::KrakenClient] otherwise requests sent to 
+//! [KrakenClient][super::super::client::KrakenClient] otherwise requests sent to
 //! private endpoints will panic before being sent to Kraken
 
 use serde::{Deserialize, Serialize};
@@ -18,7 +18,7 @@ use super::{
 };
 
 // Traits
-use super::{Input, InputList, InputListItem, IntoInputList, MutateInput, UpdateInput};
+use super::{Input, InputList, InputListItem, IntoInputList, MutateInput, Output, UpdateInput};
 
 /// Get account balance endpoint
 pub mod account_balance;
@@ -97,7 +97,7 @@ pub enum KOOrderStatus {
     Expired,
 }
 
-/// Order info data | See [KOOpenOrders][open_orders::KOOpenOrders] - 
+/// Order info data | See [KOOpenOrders][open_orders::KOOpenOrders] -
 /// [KOClosedOrders][closed_orders::KOClosedOrders] -
 /// [KOQueryOrders][query_orders::KOQueryOrders]
 #[derive(Deserialize, Serialize, Debug)]
@@ -201,3 +201,5 @@ pub struct KOLedgers {
     #[serde(flatten)]
     pub ledgers: HashMap<String, KOLedgerInfo>,
 }
+
+impl Output for KOLedgers {}

@@ -6,7 +6,7 @@ use crate::auth::KrakenAuth;
 use super::{EndpointInfo, KrakenInput, MethodType};
 
 // Traits
-use super::{Input, MutateInput, UpdateInput};
+use super::{Input, MutateInput, Output, UpdateInput};
 
 /// Request builder for the Cancel All Orders After endpoint
 pub struct KICancelOnTimeout {
@@ -75,3 +75,5 @@ pub struct KOCancelOnTimeout {
     #[serde(rename = "triggerTime")]
     pub trigger_time: String,
 }
+
+impl Output for KOCancelOnTimeout {}

@@ -7,7 +7,7 @@ use crate::auth::KrakenAuth;
 use super::{EndpointInfo, KrakenInput, MethodType};
 
 // Traits
-use super::{Input, InputList, InputListItem, IntoInputList, MutateInput, UpdateInput};
+use super::{Input, InputList, InputListItem, IntoInputList, MutateInput, Output, UpdateInput};
 
 pub use super::KOTradeData;
 
@@ -108,3 +108,5 @@ pub struct KOTradesInfo {
     #[serde(flatten)]
     pub trades: HashMap<String, KOTradeData>,
 }
+
+impl Output for KOTradesInfo {}

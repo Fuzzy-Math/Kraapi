@@ -2,7 +2,9 @@ use indexmap::map::IndexMap;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
-use super::{EndpointInfo, Input, KAssetPair, KrakenInput, MethodType, MutateInput, UpdateInput};
+use super::{
+    EndpointInfo, Input, KAssetPair, KrakenInput, MethodType, MutateInput, Output, UpdateInput,
+};
 
 /// Request builder for the Get Recent Trades endpoint
 pub struct KIRecentTrades {
@@ -79,3 +81,5 @@ pub struct KORecentTrades {
     /// ID to be used as "since" input to subsequent Trade Data requests
     pub last: String,
 }
+
+impl Output for KORecentTrades {}

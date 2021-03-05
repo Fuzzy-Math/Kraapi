@@ -6,7 +6,7 @@ use crate::auth::KrakenAuth;
 use super::{EndpointInfo, KrakenInput, MethodType};
 
 // Traits
-use super::{Input, MutateInput, UpdateInput};
+use super::{Input, MutateInput, Output, UpdateInput};
 
 /// Request builder for the Cancel All Open Orders endpoint
 pub struct KICancelAllOrders {
@@ -73,3 +73,5 @@ pub struct KOCancelAllOrders {
     /// number of orders canceled
     pub count: u32,
 }
+
+impl Output for KOCancelAllOrders {}

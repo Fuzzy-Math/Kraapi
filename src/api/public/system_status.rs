@@ -1,6 +1,6 @@
 use serde::{Deserialize, Serialize};
 
-use super::{EndpointInfo, Input, KrakenInput, MethodType, SystemStatus};
+use super::{EndpointInfo, Input, KrakenInput, MethodType, Output, SystemStatus};
 
 /// Request builder for the Get System Status endpoint
 pub struct KISystemStatus();
@@ -50,3 +50,5 @@ pub struct KOSystemStatus {
     /// Server time
     pub timestamp: String,
 }
+
+impl Output for KOSystemStatus {}

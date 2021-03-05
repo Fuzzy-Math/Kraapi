@@ -3,7 +3,7 @@ use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
 use super::{
-    EndpointInfo, Input, KAssetPair, KrakenInput, MethodType, MutateInput, OHLCInterval,
+    EndpointInfo, Input, KAssetPair, KrakenInput, MethodType, MutateInput, OHLCInterval, Output,
     UpdateInput,
 };
 
@@ -68,7 +68,7 @@ impl UpdateInput for KIOHLC {}
 
 /// OHLC info data
 #[derive(Deserialize, Serialize, Debug)]
-pub struct KOHLCData {
+pub struct KOOHLCData {
     pub timestamp: i64,
     pub open: String,
     pub high: String,
@@ -84,7 +84,9 @@ pub struct KOHLCData {
 pub struct KOOHLC {
     /// Map with the asset pair as the key and the pair's OHLC data as the value
     #[serde(flatten)]
-    pub pair: HashMap<String, Vec<KOHLCData>>,
+    pub pair: HashMap<String, Vec<KOOHLCData>>,
     /// ID to be used as "since" input to subsequent OHLC requests
     pub last: i64,
 }
+
+impl Output for KOOHLC {}

@@ -6,7 +6,7 @@ use crate::auth::KrakenAuth;
 use super::{EndpointInfo, KAssetPair, KrakenInput, MethodType, OrderFlags, OrderType, TradeType};
 
 // Traits
-use super::{Input, MutateInput, UpdateInput};
+use super::{Input, MutateInput, Output, UpdateInput};
 
 /// Request builder for the Add Standard Order endpoint
 pub struct KIAddOrder {
@@ -199,6 +199,9 @@ pub struct KOAddOrder {
     pub txid: Option<Vec<String>>,
 }
 
+impl Output for KOAddOrder {}
+
+/// Textual description of placed order and optional close order
 #[derive(Deserialize, Serialize, Debug)]
 pub struct AddOrderDesc {
     /// Order description

@@ -4,7 +4,7 @@ use std::collections::HashMap;
 
 use super::{
     EndpointInfo, Input, InputList, InputListItem, IntoInputList, KAsset, KrakenInput, MethodType,
-    MutateInput, UpdateInput,
+    MutateInput, Output, UpdateInput,
 };
 
 /// Request builder for the Get Asset Info endpoint
@@ -100,3 +100,5 @@ pub struct KOAssetInfo {
     #[serde(flatten)]
     pub asset: HashMap<String, KOAsset>,
 }
+
+impl Output for KOAssetInfo {}

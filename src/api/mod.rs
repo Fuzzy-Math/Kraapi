@@ -1,4 +1,4 @@
-//! Module encapsulating the private and public API endpoints of the Kraken exchange
+//! Module encapsulating the [private] and [public] API endpoints of the Kraken exchange
 
 use indexmap::map::IndexMap;
 use serde::{Deserialize, Serialize};

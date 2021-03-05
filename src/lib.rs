@@ -11,17 +11,22 @@
 //!
 //! # General Notes - TLDR
 //!
-//! - Every input type is prefixed with KI. Every output type is prefixed with KO
-//! - Every input type is a builder type for KrakenInput. All required paramters(per Kraken) are
-//!   parameters for that type's constructor. Optional parameters are exposed using methods.
-//! - Only a KrakenInput instance can be passed into the KrakenClient. You must fufill any
-//!   contracts exposed by the type and convert it to a KrakenInput by calling finish() or
-//!   finish_clone() which exists for every input type
+//! - Every [input][api::Input] type is prefixed with KI. Every [output][api::Output]
+//!   type is prefixed with KO
+//! - Every [input][api::Input] type is a builder type for [KrakenInput][api::KrakenInput]. 
+//!   All required paramters(per Kraken) are parameters for that type's constructor. 
+//!   Optional parameters are exposed using methods.
+//! - Only a [KrakenInput][api::KrakenInput] instance can be passed into the 
+//!   [KrakenClient][client::KrakenClient]. You must fufill any contracts exposed by the 
+//!   type and convert it to a [KrakenInput][api::KrakenInput] by calling 
+//!   [finish()][api::Input::finish] or [finish_clone()][api::Input::finish_clone] 
+//!   which exist for every [input][api::Input] type
 //! - You must await the call to request
 //! - Deserializing the data returned from Kraken into output structs is done for you. Currently if
-//!   you pass in the wrong ouput type, the parsing will fail
+//!   you pass in the wrong [ouput][api::Output] type, the parsing will fail
 //! - Builder methods require ownership so if you must perform some application logic while
-//!   building a KrakenInput you must reassign the variable like so:
+//!   building a [KrakenInput][api::KrakenInput] you must reassign the variable like so:
+//!
 //! ```
 //! # use krakenapi::api::AssetPairInfo;
 //! # use krakenapi::public::KIAssetPairs;

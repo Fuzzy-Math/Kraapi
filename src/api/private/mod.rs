@@ -1,11 +1,12 @@
 //! Module for interacting with Kraken's private API endpoints
 //! # Note
-//! Each type prefixed with "KI" is a KrakenInput builder which will build requests for the given
+//! Each type prefixed with "KI" is a [KrakenInput][super::KrakenInput] builder which will build requests for the given
 //! endpoint.
 //! Each type postfixed with "KO" is the output object that has been returned from Kraken's servers
 //! and has been parsed into the given structure.
-//! A valid api key and api secret will have to be used when creating a KrakenClient otherwise
-//! requests sent to private endpoints will panic before being sent to Kraken
+//! A valid api key and api secret will have to be used when creating a
+//! [KrakenClient][super::super::client::KrakenClient] otherwise requests sent to 
+//! private endpoints will panic before being sent to Kraken
 
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
@@ -96,9 +97,9 @@ pub enum KOOrderStatus {
     Expired,
 }
 
-#[allow(unused_imports)]
-use self::{closed_orders::KOClosedOrders, open_orders::KOOpenOrders, query_orders::KOQueryOrders};
-/// Order info data | See [KOOpenOrders] & [KOClosedOrders] & [KOQueryOrders]
+/// Order info data | See [KOOpenOrders][open_orders::KOOpenOrders] - 
+/// [KOClosedOrders][closed_orders::KOClosedOrders] -
+/// [KOQueryOrders][query_orders::KOQueryOrders]
 #[derive(Deserialize, Serialize, Debug)]
 pub struct KOOrderInfo {
     /// Referral order transaction id that created this order
@@ -150,9 +151,8 @@ pub struct KOOrderInfo {
     pub reason: Option<String>,
 }
 
-#[allow(unused_imports)]
-use self::{query_trades::KOTradesInfo, trade_history::KOTradeHistory};
-/// Trade info data | See [KOTradesInfo] & [KOTradeHistory]
+/// Trade info data | See [KOTradesInfo][query_trades::KOTradesInfo] -
+/// [KOTradeHistory][trade_history::KOTradeHistory]
 #[derive(Deserialize, Serialize, Debug)]
 pub struct KOTradeData {
     /// Order responsible for execution of trade
@@ -192,10 +192,9 @@ pub struct KOLedgerInfo {
     pub balance: Option<String>,
 }
 
-#[allow(unused_imports)]
-use self::{ledger_info::KILedgerInfo, query_ledgers::KIQueryLedgers};
 /// Response from the Get Ledgers Info or Query Ledgers endpoints | See
-/// [KILedgerInfo] & [KIQueryLedgers]
+/// [KILedgerInfo][ledger_info::KILedgerInfo] -
+/// [KIQueryLedgers][query_ledgers::KIQueryLedgers]
 #[derive(Deserialize, Serialize, Debug)]
 pub struct KOLedgers {
     /// Map with the ledger ID as the key and the ledger info as the value

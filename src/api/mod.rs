@@ -5,14 +5,15 @@ use serde::{Deserialize, Serialize};
 use std::fmt;
 use std::fmt::{Debug, Display};
 
-use super::error::KrakenError;
+use super::error::{KError, KrakenErrors};
 
 pub mod private;
 pub mod public;
 
 /// Result alias. Either contains the output struct of some type `T` that implements [Output]
-/// or a vector of [KrakenError][super::error::KrakenError]`s
-pub type KrakenResult<T> = Result<T, Vec<KrakenError>>;
+/// or [KrakenErrors][super::error::KrakenErrors]`s (a custom collection of
+/// [KError][super::error::KError]'s
+pub type KrakenResult<T> = Result<T, KrakenErrors<KError>>;
 
 #[derive(Deserialize, Serialize, Debug)]
 pub(crate) struct KResult<T> {

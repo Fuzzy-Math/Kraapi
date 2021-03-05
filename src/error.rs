@@ -6,9 +6,27 @@ use std::fmt;
 use hyper::Error as HyperError;
 use serde_json::Error as SerdeError;
 
+/// Newtype wrapper around a vector of error values
+#[derive(Debug)]
+pub struct KrakenErrors<KError>(Vec<KError>);
+
+impl Error for KrakenErrors<KError> {}
+
+impl fmt::Display for KrakenErrors<KError> {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(
+            f,
+            "[{}]",
+            self.0
+                .iter()
+                .fold(String::from(""), |acc, error| format!("{},{}", acc, error))
+        )
+    }
+}
+
 /// Possible errors that could occur internally or errors that were returned from Kraken
 #[derive(Debug)]
-pub enum KrakenError {
+pub enum KError {
     /// Wrapper around [hyper::Error] when an internal http error has occurred
     HttpError(HyperError),
 
@@ -162,103 +180,95 @@ pub enum KrakenError {
     /// a log with the complete informations used for the call that generated the error
     FeatureDisabled,
 
-    /// Default KrakenError if none of the others above
+    /// Default KError if none of the others above
     UnknownError,
 }
 
-impl Error for KrakenError {}
-
-impl fmt::Display for KrakenError {
+impl fmt::Display for KError {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match self {
-            KrakenError::HttpError(err) => write!(f, "HTTP Error: {}", err.to_string()),
-            KrakenError::ParseError(err) => write!(f, "Parse Error: {}", err.to_string()),
+            KError::HttpError(err) => write!(f, "HTTP Error: {}", err.to_string()),
+            KError::ParseError(err) => write!(f, "Parse Error: {}", err.to_string()),
 
-            KrakenError::UnknownAssetPair => write!(f, "Unknown AssetPair"),
-            KrakenError::InvalidArguments => write!(f, "Invalid Arguments"),
-            KrakenError::PermissionDenied => write!(f, "Permission Denied"),
-            KrakenError::InvalidKey => write!(f, "Invalid Key"),
-            KrakenError::InvalidSignature => write!(f, "Invalid Signature"),
-            KrakenError::InvalidNonce => write!(f, "Invalid Nonce"),
-            KrakenError::APIRateLimit => write!(f, "API Rate Limit"),
-            KrakenError::OrderRateLimit => write!(f, "Order Rate Limit"),
-            KrakenError::TemporaryLockout => write!(f, "Temporary Lockout"),
-            KrakenError::OpenPosition => write!(f, "Cannot Open Position"),
-            KrakenError::OpposingPosition => write!(f, "Cannot Open Opposing Position"),
-            KrakenError::MarginAllowanceExceeded => write!(f, "Margin Allowance Exceeded"),
-            KrakenError::InsufficientMargin => write!(f, "Insufficient Margin"),
-            KrakenError::InsufficientFunds => write!(f, "Insufficient User Funds"),
-            KrakenError::OrderMinimum => write!(f, "Order Minimum Not Met (volume too low)"),
-            KrakenError::OrderLimit => write!(f, "Orders Limit Reached"),
-            KrakenError::PositionLimit => write!(f, "Positions Limit Reached"),
-            KrakenError::TradingAgreement => write!(f, "Trading Agreement Required"),
-            KrakenError::ServiceUnavailable => write!(f, "Service Unavailable"),
-            KrakenError::ServiceBusy => write!(f, "Service Busy"),
-            KrakenError::InternalError => write!(f, "Internal Error"),
-            KrakenError::Locked => write!(f, "Account Locked"),
-            KrakenError::FeatureDisabled => write!(f, "A Feature Was Disabled"),
-            KrakenError::UnknownError => write!(f, "An Unknown Error Occurred"),
+            KError::UnknownAssetPair => write!(f, "Unknown AssetPair"),
+            KError::InvalidArguments => write!(f, "Invalid Arguments"),
+            KError::PermissionDenied => write!(f, "Permission Denied"),
+            KError::InvalidKey => write!(f, "Invalid Key"),
+            KError::InvalidSignature => write!(f, "Invalid Signature"),
+            KError::InvalidNonce => write!(f, "Invalid Nonce"),
+            KError::APIRateLimit => write!(f, "API Rate Limit"),
+            KError::OrderRateLimit => write!(f, "Order Rate Limit"),
+            KError::TemporaryLockout => write!(f, "Temporary Lockout"),
+            KError::OpenPosition => write!(f, "Cannot Open Position"),
+            KError::OpposingPosition => write!(f, "Cannot Open Opposing Position"),
+            KError::MarginAllowanceExceeded => write!(f, "Margin Allowance Exceeded"),
+            KError::InsufficientMargin => write!(f, "Insufficient Margin"),
+            KError::InsufficientFunds => write!(f, "Insufficient User Funds"),
+            KError::OrderMinimum => write!(f, "Order Minimum Not Met (volume too low)"),
+            KError::OrderLimit => write!(f, "Orders Limit Reached"),
+            KError::PositionLimit => write!(f, "Positions Limit Reached"),
+            KError::TradingAgreement => write!(f, "Trading Agreement Required"),
+            KError::ServiceUnavailable => write!(f, "Service Unavailable"),
+            KError::ServiceBusy => write!(f, "Service Busy"),
+            KError::InternalError => write!(f, "Internal Error"),
+            KError::Locked => write!(f, "Account Locked"),
+            KError::FeatureDisabled => write!(f, "A Feature Was Disabled"),
+            KError::UnknownError => write!(f, "An Unknown Error Occurred"),
         }
     }
 }
 
-impl From<HyperError> for KrakenError {
+impl From<HyperError> for KrakenErrors<KError> {
     fn from(err: HyperError) -> Self {
-        KrakenError::HttpError(err)
+        KrakenErrors(vec![KError::HttpError(err)])
     }
 }
 
-impl From<SerdeError> for KrakenError {
+impl From<SerdeError> for KrakenErrors<KError> {
     fn from(err: SerdeError) -> Self {
-        KrakenError::ParseError(err)
+        KrakenErrors(vec![KError::ParseError(err)])
     }
 }
 
-impl From<KrakenError> for Vec<KrakenError> {
-    fn from(err: KrakenError) -> Self {
-        vec![err]
-    }
-}
-
-pub(crate) fn generate_errors(errors: Vec<String>) -> Vec<KrakenError> {
-    let mut ret: Vec<KrakenError> = Vec::with_capacity(errors.len());
+pub(crate) fn generate_errors(errors: Vec<String>) -> KrakenErrors<KError> {
+    let mut errs: Vec<KError> = Vec::with_capacity(errors.len());
     for error in errors {
         let index = error.find(':').unwrap();
         // Assume kraken will not return an error like "EError:" with no error description
         let (category, message) = error.split_at(index + 1);
 
-        let err: KrakenError = match message {
-            "Unknown asset pair" => KrakenError::UnknownAssetPair,
-            "Invalid arguments" => KrakenError::InvalidArguments,
-            "Permission denied" => KrakenError::PermissionDenied,
-            "Invalid key" => KrakenError::InvalidKey,
-            "Invalid signature" => KrakenError::InvalidSignature,
-            "Invalid nonce" => KrakenError::InvalidNonce,
+        let err = match message {
+            "Unknown asset pair" => KError::UnknownAssetPair,
+            "Invalid arguments" => KError::InvalidArguments,
+            "Permission denied" => KError::PermissionDenied,
+            "Invalid key" => KError::InvalidKey,
+            "Invalid signature" => KError::InvalidSignature,
+            "Invalid nonce" => KError::InvalidNonce,
             "Rate limit exceeded" => match category {
-                "EAPI:" => KrakenError::APIRateLimit,
-                "EOrder:" => KrakenError::OrderRateLimit,
-                _ => KrakenError::UnknownError,
+                "EAPI:" => KError::APIRateLimit,
+                "EOrder:" => KError::OrderRateLimit,
+                _ => KError::UnknownError,
             },
-            "Temporary lockout" => KrakenError::TemporaryLockout,
-            "Cannot open position" => KrakenError::OpenPosition,
-            "Cannot open opposing position" => KrakenError::OpposingPosition,
-            "Margin allowance exceeded" => KrakenError::MarginAllowanceExceeded,
-            "Insufficient margin" => KrakenError::InsufficientMargin,
-            "Insufficient insufficient user funds" => KrakenError::InsufficientFunds,
-            "Order minimum not volume too low" => KrakenError::OrderMinimum,
-            "Orders limit exceeded" => KrakenError::OrderLimit,
-            "Positions limit exceeded" => KrakenError::PositionLimit,
-            "Trading agreement required" => KrakenError::TradingAgreement,
-            "Unavailable" => KrakenError::ServiceUnavailable,
-            "Busy" => KrakenError::ServiceBusy,
-            "Internal error" => KrakenError::InternalError,
-            "Locked" => KrakenError::Locked,
-            "Feature disabled" => KrakenError::FeatureDisabled,
-            _ => KrakenError::UnknownError,
+            "Temporary lockout" => KError::TemporaryLockout,
+            "Cannot open position" => KError::OpenPosition,
+            "Cannot open opposing position" => KError::OpposingPosition,
+            "Margin allowance exceeded" => KError::MarginAllowanceExceeded,
+            "Insufficient margin" => KError::InsufficientMargin,
+            "Insufficient insufficient user funds" => KError::InsufficientFunds,
+            "Order minimum not volume too low" => KError::OrderMinimum,
+            "Orders limit exceeded" => KError::OrderLimit,
+            "Positions limit exceeded" => KError::PositionLimit,
+            "Trading agreement required" => KError::TradingAgreement,
+            "Unavailable" => KError::ServiceUnavailable,
+            "Busy" => KError::ServiceBusy,
+            "Internal error" => KError::InternalError,
+            "Locked" => KError::Locked,
+            "Feature disabled" => KError::FeatureDisabled,
+            _ => KError::UnknownError,
         };
 
-        ret.push(err);
+        errs.push(err);
     }
 
-    ret
+    KrakenErrors(errs)
 }

@@ -13,13 +13,13 @@
 //!
 //! - Every [input][api::Input] type is prefixed with KI. Every [output][api::Output]
 //!   type is prefixed with KO
-//! - Every [input][api::Input] type is a builder type for [KrakenInput][api::KrakenInput]. 
-//!   All required paramters(per Kraken) are parameters for that type's constructor. 
+//! - Every [input][api::Input] type is a builder type for [KrakenInput][api::KrakenInput].
+//!   All required paramters(per Kraken) are parameters for that type's constructor.
 //!   Optional parameters are exposed using methods.
-//! - Only a [KrakenInput][api::KrakenInput] instance can be passed into the 
-//!   [KrakenClient][client::KrakenClient]. You must fufill any contracts exposed by the 
-//!   type and convert it to a [KrakenInput][api::KrakenInput] by calling 
-//!   [finish()][api::Input::finish] or [finish_clone()][api::Input::finish_clone] 
+//! - Only a [KrakenInput][api::KrakenInput] instance can be passed into the
+//!   [KrakenClient][client::KrakenClient]. You must fufill any contracts exposed by the
+//!   type and convert it to a [KrakenInput][api::KrakenInput] by calling
+//!   [finish()][api::Input::finish] or [finish_clone()][api::Input::finish_clone]
 //!   which exist for every [input][api::Input] type
 //! - You must await the call to request
 //! - Deserializing the data returned from Kraken into output structs is done for you. Currently if

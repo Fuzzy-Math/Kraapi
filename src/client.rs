@@ -7,7 +7,7 @@ use hyper_tls::HttpsConnector;
 use serde::de::DeserializeOwned;
 
 use super::auth::KrakenAuth;
-use super::error::{self, KrakenError};
+use super::error::{self, KrakenErrors};
 use crate::api;
 use crate::api::{KResult, KrakenInput, KrakenResult, MethodType, Output};
 
@@ -122,28 +122,9 @@ impl KrakenClient {
                     "application/x-www-form-urlencoded".parse().unwrap(),
                 );
 
-                /*
                 let parsed: KResult<T> = serde_json::from_slice(
-                    &body::to_bytes(
-                        self.client.request(request).await?
-                    ).await?,
+                    &body::to_bytes(self.client.request(request).await?).await?,
                 )?;
-                */
-
-                let res = match self.client.request(request).await {
-                    Ok(res) => Ok(res),
-                    Err(err) => Err(Vec::<KrakenError>::from(KrakenError::from(err))),
-                }?;
-
-                let bytes = match body::to_bytes(res).await {
-                    Ok(bytes) => Ok(bytes),
-                    Err(err) => Err(Vec::<KrakenError>::from(KrakenError::from(err))),
-                }?;
-
-                let parsed: KResult<T> = match serde_json::from_slice(&bytes) {
-                    Ok(parsed) => Ok(parsed),
-                    Err(err) => Err(Vec::<KrakenError>::from(KrakenError::from(err))),
-                }?;
 
                 let api_errors = parsed.error;
                 match api_errors.len() {
@@ -194,28 +175,9 @@ impl KrakenClient {
                     .headers_mut()
                     .insert("API-Sign", signature.parse().unwrap());
 
-                /*
                 let parsed: KResult<T> = serde_json::from_slice(
-                    &body::to_bytes(
-                        self.client.request(request).await?
-                    ).await?,
+                    &body::to_bytes(self.client.request(request).await?).await?,
                 )?;
-                */
-
-                let res = match self.client.request(request).await {
-                    Ok(res) => Ok(res),
-                    Err(err) => Err(Vec::<KrakenError>::from(KrakenError::from(err))),
-                }?;
-
-                let bytes = match body::to_bytes(res).await {
-                    Ok(bytes) => Ok(bytes),
-                    Err(err) => Err(Vec::<KrakenError>::from(KrakenError::from(err))),
-                }?;
-
-                let parsed: KResult<T> = match serde_json::from_slice(&bytes) {
-                    Ok(parsed) => Ok(parsed),
-                    Err(err) => Err(Vec::<KrakenError>::from(KrakenError::from(err))),
-                }?;
 
                 let api_errors = parsed.error;
                 match api_errors.len() {

@@ -1,4 +1,5 @@
 //! Module encapsulating the private and public API endpoints of the Kraken exchange
+
 use indexmap::map::IndexMap;
 use serde::{Deserialize, Serialize};
 use std::fmt;
@@ -9,7 +10,8 @@ use super::error::KrakenError;
 pub mod private;
 pub mod public;
 
-/// Result alias. Either contains the output struct of type `T` or a vector of `KrakenError`s
+/// Result alias. Either contains the output struct of some type `T` that implements [Output]
+/// or a vector of [KrakenError][super::error::KrakenError]`s
 pub type KrakenResult<T> = Result<T, Vec<KrakenError>>;
 
 #[derive(Deserialize, Serialize, Debug)]
@@ -87,9 +89,7 @@ impl fmt::Display for MethodType {
     }
 }
 
-#[allow(unused_imports)]
-use self::public::system_status::KISystemStatus;
-/// System status | See [KISystemStatus]
+/// System status | See [KISystemStatus][public::system_status::KISystemStatus]
 #[derive(Deserialize, Serialize, Debug)]
 #[serde(rename_all = "lowercase")]
 pub enum SystemStatus {
@@ -105,9 +105,7 @@ pub enum SystemStatus {
     Offline,
 }
 
-#[allow(unused_imports)]
-use self::public::asset_pairs::KIAssetPairs;
-/// Asset pair info to retreive | See [KIAssetPairs]
+/// Asset pair info to retreive | See [KIAssetPairs][public::asset_pairs::KIAssetPairs]
 pub enum AssetPairInfo {
     Info,
     Leverage,
@@ -126,9 +124,7 @@ impl fmt::Display for AssetPairInfo {
     }
 }
 
-#[allow(unused_imports)]
-use self::public::ohlc::KIOHLC;
-/// OHLC time frame interval in minutes | See [KIOHLC]
+/// OHLC time frame interval in minutes | See [KIOHLC][public::ohlc::KIOHLC]
 pub enum OHLCInterval {
     /// 1 minute
     One,
@@ -166,9 +162,7 @@ impl fmt::Display for OHLCInterval {
     }
 }
 
-#[allow(unused_imports)]
-use self::private::closed_orders::KIClosedOrders;
-/// See [KIClosedOrders]
+/// See [KIClosedOrders][private::closed_orders::KIClosedOrders]
 pub enum OrderCloseTime {
     Open,
     Close,
@@ -185,9 +179,7 @@ impl fmt::Display for OrderCloseTime {
     }
 }
 
-#[allow(unused_imports)]
-use self::private::trade_history::KITradeHistory;
-/// Type of trade to query history for | See [KITradeHistory]
+/// Type of trade to query history for | See [KITradeHistory][private::trade_history::KITradeHistory]
 pub enum TradeHistoryType {
     /// All types
     All,
@@ -213,9 +205,7 @@ impl fmt::Display for TradeHistoryType {
     }
 }
 
-#[allow(unused_imports)]
-use self::private::ledger_info::KILedgerInfo;
-/// Ledger type to retrieve | See [KILedgerInfo]
+/// Ledger type to retrieve | See [KILedgerInfo][private::ledger_info::KILedgerInfo]
 pub enum LedgerType {
     All,
     Deposit,
@@ -236,9 +226,7 @@ impl fmt::Display for LedgerType {
     }
 }
 
-#[allow(unused_imports)]
-use self::private::add_order::KIAddOrder;
-/// Order trade type | See [KIAddOrder]
+/// Order trade type | See [KIAddOrder][private::add_order::KIAddOrder]
 pub enum TradeType {
     Buy,
     Sell,
@@ -253,7 +241,7 @@ impl fmt::Display for TradeType {
     }
 }
 
-/// Order Type | See [KIAddOrder]
+/// Order Type | See [KIAddOrder][private::add_order::KIAddOrder]
 ///
 /// Prices can be preceded by +, -, or # to signify the price as a relative amount
 /// (with the exception of trailing stops, which are always relative). + adds the amount
@@ -354,7 +342,7 @@ impl fmt::Display for OrderType {
     }
 }
 
-/// Add order flags | See [KIAddOrder]
+/// Add order flags | See [KIAddOrder][private::add_order::KIAddOrder]
 pub enum OrderFlags {
     /// Prefer fee in base currency
     BaseCurrency,
@@ -391,7 +379,7 @@ impl EndpointInfo {
     }
 }
 
-/// Fully constructed input data to be passed to a KrakenClient
+/// Fully constructed input data to be passed to a [KrakenClient][super::client::KrakenClient]
 /// # Note
 /// KrakenInput can't be constructed directly. An instance is created by calling finish() or
 /// finish_clone() on an input builder type (types prefixed with "KI"). See the [Input] trait for
@@ -414,12 +402,17 @@ impl KrakenInput {
     }
 }
 
-/// Trait used by input builder types to construct a KrakenInput. All input builder types implement
-/// this trait
+/// Trait used by input builder types to construct a [KrakenInput]. All input builder 
+/// types implement this trait
 pub trait Input {
     fn finish(self) -> KrakenInput;
     fn finish_clone(self) -> (KrakenInput, Self);
 }
+
+/// Marker trait for output types that are returned from Kraken. Ensures that
+/// [KrakenClient][super::client::KrakenClient]'s [request][super::client::KrakenClient::request] 
+/// method expects the correct output types
+pub trait Output {}
 
 // This trait allows us to get a mutable reference to the input data
 pub(crate) trait MutateInput {
@@ -552,4 +545,3 @@ where
     }
 }
 
-pub(crate) trait Output {}

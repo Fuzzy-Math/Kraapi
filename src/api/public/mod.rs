@@ -1,6 +1,6 @@
 //! Module for interacting with Kraken's public API endpoints
 //! # Note
-//! Each type prefixed with "KI" is a KrakenInput builder which will build requests for the given
+//! Each type prefixed with "KI" is a KrakenInput[super::KrakenInput] builder which will build requests for the given
 //! endpoint.
 //! Each type postfixed with "KO" is the output object that has been returned from Kraken's servers
 //! and has been parsed into the given structure

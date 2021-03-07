@@ -7,7 +7,7 @@ use hyper_tls::HttpsConnector;
 use serde::de::DeserializeOwned;
 
 use super::auth::KrakenAuth;
-use super::error::{self, KrakenErrors};
+use super::error;
 use crate::api;
 use crate::api::{KResult, KrakenInput, KrakenResult, MethodType, Output};
 

@@ -5,10 +5,11 @@
 //! Each type postfixed with "KO" is the output object that has been returned from Kraken's servers
 //! and has been parsed into the given structure
 
+// Structs/Enums
+use super::asset::{AssetPairInfo, KAsset, KAssetPair};
 use super::{
-    AssetPairInfo, EndpointInfo, Input, InputList, InputListItem, IntoInputList, KAsset,
-    KAssetPair, KrakenInput, MethodType, MutateInput, OHLCInterval, Output, SystemStatus,
-    UpdateInput,
+    EndpointInfo, Input, InputList, InputListItem, IntoInputList, KrakenInput, MethodType,
+    MutateInput, OHLCInterval, Output, SystemStatus, UpdateInput,
 };
 
 /// Get server time endpoint

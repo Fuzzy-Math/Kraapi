@@ -9,7 +9,7 @@ use super::{
 
 /// Request builder for the Get OHLC Data endpoint
 pub struct KIOHLC {
-    pub params: IndexMap<String, String>,
+    pub(crate) params: IndexMap<String, String>,
 }
 
 impl KIOHLC {
@@ -84,7 +84,7 @@ pub struct KOOHLCData {
 pub struct KOOHLC {
     /// Map with the asset pair as the key and the pair's OHLC data as the value
     #[serde(flatten)]
-    pub pair: HashMap<String, Vec<KOOHLCData>>,
+    pub pair: HashMap<KAssetPair, Vec<KOOHLCData>>,
     /// ID to be used as "since" input to subsequent OHLC requests
     pub last: i64,
 }

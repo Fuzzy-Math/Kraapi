@@ -98,7 +98,7 @@ pub struct KOAsset {
 pub struct KOAssetInfo {
     /// Map with the asset as the key and the asset's data as the value
     #[serde(flatten)]
-    pub asset: HashMap<String, KOAsset>,
+    pub asset: HashMap<KAsset, KOAsset>,
 }
 
 impl Output for KOAssetInfo {}

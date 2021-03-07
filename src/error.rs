@@ -8,7 +8,7 @@ use serde_json::Error as SerdeError;
 
 /// Newtype wrapper around a vector of error values
 #[derive(Debug)]
-pub struct KrakenErrors<KError>(Vec<KError>);
+pub struct KrakenErrors<KError>(pub Vec<KError>);
 
 impl Error for KrakenErrors<KError> {}
 
@@ -33,6 +33,9 @@ pub enum KError {
     /// Wrapper around [serde_json::Error] for when serde fails to parse the json into the output
     /// structure
     ParseError(SerdeError),
+
+    /// Failed to parse into KAsset/KAssetPair
+    AssetParseError,
 
     /// Invalid currency pair
     /// You can pull the complete list of our asset pairs from the AssetPairs public call
@@ -187,9 +190,14 @@ pub enum KError {
 impl fmt::Display for KError {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match self {
+            // Errors from internal dependencies
             KError::HttpError(err) => write!(f, "HTTP Error: {}", err.to_string()),
             KError::ParseError(err) => write!(f, "Parse Error: {}", err.to_string()),
 
+            // Errors from processing within this crate
+            KError::AssetParseError => write!(f, "Failed to parse string into KAsset"),
+
+            // Errors coming directly from Kraken's servers
             KError::UnknownAssetPair => write!(f, "Unknown AssetPair"),
             KError::InvalidArguments => write!(f, "Invalid Arguments"),
             KError::PermissionDenied => write!(f, "Permission Denied"),

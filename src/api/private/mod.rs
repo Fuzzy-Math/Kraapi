@@ -12,9 +12,10 @@ use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
 // Structs/Enums
+use super::asset::{KAsset, KAssetPair};
 use super::{
-    EndpointInfo, KAsset, KAssetPair, KrakenInput, LedgerType, MethodType, OrderCloseTime,
-    OrderFlags, OrderType, TradeHistoryType, TradeType,
+    EndpointInfo, KrakenInput, LedgerType, MethodType, OrderCloseTime, OrderFlags, OrderType,
+    TradeHistoryType, TradeType,
 };
 
 // Traits

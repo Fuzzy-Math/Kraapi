@@ -7,6 +7,7 @@ use std::fmt::{Debug, Display};
 
 use super::error::{KError, KrakenErrors};
 
+pub mod asset;
 pub mod private;
 pub mod public;
 
@@ -21,59 +22,6 @@ pub(crate) struct KResult<T> {
     pub result: Option<T>,
     /// Vector of zero or more errors returned from Kraken
     pub error: Vec<String>,
-}
-
-// TODO: Query AssetInfo endpoint and write script to fill out the
-// enum and trait impl
-/// Assets accepted on the Kraken Exchange
-/// # FIXME
-/// Basic currencies used for testing. Open pull request to add more currencies <https://github.com/Fuzzy-Math/KrakenAPI-Rust>
-pub enum KAsset {
-    /// Australian Dollar
-    AUD,
-    /// Canadian Dollar
-    CAD,
-    /// Euro
-    EUR,
-    /// United States Dollar
-    USD,
-    /// Bitcoin
-    XBT,
-    /// Ripple
-    XRP,
-}
-
-impl std::fmt::Display for KAsset {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        match self {
-            KAsset::AUD => write!(f, "AUD"),
-            KAsset::CAD => write!(f, "CAD"),
-            KAsset::EUR => write!(f, "EUR"),
-            KAsset::USD => write!(f, "USD"),
-            KAsset::XBT => write!(f, "XBT"),
-            KAsset::XRP => write!(f, "XRP"),
-        }
-    }
-}
-
-impl Debug for KAsset {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{}", self.to_string().get(1..).unwrap())
-    }
-}
-
-/// Tradeable asset pair
-/// # FIXME
-/// Kraken only accepts certain asset pairs as listed from the asset pair endpoint.
-/// This data probably should be parsed into a lookup table to ensure only support pairs are
-/// accepted.
-/// Open a pull request at <https://github.com/Fuzzy-Math/KrakenAPI-Rust>
-pub struct KAssetPair(pub KAsset, pub KAsset);
-
-impl fmt::Display for KAssetPair {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{}{}", self.0.to_string(), self.1.to_string())
-    }
 }
 
 pub(crate) enum MethodType {
@@ -104,25 +52,6 @@ pub enum SystemStatus {
     LimitOnly,
     /// System is offline for maintenance
     Offline,
-}
-
-/// Asset pair info to retreive | See [KIAssetPairs][public::asset_pairs::KIAssetPairs]
-pub enum AssetPairInfo {
-    Info,
-    Leverage,
-    Fees,
-    Margin,
-}
-
-impl fmt::Display for AssetPairInfo {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        match self {
-            AssetPairInfo::Info => write!(f, "info"),
-            AssetPairInfo::Leverage => write!(f, "leverage"),
-            AssetPairInfo::Fees => write!(f, "fees"),
-            AssetPairInfo::Margin => write!(f, "margin"),
-        }
-    }
 }
 
 /// OHLC time frame interval in minutes | See [KIOHLC][public::ohlc::KIOHLC]

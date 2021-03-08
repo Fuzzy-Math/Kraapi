@@ -3,6 +3,7 @@
 use std::fmt;
 use std::fmt::{Debug, Display};
 use std::str::FromStr;
+use std::convert::TryFrom;
 use serde::{Deserialize, Serialize};
 use serde::de::Deserializer;
 
@@ -13,7 +14,7 @@ use crate::error::{KError, KrakenErrors};
 /// Assets accepted on the Kraken Exchange
 /// # FIXME
 /// Basic currencies used for testing. Open pull request to add more currencies <https://github.com/Fuzzy-Math/KrakenAPI-Rust>
-#[derive(Serialize, PartialEq, Eq, Hash)]
+#[derive(Serialize, PartialOrd, Ord, PartialEq, Eq, Hash, Clone, Copy)]
 pub enum KAsset {
     AAVE,
     ADA,
@@ -303,7 +304,7 @@ impl<'de> Deserialize<'de> for KAsset {
 /// This data probably should be parsed into a lookup table to ensure only support pairs are
 /// accepted.
 /// Open a pull request at <https://github.com/Fuzzy-Math/KrakenAPI-Rust>
-#[derive(Serialize, Hash)]
+#[derive(Serialize, Hash, Clone, Copy)]
 pub struct KAssetPair(
     //#[serde(deserialize_with = "deserialize_asset")]
     pub KAsset, 
@@ -433,6 +434,14 @@ impl FromStr for KAssetPair {
                 Err(KrakenErrors(vec![KError::UnknownAssetPair]))
             },
         }
+    }
+}
+
+impl TryFrom<&str> for KAssetPair {
+    type Error = KrakenErrors<KError>;
+
+    fn try_from(val: &str) -> Result<Self, Self::Error> {
+        FromStr::from_str(&val)
     }
 }
 

@@ -9,7 +9,7 @@ use super::{
 
 /// Request builder for the Get OHLC Data endpoint
 pub struct KIOHLC {
-    pub(crate) params: IndexMap<String, String>,
+    pub params: IndexMap<String, String>,
 }
 
 impl KIOHLC {

@@ -5,7 +5,6 @@ use std::collections::HashMap;
 use crate::auth::KrakenAuth;
 // Structs/Enums
 use super::{EndpointInfo, KrakenInput, MethodType};
-use crate::api::asset::KAsset;
 
 // Traits
 use super::{Input, MutateInput, Output, UpdateInput};
@@ -74,7 +73,7 @@ impl UpdateInput for KIAccountBalance {}
 pub struct KOAccountBalance {
     /// Map with the asset as the key and the asset's current balance as the value
     #[serde(flatten)]
-    pub balances: HashMap<KAsset, String>,
+    pub balances: HashMap<String, String>,
 }
 
 impl Output for KOAccountBalance {}

@@ -77,7 +77,7 @@ pub struct KOTradeInfo {
 pub struct KORecentTrades {
     /// Map with the asset pair as the key and the pair's Recent Trade data as the value
     #[serde(flatten)]
-    pub pair: HashMap<String, Vec<KOTradeInfo>>,
+    pub pair: HashMap<KAssetPair, Vec<KOTradeInfo>>,
     /// ID to be used as "since" input to subsequent Trade Data requests
     pub last: String,
 }

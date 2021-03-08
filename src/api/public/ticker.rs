@@ -112,7 +112,7 @@ pub struct KOTick {
 pub struct KOTicker {
     /// Map with the asset pair as the key and the pair's ticker data as the value
     #[serde(flatten)]
-    pub pair: HashMap<String, KOTick>,
+    pub pair: HashMap<KAssetPair, KOTick>,
 }
 
 impl Output for KOTicker {}

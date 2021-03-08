@@ -74,7 +74,7 @@ pub struct KOSpreadInfo {
 pub struct KOSpreadData {
     /// Map with the asset pair as the key and the pair's Spread data as the value
     #[serde(flatten)]
-    pub pair: HashMap<String, Vec<KOSpreadInfo>>,
+    pub pair: HashMap<KAssetPair, Vec<KOSpreadInfo>>,
     /// ID to be used as "since" input to subsequent Spread Data requests
     pub last: i64,
 }

@@ -83,7 +83,7 @@ pub struct KOOrderDepthPair {
 pub struct KOOrderBook {
     /// Map with the asset pair as the key and the pair's order book depth data as the value
     #[serde(flatten)]
-    pub pair: HashMap<String, KOOrderDepthPair>,
+    pub pair: HashMap<KAssetPair, KOOrderDepthPair>,
 }
 
 impl Output for KOOrderBook {}

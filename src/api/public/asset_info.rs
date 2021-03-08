@@ -9,7 +9,7 @@ use super::{
 
 /// Request builder for the Get Asset Info endpoint
 pub struct KIAssetInfo {
-    pub params: IndexMap<String, String>,
+    params: IndexMap<String, String>,
 }
 
 impl KIAssetInfo {

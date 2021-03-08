@@ -9,7 +9,7 @@ use super::{
 
 /// Request builder for the Get Tradable Asset Pairs endpoint
 pub struct KIAssetPairs {
-    pub params: IndexMap<String, String>,
+    params: IndexMap<String, String>,
 }
 
 impl KIAssetPairs {

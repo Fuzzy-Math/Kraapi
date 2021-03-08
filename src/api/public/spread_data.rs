@@ -8,7 +8,7 @@ use super::{
 
 /// Request builder for the Get Recent Spread Data endpoint
 pub struct KISpreadData {
-    pub params: IndexMap<String, String>,
+    params: IndexMap<String, String>,
 }
 
 impl KISpreadData {

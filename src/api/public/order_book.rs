@@ -8,7 +8,7 @@ use super::{
 
 /// Request builder for the Get Order Book endpoint
 pub struct KIOrderBook {
-    pub params: IndexMap<String, String>,
+    params: IndexMap<String, String>,
 }
 
 impl KIOrderBook {

@@ -9,7 +9,7 @@ use super::{
 
 /// Request builder for the Get Ticker Information endpoint
 pub struct KITicker {
-    pub params: IndexMap<String, String>,
+    params: IndexMap<String, String>,
 }
 
 impl KITicker {

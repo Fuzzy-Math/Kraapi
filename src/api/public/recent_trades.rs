@@ -8,7 +8,7 @@ use super::{
 
 /// Request builder for the Get Recent Trades endpoint
 pub struct KIRecentTrades {
-    pub params: IndexMap<String, String>,
+    params: IndexMap<String, String>,
 }
 
 impl KIRecentTrades {

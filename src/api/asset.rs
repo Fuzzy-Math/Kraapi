@@ -196,7 +196,7 @@ impl FromStr for KAsset {
     type Err = KrakenErrors<KError>;
 
     fn from_str(val: &str) -> Result<Self, Self::Err> {
-        match val {
+        match val.to_uppercase().as_str() {
             // Assets that sometimes use their currency type prefix
             "AUD" | "ZAUD" => Ok(KAsset::AUD),
             "CAD" | "ZCAD" => Ok(KAsset::CAD),
@@ -441,6 +441,14 @@ impl TryFrom<&str> for KAssetPair {
     type Error = KrakenErrors<KError>;
 
     fn try_from(val: &str) -> Result<Self, Self::Error> {
+        FromStr::from_str(&val)
+    }
+}
+
+impl TryFrom<String> for KAssetPair {
+    type Error = KrakenErrors<KError>;
+
+    fn try_from(val: String) -> Result<Self, Self::Error> {
         FromStr::from_str(&val)
     }
 }

@@ -463,7 +463,7 @@ impl<'de> Deserialize<'de> for KAssetPair {
     }
 }
 
-/// Asset pair info to retreive | See [KIAssetPairs][public::asset_pairs::KIAssetPairs]
+/// Asset pair info to retreive | See [KIAssetPairs][super::public::asset_pairs::KIAssetPairs]
 pub enum AssetPairInfo {
     Info,
     Leverage,

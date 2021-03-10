@@ -1,5 +1,6 @@
 use indexmap::map::IndexMap;
 use serde::{Deserialize, Serialize};
+use std::fmt::{self, Display};
 
 use crate::auth::KrakenAuth;
 // Structs/Enums
@@ -8,12 +9,41 @@ use super::{EndpointInfo, KAssetPair, KrakenInput, MethodType, OrderFlags, Order
 // Traits
 use super::{Input, MutateInput, Output, UpdateInput};
 
+/// Amount of leverage to be used when placing an order
+pub enum Leverage {
+    /// 2x leverage
+    Two,
+    /// 3x leverage
+    Three,
+    /// 4x leverage
+    Four,
+    /// 5x leverage
+    Five
+}
+
+impl Display for Leverage {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            Leverage::Two => write!(f, "2"),
+            Leverage::Three => write!(f, "3"),
+            Leverage::Four => write!(f, "4"),
+            Leverage::Five => write!(f, "5"),
+        }
+    }
+}
+
 /// Request builder for the Add Standard Order endpoint
 pub struct KIAddOrder {
     params: IndexMap<String, String>,
 }
 
 impl KIAddOrder {
+    /// Constructor returning a KrakenInput builder for the add standard order endpoint
+    ///
+    /// * `pair` - asset pair for order
+    /// * `tradetype` - [TradeType]
+    /// * `ordertype` - [OrderType]
+    /// * `volume` - order volume in lots
     pub fn build(
         pair: KAssetPair,
         tradetype: TradeType,
@@ -32,14 +62,18 @@ impl KIAddOrder {
             .with_volume(volume)
     }
 
+    /// Update the asset pair for this order. Useful for templating
     pub fn with_pair(self, pair: KAssetPair) -> Self {
         self.update_input("pair", pair.to_string())
     }
 
+    /// Update the transaction/trade type for this order. Useful for templating
     pub fn with_transaction_type(self, tradetype: TradeType) -> Self {
         self.update_input("type", tradetype.to_string())
     }
 
+    /// Update the order type for this order. Useful for templating. Note that OrderType encodes
+    /// the desired price (limit price, stop loss trigger price etc.)
     pub fn with_order_type(self, ordertype: OrderType) -> Self {
         self.update_input("ordertype", ordertype.to_string())
     }
@@ -62,14 +96,18 @@ impl KIAddOrder {
         }
     }
 
+    /// Update the order volume in lots
     pub fn with_volume(self, volume: f64) -> Self {
         self.update_input("volume", volume.to_string())
     }
 
-    pub fn with_leverage(self, leverage: (u8, u8)) -> Self {
-        self.update_input("leverage", format!("{}:{}", leverage.0, leverage.1))
+    /// Amount of leverage for this order. Subject to [margin trading
+    /// restrictions](https://support.kraken.com/hc/en-us/articles/227876608)
+    pub fn with_leverage(self, leverage: Leverage) -> Self {
+        self.update_input("leverage", format!("{}:{}", leverage.to_string(), 1u8))
     }
 
+    /// Order flags to set. Accepts any iterable collection of [OrderFlags]
     pub fn with_order_flags<T>(mut self, flags: T) -> Self
     where
         T: IntoIterator<Item = OrderFlags>,
@@ -93,30 +131,38 @@ impl KIAddOrder {
         }
     }
 
+    /// Scedule the order start time for `secs` seconds from now
     pub fn start_in(self, secs: u32) -> Self {
         self.update_input("starttm", String::from("%2B") + &secs.to_string())
     }
 
+    /// Scedule the order start time for the Unix `timestamp` in seconds
     pub fn start_at(self, timestamp: u64) -> Self {
         self.update_input("starttm", timestamp.to_string())
     }
 
+    /// Order to expire in `secs` seconds
     pub fn expire_in(self, secs: u32) -> Self {
         self.update_input("expiretm", secs.to_string())
     }
 
+    /// Order to expire at the Unix `timestamp` in seconds
     pub fn expire_at(self, timestamp: u64) -> Self {
         self.update_input("expiretm", timestamp.to_string())
     }
 
+    /// User supplied unsigned 32 bit integer which Kraken will use to demarcate this order for
+    /// future reference
     pub fn with_userref(self, userref: u32) -> Self {
         self.update_input("userref", userref.to_string())
     }
 
+    /// Validate inputs on Kraken's servers. Don't submit order
     pub fn validate(self, validate: bool) -> Self {
         self.update_input("validate", validate.to_string())
     }
 
+    /// Closing order to add to the system when this order gets filled
     pub fn with_closing_order(self, ordertype: OrderType) -> Self {
         let price1 = ordertype.price1();
         let price2 = ordertype.price2();

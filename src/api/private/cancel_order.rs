@@ -14,6 +14,8 @@ pub struct KICancelOrder {
 }
 
 impl KICancelOrder {
+    /// Constructor returning a KrakenInput builder for the cancel open order endpoint.
+    /// txid is the transaction ID of the order that is to be cancelled
     pub fn build(txid: String) -> KICancelOrder {
         let cancelorder = KICancelOrder {
             params: IndexMap::new(),
@@ -21,6 +23,8 @@ impl KICancelOrder {
         cancelorder.with_txid(txid)
     }
 
+    /// Update the transaction ID of the order to cancel. Useful for templating or iterating over a
+    /// list of transaction IDs without allocation
     pub fn with_txid(self, txid: String) -> Self {
         self.update_input("txid", txid)
     }

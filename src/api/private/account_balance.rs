@@ -16,18 +16,13 @@ pub struct KIAccountBalance {
 }
 
 impl KIAccountBalance {
+    /// Constructor that returns a completed KrakenInput. There are no inputs to this endpoint so
+    /// finish() is called for you
     pub fn build() -> KrakenInput {
         let account_balance = KIAccountBalance {
             params: IndexMap::new(),
         };
         account_balance.finish()
-    }
-
-    pub fn build_clone() -> (KrakenInput, Self) {
-        let account_balance = KIAccountBalance {
-            params: IndexMap::new(),
-        };
-        account_balance.finish_clone()
     }
 
     fn with_nonce(self) -> Self {

@@ -14,6 +14,8 @@ pub struct KICancelOnTimeout {
 }
 
 impl KICancelOnTimeout {
+    /// Constructor returning a KrakenInput builder for the cancel all orders after... endpoint.
+    /// Cancel all orders in `timeout` seconds
     pub fn build(timeout: u32) -> KICancelOnTimeout {
         let cancelorder = KICancelOnTimeout {
             params: IndexMap::new(),
@@ -21,6 +23,7 @@ impl KICancelOnTimeout {
         cancelorder.on_timeout(timeout)
     }
 
+    /// Update the timeout value. Useful for templating
     pub fn on_timeout(self, timeout: u32) -> Self {
         self.update_input("timeout", timeout.to_string())
     }

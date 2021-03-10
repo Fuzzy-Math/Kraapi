@@ -14,18 +14,13 @@ pub struct KICancelAllOrders {
 }
 
 impl KICancelAllOrders {
+    /// Construct and build a KrakenInput for the cancel all orders endpoint. No parameters are
+    /// needed
     pub fn build() -> KrakenInput {
         let cancelorders = KICancelAllOrders {
             params: IndexMap::new(),
         };
         cancelorders.finish()
-    }
-
-    pub fn build_clone() -> (KrakenInput, Self) {
-        let cancelorders = KICancelAllOrders {
-            params: IndexMap::new(),
-        };
-        cancelorders.finish_clone()
     }
 
     fn with_nonce(self) -> Self {

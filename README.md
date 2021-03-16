@@ -1,4 +1,4 @@
-# Kraken API
+# Kraapi
 
 Asynchronous HTTP client for the Kraken cryptocurrency exchange
 

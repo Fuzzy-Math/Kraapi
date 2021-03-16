@@ -28,8 +28,9 @@
 //!   building a [KrakenInput][api::KrakenInput] you must reassign the variable like so:
 //!
 //! ```
-//! # use kraapi::api::AssetPairInfo;
-//! # use kraapi::public::KIAssetPairs;
+//! # use kraapi::api::asset::AssetPairInfo;
+//! # use kraapi::public::asset_pairs::KIAssetPairs;
+//! # use kraapi::api::Input;
 //! let some_application_logic = true;
 //! // mut to allow reassignment based on application logic
 //! let mut input = KIAssetPairs::build();
@@ -61,10 +62,12 @@
 //! ## Public Endpoint - Ticker
 //! ```
 //! use kraapi::client::KrakenClient;
-//! use kraapi::public::{KITicker, KOTicker};
-//! use kraapi::api::{KAsset, KAssetPair};
+//! use kraapi::public::ticker::{KITicker, KOTicker};
+//! use kraapi::api::asset::{KAsset, KAssetPair};
+//! use kraapi::api::Input;
 //!
-//! # async fn main() -> hyper::Result<()> {
+//! # #[tokio::main]
+//! # async fn main() -> Result<(), Box<dyn std::error::Error>> {
 //! let client = KrakenClient::new("", "");
 //!
 //! let ticker_input = KITicker::build(KAssetPair(KAsset::XBT, KAsset::USD)).finish();
@@ -78,29 +81,35 @@
 //! ## Private Endpoint - Add Order
 //! ```
 //! use kraapi::client::KrakenClient;
-//! use kraapi::private::{
-//!     KIAddOrder, KOAddOrder};
+//! use kraapi::private::add_order::{
+//!     KIAddOrder, KOAddOrder, Leverage};
 //! use kraapi::api::{
-//!     KAsset, KAssetPair,
+//!     asset::{KAsset, KAssetPair},
 //!     TradeType, OrderType};
+//! use kraapi::api::Input;
 //!
-//! # async fn main() -> hyper::Result<()> {
+//! # #[tokio::main]
+//! # async fn main() -> Result<(), Box<dyn std::error::Error>> {
+//! // Example credentials from Kraken's documentation. Personal credentials will be needed for
+//! // private API endpoints
 //! let client = KrakenClient::new(
-//!     "<Your-API-Key>",
-//!     "<Your-API-Secret>"
+//!     "<Your_API_Key>",
+//!     "<Your_API_Secret>"
 //!     );
 //!
 //! let add_order_input = KIAddOrder::build(
 //!     KAssetPair(KAsset::XBT, KAsset::USD),
 //!     TradeType::Buy,
-//!     OrderType::Limit("101.9901"),
+//!     OrderType::Limit(String::from("101.9901")),
 //!     2.12345678)
-//!     .with_leverage((2, 1))
-//!     .with_closing_order(OrderType::StopLossLimit("#5%", "#10"))
-//!     .validate()
+//!     .with_leverage(Leverage::Two)
+//!     .with_closing_order(OrderType::StopLossLimit(String::from("#5%"), String::from("#10")))
+//!     .validate(true)
 //!     .finish();
 //!
-//! let add_order_output = client.request::<KOAddOrder>(&add_order_input).await?;
+//! // Valid credentials to be entered above, otherwise this will panic
+//! // let add_order_output = client.request::<KOAddOrder>(&add_order_input).await?;
+//! # let add_order_output = String::from("");
 //!
 //! println!("{:#?}", add_order_output);
 //! # Ok(())

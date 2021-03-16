@@ -16,20 +16,26 @@ pub struct KILedgerInfo {
 }
 
 impl KILedgerInfo {
+    /// Constructor returning a [KrakenInput] builder for the get ledgers info endpoint.
     pub fn build() -> Self {
         KILedgerInfo {
             params: IndexMap::new(),
         }
     }
 
+    /// An asset is not required for the get ledgers info endpoint. 
+    /// This method clears a currently populated asset list.
+    /// Useful for templating
     pub fn clear_asset_list(self) -> Self {
         self.update_input("asset", String::from(""))
     }
 
+    /// Update the list of ledger IDs to query info for 
     pub fn with_asset(self, asset: KAsset) -> Self {
         self.with_item(asset)
     }
 
+    /// Update the list of ledger IDs to query info for
     pub fn with_asset_list<T>(self, assets: T) -> Self
     where
         T: IntoIterator<Item = KAsset>,
@@ -37,26 +43,32 @@ impl KILedgerInfo {
         self.with_item_list(assets)
     }
 
+    /// Type of [Ledger Type][LedgerType] to retrieve
     pub fn with_trade_type(self, ledgertype: LedgerType) -> Self {
         self.update_input("type", ledgertype.to_string())
     }
 
+    /// Starting Unix timestamp to filter output by. Exclusive
     pub fn starting_timestamp(self, timestamp: u64) -> Self {
         self.update_input("start", timestamp.to_string())
     }
 
+    /// Ending Unix timestamp to filter output by. Inclusive
     pub fn ending_timestamp(self, timestamp: u64) -> Self {
         self.update_input("end", timestamp.to_string())
     }
 
-    pub fn starting_txid(self, txid: String) -> Self {
-        self.update_input("start", txid)
+    /// Starting ledger ID to filter output by. Exclusive
+    pub fn starting_legid(self, legid: String) -> Self {
+        self.update_input("start", legid)
     }
 
-    pub fn ending_txid(self, txid: String) -> Self {
-        self.update_input("end", txid)
+    /// Ending ledger ID to filter output by. Inclusive
+    pub fn ending_legid(self, legid: String) -> Self {
+        self.update_input("end", legid)
     }
 
+    /// Result offset
     pub fn with_offset(self, offset: u64) -> Self {
         self.update_input("ofs", offset.to_string())
     }

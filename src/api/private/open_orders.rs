@@ -19,6 +19,7 @@ pub struct KIOpenOrders {
 }
 
 impl KIOpenOrders {
+    /// Constructor returning a [KrakenInput] builder for the get open orders endpoint.
     pub fn build() -> Self {
         KIOpenOrders {
             params: IndexMap::new(),
@@ -27,6 +28,7 @@ impl KIOpenOrders {
 
     // FIXME: AFter testing, trades=false still causes trade data to be returned. So the entire key
     // value pair needs to be removed on false input
+    /// Should trades be included in returned output?
     pub fn with_trade_info(self, include_trades: bool) -> Self {
         if include_trades {
             self.update_input("trades", include_trades.to_string())
@@ -35,6 +37,8 @@ impl KIOpenOrders {
         }
     }
 
+    /// Filter results to the given user ref id. 
+    /// A custom userref can be passed into the add order endpoint
     pub fn with_userref(self, userref: u32) -> Self {
         self.update_input("userref", userref.to_string())
     }

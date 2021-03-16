@@ -19,6 +19,8 @@ pub struct KIQueryOrders {
 }
 
 impl KIQueryOrders {
+    /// Constructor returning a [KrakenInput] builder for the query orders info endpoint.
+    /// * `txid` is the transaction ID to query order info for
     pub fn build(txid: String) -> Self {
         let order_info = KIQueryOrders {
             params: IndexMap::new(),
@@ -26,6 +28,8 @@ impl KIQueryOrders {
         order_info.with_item(txid)
     }
 
+    /// Constructor returning a [KrakenInput] builder for the query orders info endpoint.
+    /// * `txids` is any iterable collection of transaction IDs to query order info for
     pub fn build_with_list<T>(txids: T) -> Self
     where
         T: IntoIterator<Item = String>,
@@ -36,6 +40,8 @@ impl KIQueryOrders {
         order_info.with_item_list(txids)
     }
 
+    /// Update the list of transaction IDs to query order info for.
+    /// Useful for templating
     pub fn update_transaction_list<T>(self, txids: T) -> Self
     where
         T: IntoIterator<Item = String>,
@@ -44,6 +50,7 @@ impl KIQueryOrders {
             .with_item_list(txids)
     }
 
+    /// Should trades be included in returned output?
     pub fn with_trade_info(self, include_trades: bool) -> Self {
         if include_trades {
             self.update_input("trades", include_trades.to_string())
@@ -52,6 +59,8 @@ impl KIQueryOrders {
         }
     }
 
+    /// Filter results to the given user ref id. 
+    /// A custom userref can be passed into the add order endpoint
     pub fn with_userref(self, userref: u32) -> Self {
         self.update_input("userref", userref.to_string())
     }

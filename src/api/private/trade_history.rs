@@ -17,16 +17,19 @@ pub struct KITradeHistory {
 }
 
 impl KITradeHistory {
+    /// Constructor returning a [KrakenInput] builder for the get trades history endpoint.
     pub fn build() -> Self {
         KITradeHistory {
             params: IndexMap::new(),
         }
     }
 
+    /// Filter by type of trade
     pub fn with_trade_type(self, tradetype: TradeHistoryType) -> Self {
         self.update_input("type", tradetype.to_string())
     }
 
+    /// Should trades be included in returned output?
     pub fn with_trade_info(self, include_trades: bool) -> Self {
         if include_trades {
             self.update_input("trades", include_trades.to_string())
@@ -35,22 +38,27 @@ impl KITradeHistory {
         }
     }
 
+    /// Starting Unix timestamp to filter output by. Exclusive
     pub fn starting_timestamp(self, timestamp: u64) -> Self {
         self.update_input("start", timestamp.to_string())
     }
 
+    /// Ending Unix timestamp to filter output by. Inclusive
     pub fn ending_timestamp(self, timestamp: u64) -> Self {
         self.update_input("end", timestamp.to_string())
     }
 
+    /// Starting transaction ID to filter output by. Exclusive
     pub fn starting_txid(self, txid: String) -> Self {
         self.update_input("start", txid)
     }
 
+    /// Ending transaction ID to filter output by. Inclusive
     pub fn ending_txid(self, txid: String) -> Self {
         self.update_input("end", txid)
     }
 
+    /// Result offset. Not clear what this does
     pub fn with_offset(self, offset: u64) -> Self {
         self.update_input("ofs", offset.to_string())
     }

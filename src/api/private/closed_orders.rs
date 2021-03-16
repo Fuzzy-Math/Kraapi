@@ -19,12 +19,14 @@ pub struct KIClosedOrders {
 }
 
 impl KIClosedOrders {
+    /// Constructor returning a [KrakenInput] builder for the get closed orders endpoint.
     pub fn build() -> Self {
         KIClosedOrders {
             params: IndexMap::new(),
         }
     }
 
+    /// Should trades be included in returned output?
     pub fn with_trade_info(self, include_trades: bool) -> Self {
         if include_trades {
             self.update_input("trades", include_trades.to_string())
@@ -33,30 +35,38 @@ impl KIClosedOrders {
         }
     }
 
+    /// Filter results to the given user ref id. 
+    /// A custom userref can be passed into the add order endpoint
     pub fn with_userref(self, userref: u32) -> Self {
         self.update_input("userref", userref.to_string())
     }
 
+    /// Starting Unix timestamp to filter output by. Exclusive
     pub fn starting_timestamp(self, timestamp: u64) -> Self {
         self.update_input("start", timestamp.to_string())
     }
 
+    /// Ending Unix timestamp to filter output by. Inclusive
     pub fn ending_timestamp(self, timestamp: u64) -> Self {
         self.update_input("end", timestamp.to_string())
     }
 
+    /// Starting transaction ID to filter output by. Exclusive
     pub fn starting_txid(self, txid: String) -> Self {
         self.update_input("start", txid)
     }
 
+    /// Ending transaction ID to filter output by. Inclusive
     pub fn ending_txid(self, txid: String) -> Self {
         self.update_input("end", txid)
     }
 
+    /// Result offset. Not clear what this does
     pub fn with_offset(self, offset: u64) -> Self {
         self.update_input("ofs", offset.to_string())
     }
 
+    /// Query orders by open time, close time, or both
     pub fn with_closetime(self, closetime: OrderCloseTime) -> Self {
         self.update_input("closetime", closetime.to_string())
     }

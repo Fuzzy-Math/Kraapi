@@ -16,8 +16,8 @@ pub struct KIAccountBalance {
 }
 
 impl KIAccountBalance {
-    /// Constructor that returns a completed KrakenInput. There are no inputs to this endpoint so
-    /// finish() is called for you
+    /// Constructor returning a [KrakenInput] builder for the get trade balance endpoint.
+    /// There are no inputs to this endpoint so finish() is called for you
     pub fn build() -> KrakenInput {
         let account_balance = KIAccountBalance {
             params: IndexMap::new(),

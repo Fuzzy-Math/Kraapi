@@ -43,6 +43,17 @@
 //! // Now of type KrakenInput so we have to rebind the variable
 //! let input = input.finish();
 //! ```
+//! - Endpoints that allow a list of some items (assets, asset pairs, transaction IDs, etc.) will
+//!   have methods with the following characteristics:
+//!   - Methods such as `with_asset(...)` or `with_asset_list(...)` always
+//!     **append** to the list. Chained calls to `with_asset(...)` is functionally equivalent to one call
+//!     to `with_asset_list(...)` with the same list of assets
+//!   - Methods such as `update_transaction_list(...)` will always **overwrite** the current data with 
+//!     the new data
+//!   - For endpoints not requiring their list to be populated, methods such as
+//!     `clear_asset_list()` exist to **remove** the previous asset list from the request builder
+//! - The above design allows for templating your requests. You can `clone()` a templated request 
+//!   and then change only the data you care about before sending the request. 
 //! # Examples
 //! See <https://www.kraken.com/features/api#example-api-code-php-lib> for more info on these
 //! examples

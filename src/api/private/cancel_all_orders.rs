@@ -14,7 +14,7 @@ pub struct KICancelAllOrders {
 }
 
 impl KICancelAllOrders {
-    /// Construct and build a KrakenInput for the cancel all orders endpoint. No parameters are
+    /// Construct and build a [KrakenInput] for the cancel all orders endpoint. No parameters are
     /// needed
     pub fn build() -> KrakenInput {
         let cancelorders = KICancelAllOrders {

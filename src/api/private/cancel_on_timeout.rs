@@ -14,7 +14,7 @@ pub struct KICancelOnTimeout {
 }
 
 impl KICancelOnTimeout {
-    /// Constructor returning a KrakenInput builder for the cancel all orders after... endpoint.
+    /// Constructor returning a [KrakenInput] builder for the cancel all orders after... endpoint.
     /// Cancel all orders in `timeout` seconds
     pub fn build(timeout: u32) -> KICancelOnTimeout {
         let cancelorder = KICancelOnTimeout {

@@ -16,6 +16,8 @@ pub struct KIQueryLedgers {
 }
 
 impl KIQueryLedgers {
+    /// Constructor returning a [KrakenInput] builder for the query ledgers endpoint.
+    /// * `ledgerid` is the ledger ID to query info for
     pub fn build(ledgerid: String) -> Self {
         let ledgers = KIQueryLedgers {
             params: IndexMap::new(),
@@ -23,6 +25,8 @@ impl KIQueryLedgers {
         ledgers.with_item(ledgerid)
     }
 
+    /// Constructor returning a [KrakenInput] builder for the query ledgers endpoint.
+    /// * `ledgerids` is any iterable collection of ledger IDs to query info for
     pub fn build_with_list<T>(ledgerids: T) -> Self
     where
         T: IntoIterator<Item = String>,
@@ -33,6 +37,8 @@ impl KIQueryLedgers {
         ledgers.with_item_list(ledgerids)
     }
 
+    /// Update the list of ledger IDs to query info for.
+    /// Useful for templating
     pub fn update_transaction_list<T>(self, ledgerids: T) -> Self
     where
         T: IntoIterator<Item = String>,

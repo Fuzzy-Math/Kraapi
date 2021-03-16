@@ -15,20 +15,26 @@ pub struct KITradeVolume {
 }
 
 impl KITradeVolume {
+    /// Constructor returning a [KrakenInput] builder for the get trade volume endpoint.
     pub fn build() -> Self {
         KITradeVolume {
             params: IndexMap::new(),
         }
     }
 
+    /// An asset pair is not required for the get trade volume endpoint. 
+    /// This method clears a currently populated asset pair list.
+    /// Useful for templating
     pub fn clear_pair_list(self) -> Self {
         self.update_input("pair", String::from(""))
     }
 
+    /// Update the list of asset pairs to query fee info for
     pub fn with_pair(self, pair: KAssetPair) -> Self {
         self.with_item(pair)
     }
 
+    /// Update the list of asset pairs to query fee info for
     pub fn with_pair_list<T>(self, pairs: T) -> Self
     where
         T: IntoIterator<Item = KAssetPair>,
@@ -36,6 +42,7 @@ impl KITradeVolume {
         self.with_item_list(pairs)
     }
 
+    /// Should fee info be included in the results?
     pub fn with_fee_info(self, feeinfo: bool) -> Self {
         self.update_input("fee-info", feeinfo.to_string())
     }

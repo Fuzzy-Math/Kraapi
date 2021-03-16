@@ -14,12 +14,14 @@ pub struct KITradeBalance {
 }
 
 impl KITradeBalance {
+    /// Constructor returning a [KrakenInput] builder for the get trade balance endpoint.
     pub fn build() -> KITradeBalance {
         KITradeBalance {
             params: IndexMap::new(),
         }
     }
 
+    /// Base asset to determine balance for. Default to USD
     pub fn with_asset(self, asset: KAsset) -> Self {
         self.update_input("asset", asset.to_string())
     }

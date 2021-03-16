@@ -15,6 +15,8 @@ pub struct KIOpenPositions {
 }
 
 impl KIOpenPositions {
+    /// Constructor returning a [KrakenInput] builder for the get open positions endpoint.
+    /// * `txid` is the transaction ID to query order info for
     pub fn build(txid: String) -> Self {
         let open_positions = KIOpenPositions {
             params: IndexMap::new(),
@@ -22,6 +24,8 @@ impl KIOpenPositions {
         open_positions.with_item(txid)
     }
 
+    /// Constructor returning a [KrakenInput] builder for the get open positions endpoint.
+    /// * `txids` is any iterable collection of transaction IDs to query order info for
     pub fn build_with_list<T>(txids: T) -> Self
     where
         T: IntoIterator<Item = String>,
@@ -32,6 +36,8 @@ impl KIOpenPositions {
         open_positions.with_item_list(txids)
     }
 
+    /// Update the list of transaction IDs to query order info for.
+    /// Useful for templating
     pub fn update_transaction_list<T>(self, txids: T) -> Self
     where
         T: IntoIterator<Item = String>,
@@ -40,6 +46,7 @@ impl KIOpenPositions {
             .with_item_list(txids)
     }
 
+    /// Should profit/loss calculations be included?
     pub fn do_cals(self, docalcs: bool) -> Self {
         self.update_input("docalcs", docalcs.to_string())
     }
@@ -49,6 +56,8 @@ impl KIOpenPositions {
     // a query. We could allow all input methods to deal with options and then remove input fields
     // if a. the field already exists and b. None is passed in by the user, but I feel this would
     // muddy the interface unnecessarily
+    /// Should we consolidate output based on market pair?
+    /// > **Currently unstable, testing needed**
     pub fn consolidate(self) -> Self {
         self.update_input("consolidation", String::from("market"))
     }

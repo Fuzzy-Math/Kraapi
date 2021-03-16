@@ -1,4 +1,4 @@
-//! # Kraken API
+//! # Kraapi
 //!
 //! Asynchronous HTTP client for the Kraken cryptocurrency exchange
 //!
@@ -28,8 +28,8 @@
 //!   building a [KrakenInput][api::KrakenInput] you must reassign the variable like so:
 //!
 //! ```
-//! # use krakenapi::api::AssetPairInfo;
-//! # use krakenapi::public::KIAssetPairs;
+//! # use kraapi::api::AssetPairInfo;
+//! # use kraapi::public::KIAssetPairs;
 //! let some_application_logic = true;
 //! // mut to allow reassignment based on application logic
 //! let mut input = KIAssetPairs::build();
@@ -60,9 +60,9 @@
 //!
 //! ## Public Endpoint - Ticker
 //! ```
-//! use krakenapi::client::KrakenClient;
-//! use krakenapii::public::{KITicker, KOTicker};
-//! use krakenapi::api::{KAsset, KAssetPair};
+//! use kraapi::client::KrakenClient;
+//! use kraapi::public::{KITicker, KOTicker};
+//! use kraapi::api::{KAsset, KAssetPair};
 //!
 //! # async fn main() -> hyper::Result<()> {
 //! let client = KrakenClient::new("", "");
@@ -71,16 +71,16 @@
 //!
 //! let ticker_output = client.request::<KOTicker>(&ticker_input).await?;
 //!
-//! println!("{:?}", ticker_output);
+//! println!("{:#?}", ticker_output);
 //! # Ok(())
 //! # }
 //! ```
 //! ## Private Endpoint - Add Order
 //! ```
-//! use krakenapi::client::KrakenClient;
-//! use krakenapii::private::{
+//! use kraapi::client::KrakenClient;
+//! use kraapi::private::{
 //!     KIAddOrder, KOAddOrder};
-//! use krakenapi::api::{
+//! use kraapi::api::{
 //!     KAsset, KAssetPair,
 //!     TradeType, OrderType};
 //!
@@ -102,10 +102,14 @@
 //!
 //! let add_order_output = client.request::<KOAddOrder>(&add_order_input).await?;
 //!
-//! println!("{:?}", add_order_output);
+//! println!("{:#?}", add_order_output);
 //! # Ok(())
 //! # }
 //! ```
+//!
+//! # P.S.
+//!
+//! This library is pronounced "crappy"
 
 pub mod api;
 mod auth;

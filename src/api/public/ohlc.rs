@@ -13,6 +13,8 @@ pub struct KIOHLC {
 }
 
 impl KIOHLC {
+    /// Constructor returning a [KrakenInput] builder for the get OHLC data endpoint.
+    /// * `pair` is the asset pair to query OHLC data for
     pub fn build(pair: KAssetPair) -> Self {
         let ohlc = KIOHLC {
             params: IndexMap::new(),
@@ -20,14 +22,19 @@ impl KIOHLC {
         ohlc.update_pair(pair)
     }
 
+    /// Update the asset pair to query OHLC data for
     pub fn update_pair(self, pair: KAssetPair) -> Self {
         self.update_input("pair", pair.to_string())
     }
 
+    /// Return data from the given timestamp to the current timestamp, sampling data every
+    /// `interval` minutes
     pub fn with_interval(self, interval: OHLCInterval) -> Self {
         self.update_input("interval", interval.to_string())
     }
 
+    /// Unix timestamp to query OHLC data from. The [KOOHLC] member `last` can be used as input to
+    /// `since()` to query OHLC data since the last time data was requested
     pub fn since(self, id: String) -> Self {
         self.update_input("since", id)
     }

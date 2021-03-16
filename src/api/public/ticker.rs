@@ -13,6 +13,8 @@ pub struct KITicker {
 }
 
 impl KITicker {
+    /// Constructor returning a [KrakenInput] builder for the get ticker information endpoint.
+    /// * `pair` is the asset pair to query info for
     pub fn build(pair: KAssetPair) -> Self {
         let ticker = KITicker {
             params: IndexMap::new(),
@@ -20,6 +22,8 @@ impl KITicker {
         ticker.with_item(pair)
     }
 
+    /// Constructor returning a [KrakenInput] builder for the get ticker information endpoint.
+    /// * `pairs` is any iterable collection of asset pairs to query info for
     pub fn build_with_list<T>(pairs: T) -> Self
     where
         T: IntoIterator<Item = KAssetPair>,
@@ -30,6 +34,8 @@ impl KITicker {
         ticker.with_item_list(pairs)
     }
 
+    /// Update the list of asset pairs to query info for.
+    /// Useful for templating
     pub fn update_pair_list<T>(self, pairs: T) -> Self
     where
         T: IntoIterator<Item = KAssetPair>,

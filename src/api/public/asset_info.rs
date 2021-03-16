@@ -13,20 +13,26 @@ pub struct KIAssetInfo {
 }
 
 impl KIAssetInfo {
+    /// Constructor returning a [KrakenInput] builder for the get asset info endpoint.
     pub fn build() -> Self {
         KIAssetInfo {
             params: IndexMap::new(),
         }
     }
 
+    /// An asset is not required for the get asset info endpoint. 
+    /// This method clears a currently populated asset list.
+    /// Useful for templating
     pub fn clear_asset_list(self) -> Self {
         self.update_input("asset", String::from(""))
     }
 
+    /// Update the list of assets to query info for 
     pub fn with_asset(self, asset: KAsset) -> Self {
         self.with_item(asset)
     }
 
+    /// Update the list of assets to query info for 
     pub fn with_asset_list<T>(self, assets: T) -> Self
     where
         T: IntoIterator<Item = KAsset>,

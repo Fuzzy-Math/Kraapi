@@ -12,6 +12,8 @@ pub struct KIRecentTrades {
 }
 
 impl KIRecentTrades {
+    /// Constructor returning a [KrakenInput] builder for the get recent trades endpoint.
+    /// * `pair` is the asset pair to query OHLC data for
     pub fn build(pair: KAssetPair) -> Self {
         let recent_trades = KIRecentTrades {
             params: IndexMap::new(),
@@ -19,10 +21,13 @@ impl KIRecentTrades {
         recent_trades.update_pair(pair)
     }
 
+    /// Update the asset pair to query OHLC data for
     pub fn update_pair(self, pair: KAssetPair) -> Self {
         self.update_input("pair", pair.to_string())
     }
 
+    /// Unix timestamp to query OHLC data from. The [KORecentTrades] member `last` can be used as input to
+    /// `since()` to query trades data since the last time data was requested
     pub fn since(self, id: String) -> Self {
         self.update_input("since", id)
     }

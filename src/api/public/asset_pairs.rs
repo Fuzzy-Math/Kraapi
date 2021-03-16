@@ -13,20 +13,26 @@ pub struct KIAssetPairs {
 }
 
 impl KIAssetPairs {
+    /// Constructor returning a [KrakenInput] builder for the get tradeable asset pairs endpoint.
     pub fn build() -> Self {
         KIAssetPairs {
             params: IndexMap::new(),
         }
     }
 
+    /// An asset pair is not required for the get asset info endpoint. 
+    /// This method clears a currently populated asset pair list.
+    /// Useful for templating
     pub fn clear_pair_list(self) -> Self {
         self.update_input("pair", String::from(""))
     }
 
+    /// Update the list of assets pairs to query info for 
     pub fn with_asset_pair(self, pair: KAssetPair) -> Self {
         self.with_item(pair)
     }
 
+    /// Update the list of assets pairs to query info for 
     pub fn with_asset_pair_list<T>(self, pairs: T) -> Self
     where
         T: IntoIterator<Item = KAssetPair>,
@@ -34,6 +40,7 @@ impl KIAssetPairs {
         self.with_item_list(pairs)
     }
 
+    /// [Asset pair info][AssetPairInfo] to retrieve
     pub fn info(self, info: AssetPairInfo) -> Self {
         self.update_input("info", info.to_string())
     }

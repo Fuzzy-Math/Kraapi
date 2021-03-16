@@ -30,12 +30,12 @@ impl KILedgerInfo {
         self.update_input("asset", String::from(""))
     }
 
-    /// Update the list of ledger IDs to query info for 
+    /// Update the list of assets to query info for 
     pub fn with_asset(self, asset: KAsset) -> Self {
         self.with_item(asset)
     }
 
-    /// Update the list of ledger IDs to query info for
+    /// Update the list of assets to query info for 
     pub fn with_asset_list<T>(self, assets: T) -> Self
     where
         T: IntoIterator<Item = KAsset>,

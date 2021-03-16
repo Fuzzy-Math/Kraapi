@@ -12,6 +12,8 @@ pub struct KIOrderBook {
 }
 
 impl KIOrderBook {
+    /// Constructor returning a [KrakenInput] builder for the get order book endpoint.
+    /// * `pair` is the asset pair to get market depth for
     pub fn build(pair: KAssetPair) -> Self {
         let order_book = KIOrderBook {
             params: IndexMap::new(),
@@ -19,10 +21,12 @@ impl KIOrderBook {
         order_book.update_pair(pair)
     }
 
+    /// Update the asset pair to get market depth for
     pub fn update_pair(self, pair: KAssetPair) -> Self {
         self.update_input("pair", pair.to_string())
     }
 
+    /// Max number of asks/bids to return
     pub fn with_max(self, max: i64) -> Self {
         self.update_input("count", max.to_string())
     }

@@ -6,14 +6,11 @@ use super::{EndpointInfo, Input, KrakenInput, MethodType, Output, SystemStatus};
 pub struct KISystemStatus();
 
 impl KISystemStatus {
+    /// Constructor returning a [KrakenInput] builder for the get server time endpoint.
+    /// There are no inputs to this endpoint so finish() is called for you
     pub fn build() -> KrakenInput {
         let status = KISystemStatus();
         status.finish()
-    }
-
-    pub fn build_clone() -> (KrakenInput, Self) {
-        let status = KISystemStatus();
-        status.finish_clone()
     }
 }
 

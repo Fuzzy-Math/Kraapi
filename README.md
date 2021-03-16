@@ -1,4 +1,7 @@
 # Kraapi
+[![crates.io](http://meritbadge.herokuapp.com/Kraapi)](https://crates.io/crates/Kraapi)
+[![Released API docs](https://docs.rs/Kraapi/badge.svg)](https://docs.rs/Kraapi)
+[![MIT licensed](https://img.shields.io/badge/license-MIT-blue.svg)](./LICENSE)
 
 Asynchronous HTTP client for the Kraken cryptocurrency exchange
 

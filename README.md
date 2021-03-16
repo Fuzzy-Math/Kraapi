@@ -12,6 +12,16 @@ Asynchronous HTTP client for the Kraken cryptocurrency exchange
 - Ergonomic and easy to use
 - Promotes re-use of structures and avoids unecessary allocations or redundant HTTP clients
 
+# Installation
+Via Crates.io - Add the following to your Cargo.toml:
+```
+kraapi = "0.2"
+```
+Via local clone - Add the following to your Cargo.toml
+```
+kraapi = { path = "path/to_local_checkout" }
+```
+
 # General Notes - TLDR
 
 - Every input type is prefixed with KI. Every output type is prefixed with KO
@@ -103,15 +113,6 @@ async fn main() -> hyper::Result<()> {
 	 println!("{:?}", add_order_output);
 	 Ok(())
 }
-```
-# Installation
-This crate is not currently on crates.io but will be soon. Until then, add the following line to the dependencies section of your project's Cargo.toml
-```
-kraapi = { git = "https://github.com/Fuzzy-Math/Kraapi" }
-```
-That dependency is pinned to the commit it was downloaded from and will have to be update manually if desired
-```
-cargo update
 ```
 # P.S.
 This library is pronounced "crappy"

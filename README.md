@@ -104,7 +104,7 @@ async fn main() -> hyper::Result<()> {
 # Installation
 This crate is not currently on crates.io but will be soon. Until then, add the following line to the dependencies section of your project's Cargo.toml
 ```
-kraapi = { git = "https://github.com/Fuzzy-Math/KrakenAPI-Rust" }
+kraapi = { git = "https://github.com/Fuzzy-Math/Kraapi" }
 ```
 That dependency is pinned to the commit it was downloaded from and will have to be update manually if desired
 ```

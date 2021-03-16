@@ -23,8 +23,8 @@ Asynchronous HTTP client for the Kraken cryptocurrency exchange
 - Builder methods require ownership so if you must perform some application logic while
   building a KrakenInput you must reassign the variable like so:
 ```
-use krakenapi::api::AssetPairInfo;
-use krakenapi::public::KIAssetPairs;
+use kraapi::api::AssetPairInfo;
+use kraapi::public::KIAssetPairs;
 let some_application_logic = true;
 // mut to allow reassignment based on application logic
 let mut input = KIAssetPairs::build();
@@ -38,15 +38,26 @@ if some_application_logic {
 // Now of type KrakenInput so we have to rebind the variable
 let input = input.finish();
 ```
+- Endpoints that allow a list of some items (assets, asset pairs, transaction IDs, etc.) will
+  have methods with the following characteristics:
+   - Methods such as `with_asset(...)` or `with_asset_list(...)` always
+    **append** to the list. Chained calls to `with_asset(...)` is functionally equivalent to one call
+    to `with_asset_list(...)` with the same list of assets
+  - Methods such as `update_transaction_list(...)` will always **overwrite** the current data with 
+    the new data
+  - For endpoints not requiring their list to be populated, methods such as
+    `clear_asset_list()` exist to **remove** the previous asset list from the request builder
+- The above design allows for templating your requests. You can `clone()` a templated request 
+  and then change only the data you care about before sending the request. 
 # Examples 
 See <https://www.kraken.com/features/api#example-api-code-php-lib> for more info on these
 examples
 
 ## Public Endpoint - Ticker
 ```
-use krakenapi::client::KrakenClient;
-use krakenapii::public::{KITicker, KOTicker};
-use krakenapi::api::{KAsset, KAssetPair};
+use kraapi::client::KrakenClient;
+use kraapi::public::{KITicker, KOTicker};
+use kraapi::api::{KAsset, KAssetPair};
 
 async fn main() -> hyper::Result<()> {
 	 let client = KrakenClient::new("", "");
@@ -61,10 +72,10 @@ async fn main() -> hyper::Result<()> {
 ```
 ## Private Endpoint - Add Order
 ```
-use krakenapi::client::KrakenClient;
-use krakenapii::private::{
+use kraapi::client::KrakenClient;
+use kraapi::private::{
     KIAddOrder, KOAddOrder};
-use krakenapi::api::{
+use kraapi::api::{
     KAsset, KAssetPair,
     TradeType, OrderType};
 
@@ -93,9 +104,11 @@ async fn main() -> hyper::Result<()> {
 # Installation
 This crate is not currently on crates.io but will be soon. Until then, add the following line to the dependencies section of your project's Cargo.toml
 ```
-krakenapi = { git = "https://github.com/Fuzzy-Math/KrakenAPI-Rust" }
+kraapi = { git = "https://github.com/Fuzzy-Math/KrakenAPI-Rust" }
 ```
 That dependency is pinned to the commit it was downloaded from and will have to be update manually if desired
 ```
 cargo update
 ```
+# P.S.
+This library is pronounced "crappy"

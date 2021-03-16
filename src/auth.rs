@@ -21,6 +21,7 @@ impl KrakenAuth {
         &self.api_key
     }
 
+    #[allow(dead_code)]
     pub(crate) fn secret(&self) -> &String {
         &self.api_secret
     }

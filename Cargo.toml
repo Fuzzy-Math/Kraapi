@@ -12,14 +12,14 @@ categories = ["api-bindings", "asynchronous", "cryptography::cryptocurrencies", 
 
 [dependencies]
 base64 =      "0.13.0"
-hmac =        "0.10.1"
-http =        "0.2.3"
-hyper =       { version = "0.14.4", features = ["client", "http1", "runtime", "tcp"] }
+hmac =        "0.11.0"
+http =        "0.2.5"
+hyper =       { version = "0.14.14", features = ["client", "http1", "runtime", "tcp"] }
 hyper-tls =   "0.5.0"
-indexmap =    "1.6.2"
+indexmap =    "1.7.0"
 serde =       { version = "1.0", features = ["derive"] }
-serde_json =  "1.0.64"
-sha2 =        "0.9.3"
+serde_json =  "1.0.68"
+sha2 =        "0.9.8"
 
 [dev-dependencies]
 tokio = { version = "1.0.1", features = ["rt-multi-thread", "net", "macros"] }

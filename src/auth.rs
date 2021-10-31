@@ -38,7 +38,7 @@ impl KrakenAuth {
     pub(crate) fn sign(&self, path: &str, nonce: &str, params: &str) -> String {
         let api_secret = base64::decode(&self.api_secret).expect("Invalid API secret");
         // Use base64 decoded API key as the HMAC key with Sha512 as the hashing function
-        let mut hmac = HmacSha512::new_varkey(&api_secret).expect("Invalid API secret length");
+        let mut hmac = HmacSha512::new_from_slice(&api_secret).expect("Invalid API secret length");
         let mut sha256 = Sha256::new();
 
         // SHA256(nonce + POST data)

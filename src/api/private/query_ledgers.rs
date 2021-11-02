@@ -97,3 +97,36 @@ impl InputListItem for KIQueryLedgers {
 }
 
 impl InputList for KIQueryLedgers {}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    #[test]
+    fn build() {
+        let ledgers = KIQueryLedgers::build(String::from("L4UESK-KG3EQ-UFO4T5"));
+
+        assert_eq!(ledgers.params.get("id").unwrap(), "L4UESK-KG3EQ-UFO4T5");
+    }
+
+    #[test]
+    fn build_with_list () {
+        let ledg_ids = vec!{ String::from("L4UESK-KG3EQ-UFO4T5"), String::from("L4UESK-KG3EQ-UFO4T6") };
+        let ledgers = KIQueryLedgers::build_with_list(ledg_ids.clone());
+
+        assert_eq!(ledgers.params.get("id").unwrap(), "L4UESK-KG3EQ-UFO4T5,L4UESK-KG3EQ-UFO4T6");
+    }
+
+    #[test]
+    fn update_transaction_list() {
+        let ledg_ids = vec!{ String::from("L4UESK-KG3EQ-UFO4T5"), String::from("L4UESK-KG3EQ-UFO4T6") };
+        let ledgers = KIQueryLedgers::build_with_list(ledg_ids);
+
+        let ledg_ids = vec!{ String::from("L4UESK-KG3EQ-UFO4T6"), String::from("L4UESK-KG3EQ-UFO4T7") };
+        let ledgers = ledgers.update_transaction_list(ledg_ids.clone());
+
+        assert_eq!(ledgers.params.get("id").unwrap(), 
+                 &ledg_ids.into_iter().reduce(|acc, x| format!("{},{}", acc, &x)).unwrap()
+
+        );
+    }
+}

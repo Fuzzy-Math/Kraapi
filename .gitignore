@@ -4,3 +4,4 @@ Cargo.lock
 *.swo
 *.json
 *.vim
+*.orig

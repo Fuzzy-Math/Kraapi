@@ -141,3 +141,26 @@ pub struct KOAssetPairInfo {
 }
 
 impl Output for KOAssetPairInfo {}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::api::asset::*;
+
+    #[test]
+    fn update_pairs_list() {
+        let pairs = vec!{ KAssetPair(KAsset::XBT, KAsset::USD), 
+            KAssetPair(KAsset::XBT, KAsset::CAD) };
+        let asset_pairs1 = KIAssetPairs::build();
+        let asset_pairs2 = KIAssetPairs::build();
+
+        let asset_pairs1 = asset_pairs1.with_asset_pair(KAssetPair(KAsset::XBT, KAsset::USD));
+        let asset_pairs1 = asset_pairs1.with_asset_pair(KAssetPair(KAsset::XBT, KAsset::CAD));
+
+        let asset_pairs2 = asset_pairs2.with_asset_pair_list(pairs);
+
+        assert_eq!(asset_pairs1.params.get("pair").unwrap(), 
+                   asset_pairs2.params.get("pair").unwrap()
+        );
+    }
+}

@@ -388,7 +388,12 @@ pub(crate) trait InputListItem: IntoInputList {
                     return;
                 }
 
-                *list = format!("{},{}", list, item.to_string());
+                if list.len() == 0 {
+                    *list = format!("{}", item.to_string());
+                }
+                else {
+                    *list = format!("{},{}", list, item.to_string());
+                }
             }
             None => {
                 self.list_mut().insert(listname, item.to_string());

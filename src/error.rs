@@ -17,9 +17,11 @@ impl fmt::Display for KrakenErrors<KError> {
         write!(
             f,
             "[{}]",
-            self.0
-                .iter()
-                .fold(String::from(""), |acc, error| format!("{},{}", acc, error))
+            if let Some((first, errors)) = self.0.split_first() {
+                errors.iter().fold(first.to_string(), |acc, error| format!("{},{}", acc, error))
+            } else {
+                String::from("")
+            }
         )
     }
 }
@@ -279,4 +281,17 @@ pub(crate) fn generate_errors(errors: Vec<String>) -> KrakenErrors<KError> {
     }
 
     KrakenErrors(errs)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    #[test]
+    fn display_kraken_errors() {
+        let errors = KrakenErrors(vec![KError::UnknownAssetPair, KError::UnknownError]);
+        let empty_errors = KrakenErrors(vec![]);
+
+        assert_eq!(format!("{}", errors), String::from("[Unknown AssetPair,An Unknown Error Occurred]"));
+        assert_eq!(format!("{}", empty_errors), String::from("[]"));
+    }
 }

@@ -24,6 +24,7 @@ pub(crate) struct KResult<T> {
     pub error: Vec<String>,
 }
 
+#[derive(Debug, PartialEq, Eq)]
 pub(crate) enum MethodType {
     Private,
     Public,
@@ -477,5 +478,91 @@ where
             Some(res)
         }
         None => None,
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::api::asset::*;
+    use std::collections::BTreeMap;
+    use crate::private::account_balance::*;
+    use crate::private::trade_balance::*;
+    use crate::private::open_orders::*;
+    use crate::private::closed_orders::*;
+    use crate::private::query_orders::*;
+    use crate::private::trade_history::*;
+    use crate::private::query_trades::*;
+    use crate::private::open_positions::*;
+    use crate::private::ledger_info::*;
+    use crate::private::query_ledgers::*;
+    use crate::private::trade_volume::*;
+    use crate::private::add_order::*;
+    use crate::private::cancel_order::*;
+    use crate::private::cancel_all_orders::*;
+    use crate::private::cancel_on_timeout::*;
+
+    use crate::public::server_time::*;
+    use crate::public::system_status::*;
+    use crate::public::asset_info::*;
+    use crate::public::asset_pairs::*;
+    use crate::public::ticker::*;
+    use crate::public::ohlc::*;
+    use crate::public::order_book::*;
+    use crate::public::recent_trades::*;
+    use crate::public::spread_data::*;
+
+    #[test]
+    fn private_apis() {
+        let apis = BTreeMap::from([
+            ("Balance", KIAccountBalance::build()),
+            ("AddOrder", KIAddOrder::build(
+                 KAssetPair(KAsset::XBT, KAsset::USD),
+                 TradeType::Buy,
+                 OrderType::Limit(String::from("101.9901")),
+                 2.12345678).finish()),
+            ("CancelAll", KICancelAllOrders::build()),
+            ("CancelAllOrdersAfter", KICancelOnTimeout::build(10).finish()),
+            ("CancelOrder", KICancelOrder::build(String::from("OYVGEW-VYV5B-UUEXSK")).finish()),
+            ("ClosedOrders", KIClosedOrders::build().finish()),
+            ("Ledgers", KILedgerInfo::build().finish()),
+            ("OpenOrders", KIOpenOrders::build().finish()),
+            ("OpenPositions", KIOpenPositions::build(String::from("OYVGEW-VYV5B-UUEXSK")).finish()),
+            ("QueryLedgers", KIQueryLedgers::build(String::from("L4UESK-KG3EQ-UFO4T5")).finish()),
+            ("QueryOrders", KIQueryOrders::build(String::from("OYVGEW-VYV5B-UUEXSK")).finish()),
+            ("QueryTrades", KITradesInfo::build(String::from("OYVGEW-VYV5B-UUEXSK")).finish()),
+            ("TradeBalance", KITradeBalance::build().finish()),
+            ("TradesHistory", KITradeHistory::build().finish()),
+            ("TradeVolume", KITradeVolume::build().finish())
+        ]);
+
+        for (key, value) in apis.iter() {
+            assert_eq!(key, value.info().endpoint(), 
+                       "Endpoint: Expected {}, Found {}\n", key, value.info().endpoint());
+            assert_eq!(&MethodType::Private, value.info().method(),
+                       "{} should be a private endpoint\n", key);
+        }
+    }
+
+    #[test]
+    fn public_apis() {
+        let apis = BTreeMap::from([
+            ("Time", KIServerTime::build()),
+            ("SystemStatus", KISystemStatus::build()),
+            ("Assets", KIAssetInfo::build().finish()),
+            ("AssetPairs", KIAssetPairs::build().finish()),
+            ("Ticker", KITicker::build(KAssetPair(KAsset::XBT, KAsset::USD)).finish()),
+            ("OHLC", KIOHLC::build(KAssetPair(KAsset::XBT, KAsset::USD)).finish()),
+            ("Depth", KIOrderBook::build(KAssetPair(KAsset::XBT, KAsset::USD)).finish()),
+            ("Trades", KIRecentTrades::build(KAssetPair(KAsset::XBT, KAsset::USD)).finish()),
+            ("Spread", KISpreadData::build(KAssetPair(KAsset::XBT, KAsset::USD)).finish()),
+        ]);
+
+        for (key, value) in apis.iter() {
+            assert_eq!(key, value.info().endpoint(), 
+                       "Endpoint: Expected {}, Found {}\n", key, value.info().endpoint());
+            assert_eq!(&MethodType::Public, value.info().method(),
+                       "{} should be a public endpoint\n", key);
+        }
     }
 }
